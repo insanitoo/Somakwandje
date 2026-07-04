@@ -44,7 +44,6 @@ app.use(
   }),
 );
 
-app.use("/api/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use("/api", router);
 
 // Em produção serve o frontend React como ficheiros estáticos
