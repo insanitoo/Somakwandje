@@ -11,8 +11,8 @@ type StatusFilter = "todas" | "disponivel" | "vendido";
 type TamanhoFilter = "todos" | "grande" | "pequena";
 type MoedaFilter = "kz" | "usd" | "eur" | "brl";
 
-const RATES: Record<MoedaFilter, number> = { kz: 1, usd: 950, eur: 1050, brl: 5 };
-const SYMBOLS: Record<MoedaFilter, string> = { kz: "Kz", usd: "USD", eur: "EUR", brl: "BRL" };
+const RATES: Record<MoedaFilter, number> = { kz: 1, usd: 950, eur: 1050, brl: 0.0056 };
+const SYMBOLS: Record<MoedaFilter, string> = { kz: "Kz", usd: "USD", eur: "EUR", brl: "R$" };
 
 function parsePrecoNum(preco: string | null | undefined): number | null {
   if (!preco) return null;
@@ -22,7 +22,7 @@ function parsePrecoNum(preco: string | null | undefined): number | null {
 
 function formatPreco(num: number, moeda: MoedaFilter): string {
   if (moeda === "kz") return `${num.toLocaleString("pt-AO")} Kz`;
-  const converted = num / RATES[moeda];
+  const converted = num * RATES[moeda];
   return `${converted.toLocaleString("pt-AO", { maximumFractionDigits: 2 })} ${SYMBOLS[moeda]}`;
 }
 
@@ -313,7 +313,7 @@ export default function Galeria() {
                         : "bg-white border border-border text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    {m.toUpperCase()}
+                    {SYMBOLS[m]}
                   </button>
                 ))}
               </div>
