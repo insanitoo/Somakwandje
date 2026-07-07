@@ -11,7 +11,7 @@ type StatusFilter = "todas" | "disponivel" | "vendido";
 type TamanhoFilter = "todos" | "grande" | "pequena";
 type MoedaFilter = "kz" | "usd" | "eur" | "brl";
 
-const RATES: Record<MoedaFilter, number> = { kz: 1, usd: 950, eur: 1050, brl: 0.0056 };
+const RATES: Record<MoedaFilter, number> = { kz: 1, usd: 1 / 950, eur: 1 / 1050, brl: 0.0056 };
 const SYMBOLS: Record<MoedaFilter, string> = { kz: "Kz", usd: "USD", eur: "EUR", brl: "R$" };
 
 function parsePrecoNum(preco: string | null | undefined): number | null {
