@@ -19,7 +19,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, Share2 } from "lucide-react";
 import ImageUpload from "@/components/ImageUpload";
 
 type Obra = {
@@ -136,6 +136,16 @@ export default function ObrasAdmin() {
     });
   }
 
+  async function copyObraLink(obra: Obra) {
+    const link = `${window.location.origin}/galeria?obra=${obra.id}`;
+    try {
+      await navigator.clipboard.writeText(link);
+      toast({ title: "Link copiado" });
+    } catch {
+      window.prompt("Copie o link da obra:", link);
+    }
+  }
+
   return (
     <div className="p-4 md:p-8">
       <div className="flex items-center justify-between mb-6">
@@ -186,6 +196,15 @@ export default function ObrasAdmin() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2 justify-end">
+                      <button
+                        onClick={() => copyObraLink(obra)}
+                        data-testid={`button-share-obra-${obra.id}`}
+                        className="p-2 text-muted-foreground hover:text-foreground"
+                        aria-label={`Copiar link de ${obra.titulo}`}
+                        title="Copiar link para partilhar"
+                      >
+                        <Share2 size={16} />
+                      </button>
                       <button onClick={() => openEdit(obra)} data-testid={`button-edit-obra-${obra.id}`} className="p-2 text-muted-foreground hover:text-foreground"><Pencil size={16} /></button>
                       <button onClick={() => setDeleting(obra)} data-testid={`button-delete-obra-${obra.id}`} className="p-2 text-muted-foreground hover:text-red-600"><Trash2 size={16} /></button>
                     </div>

@@ -235,6 +235,21 @@ export default function Galeria() {
     Object.keys(params).length > 0 ? params : undefined
   );
 
+  useEffect(() => {
+    if (!obras || selectedObra) return;
+    const obraId = new URLSearchParams(window.location.search).get("obra");
+    if (!obraId) return;
+    const obra = obras.find((item) => String(item.id) === obraId);
+    if (obra) setSelectedObra(obra);
+  }, [obras, selectedObra]);
+
+  function closeSelectedObra() {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("obra");
+    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+    setSelectedObra(null);
+  }
+
   const filteredObras = obras ?? [];
 
   return (
@@ -385,9 +400,9 @@ export default function Galeria() {
       <Footer />
 
       {/* Modal de obra */}
-      <Dialog open={!!selectedObra} onOpenChange={(o) => !o && setSelectedObra(null)}>
+      <Dialog open={!!selectedObra} onOpenChange={(o) => !o && closeSelectedObra()}>
         {selectedObra && (
-            <ObraModal obra={selectedObra} onClose={() => setSelectedObra(null)} globalDesconto={globalDesconto} />
+            <ObraModal obra={selectedObra} onClose={closeSelectedObra} globalDesconto={globalDesconto} />
         )}
       </Dialog>
     </div>

@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronUp, ChevronDown, Star } from "lucide-react";
+import { GripVertical, Star } from "lucide-react";
 
 type ObraRow = {
   id: number;
@@ -22,6 +22,7 @@ export default function OrdemAdmin() {
 
   const [lista, setLista] = useState<ObraRow[]>([]);
   const [saving, setSaving] = useState(false);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (!obras) return;
@@ -34,12 +35,21 @@ export default function OrdemAdmin() {
     setLista(sorted.map((o) => ({ id: o.id, titulo: o.titulo, imagemUrl: o.imagemUrl, destaque: o.destaque ?? false, ordem: o.ordem })));
   }, [obras]);
 
-  function move(idx: number, dir: -1 | 1) {
+  function moveTo(idx: number, target: number) {
     const next = [...lista];
-    const target = idx + dir;
     if (target < 0 || target >= next.length) return;
-    [next[idx], next[target]] = [next[target], next[idx]];
+    const [dragged] = next.splice(idx, 1);
+    next.splice(target, 0, dragged);
     setLista(next);
+  }
+
+  function handleDrop(targetIndex: number) {
+    if (draggedIndex == null || draggedIndex === targetIndex) {
+      setDraggedIndex(null);
+      return;
+    }
+    moveTo(draggedIndex, targetIndex);
+    setDraggedIndex(null);
   }
 
   function toggleDestaque(idx: number) {
@@ -96,14 +106,27 @@ export default function OrdemAdmin() {
         <Star size={14} className="text-amber-400 fill-amber-400" />
         <span>= aparece em Destaque na página inicial (destaque até 4 obras)</span>
       </div>
+      <p className="mb-4 text-xs text-muted-foreground">Arraste as obras para definir a ordem. Clique em Guardar para aplicar.</p>
 
       {isLoading ? (
         <div className="space-y-2">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}</div>
       ) : (
         <div className="border border-[hsl(40,10%,85%)] bg-white divide-y divide-[hsl(40,10%,85%)]">
           {lista.map((obra, idx) => (
-            <div key={obra.id} className="flex items-center gap-3 px-4 py-3">
+            <div
+              key={obra.id}
+              draggable
+              onDragStart={() => setDraggedIndex(idx)}
+              onDragEnd={() => setDraggedIndex(null)}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={() => handleDrop(idx)}
+              className={`flex items-center gap-3 px-4 py-3 cursor-grab active:cursor-grabbing transition-colors ${
+                draggedIndex === idx ? "bg-[hsl(40,43%,96%)] opacity-60" : "hover:bg-[hsl(40,43%,98%)]"
+              }`}
+              data-testid={`draggable-obra-${obra.id}`}
+            >
               <span className="text-xs text-muted-foreground w-5 text-right shrink-0">{idx + 1}</span>
+              <GripVertical size={18} className="text-muted-foreground/60 shrink-0" aria-label="Arrastar obra" />
               {obra.imagemUrl ? (
                 <img src={obra.imagemUrl} alt={obra.titulo} className="w-10 h-10 object-cover shrink-0" />
               ) : (
@@ -120,24 +143,6 @@ export default function OrdemAdmin() {
                   className={obra.destaque ? "text-amber-400 fill-amber-400" : "text-muted-foreground/40"}
                 />
               </button>
-              <div className="flex flex-col gap-0.5">
-                <button
-                  onClick={() => move(idx, -1)}
-                  disabled={idx === 0}
-                  className="p-0.5 text-muted-foreground hover:text-foreground disabled:opacity-20"
-                  aria-label="Subir"
-                >
-                  <ChevronUp size={16} />
-                </button>
-                <button
-                  onClick={() => move(idx, 1)}
-                  disabled={idx === lista.length - 1}
-                  className="p-0.5 text-muted-foreground hover:text-foreground disabled:opacity-20"
-                  aria-label="Descer"
-                >
-                  <ChevronDown size={16} />
-                </button>
-              </div>
             </div>
           ))}
         </div>
