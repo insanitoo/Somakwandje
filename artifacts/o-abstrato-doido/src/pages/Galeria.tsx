@@ -9,10 +9,6 @@ import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 type StatusFilter = "todas" | "disponivel" | "vendido";
 type TamanhoFilter = "todos" | "grande" | "pequena";
-type MoedaFilter = "kz" | "usd" | "eur" | "brl";
-
-const RATES: Record<MoedaFilter, number> = { kz: 1, usd: 950, eur: 1050, brl: 5 };
-const SYMBOLS: Record<MoedaFilter, string> = { kz: "Kz", usd: "USD", eur: "EUR", brl: "BRL" };
 
 function parsePrecoNum(preco: string | null | undefined): number | null {
   if (!preco) return null;
@@ -20,16 +16,14 @@ function parsePrecoNum(preco: string | null | undefined): number | null {
   return isNaN(num) ? null : num;
 }
 
-function formatPreco(num: number, moeda: MoedaFilter): string {
-  if (moeda === "kz") return `${num.toLocaleString("pt-AO")} Kz`;
-  const converted = num / RATES[moeda];
-  return `${converted.toLocaleString("pt-AO", { maximumFractionDigits: 2 })} ${SYMBOLS[moeda]}`;
+function formatPreco(num: number): string {
+  return `${num.toLocaleString("pt-AO")} Kz`;
 }
 
-function convertPreco(preco: string | null | undefined, moeda: MoedaFilter): string | null {
+function formatObraPreco(preco: string | null | undefined): string | null {
   const num = parsePrecoNum(preco);
   if (num === null) return preco ?? null;
-  return formatPreco(num, moeda);
+  return formatPreco(num);
 }
 
 function getEffectiveDesconto(obra: Obra, globalDesconto: number): number {
@@ -55,7 +49,7 @@ function getObraPhotos(obra: Obra): string[] {
   return photos;
 }
 
-function ObraModal({ obra, onClose, moeda, globalDesconto }: { obra: Obra; onClose: () => void; moeda: MoedaFilter; globalDesconto: number }) {
+function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () => void; globalDesconto: number }) {
   const photos = getObraPhotos(obra);
   const [photoIdx, setPhotoIdx] = useState(0);
   const effectiveDesconto = getEffectiveDesconto(obra, globalDesconto);
@@ -167,7 +161,7 @@ function ObraModal({ obra, onClose, moeda, globalDesconto }: { obra: Obra; onClo
             </div>
           )}
 
-          {obra.preco && (
+          {obra.status === "disponivel" && obra.preco && (
             <div>
               <p className="text-xs tracking-widest uppercase text-muted-foreground mb-0.5">Preço</p>
               {effectiveDesconto > 0 ? (() => {
@@ -176,14 +170,14 @@ function ObraModal({ obra, onClose, moeda, globalDesconto }: { obra: Obra; onClo
                 return (
                   <div className="flex items-baseline gap-2 flex-wrap">
                     <p className="text-base font-medium text-foreground">
-                      {discountedNum != null ? formatPreco(discountedNum, moeda) : convertPreco(obra.preco, moeda)}
+                      {discountedNum != null ? formatPreco(discountedNum) : formatObraPreco(obra.preco)}
                     </p>
-                    <p className="text-sm line-through text-muted-foreground">{convertPreco(obra.preco, moeda)}</p>
+                    <p className="text-sm line-through text-muted-foreground">{formatObraPreco(obra.preco)}</p>
                     <span className="text-xs text-green-700 font-medium">-{effectiveDesconto}%</span>
                   </div>
                 );
               })() : (
-                <p className="text-base font-medium text-foreground">{convertPreco(obra.preco, moeda)}</p>
+                <p className="text-base font-medium text-foreground">{formatObraPreco(obra.preco)}</p>
               )}
             </div>
           )}
@@ -220,7 +214,6 @@ function ObraModal({ obra, onClose, moeda, globalDesconto }: { obra: Obra; onClo
 export default function Galeria() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("todas");
   const [tamanhoFilter, setTamanhoFilter] = useState<TamanhoFilter>("todos");
-  const [moeda, setMoeda] = useState<MoedaFilter>("kz");
   const [selectedObra, setSelectedObra] = useState<Obra | null>(null);
   const [globalDesconto, setGlobalDesconto] = useState(0);
 
@@ -299,25 +292,6 @@ export default function Galeria() {
               </div>
             </div>
 
-            {/* Moeda */}
-            <div className="flex items-center gap-3">
-              <span className="text-xs tracking-widest uppercase text-muted-foreground w-20 shrink-0">Moeda</span>
-              <div className="flex gap-2">
-                {(["usd", "eur", "brl"] as const).map((m) => (
-                  <button
-                    key={m}
-                    onClick={() => setMoeda(moeda === m ? "kz" : m)}
-                    className={`px-3 py-1 text-xs tracking-widest uppercase transition-colors ${
-                      moeda === m
-                        ? "bg-primary text-white"
-                        : "bg-white border border-border text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {m.toUpperCase()}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
 
@@ -360,20 +334,20 @@ export default function Galeria() {
                     {obra.tecnica && (
                       <p className="text-xs text-muted-foreground mt-0.5">{obra.tecnica}</p>
                     )}
-                    {obra.preco && (() => {
+                    {obra.status === "disponivel" && obra.preco && (() => {
                       const eff = getEffectiveDesconto(obra, globalDesconto);
                       if (eff > 0) {
                         const num = parsePrecoNum(obra.preco);
                         const discounted = num != null ? num * (1 - eff / 100) : null;
                         return (
                           <div className="flex items-baseline gap-1.5 flex-wrap mt-0.5">
-                            <p className="text-xs font-medium text-foreground">{discounted != null ? formatPreco(discounted, moeda) : convertPreco(obra.preco, moeda)}</p>
-                            <p className="text-xs line-through text-muted-foreground">{convertPreco(obra.preco, moeda)}</p>
+                            <p className="text-xs font-medium text-foreground">{discounted != null ? formatPreco(discounted) : formatObraPreco(obra.preco)}</p>
+                            <p className="text-xs line-through text-muted-foreground">{formatObraPreco(obra.preco)}</p>
                             <span className="text-xs text-green-700 font-medium">-{eff}%</span>
                           </div>
                         );
                       }
-                      return <p className="text-xs font-medium text-foreground mt-0.5">{convertPreco(obra.preco, moeda)}</p>;
+                      return <p className="text-xs font-medium text-foreground mt-0.5">{formatObraPreco(obra.preco)}</p>;
                     })()}
                     {obra.descricao && (
                       <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{obra.descricao}</p>
@@ -413,7 +387,7 @@ export default function Galeria() {
       {/* Modal de obra */}
       <Dialog open={!!selectedObra} onOpenChange={(o) => !o && setSelectedObra(null)}>
         {selectedObra && (
-          <ObraModal obra={selectedObra} onClose={() => setSelectedObra(null)} moeda={moeda} globalDesconto={globalDesconto} />
+            <ObraModal obra={selectedObra} onClose={() => setSelectedObra(null)} globalDesconto={globalDesconto} />
         )}
       </Dialog>
     </div>
