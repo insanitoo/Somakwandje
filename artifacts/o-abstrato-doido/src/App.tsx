@@ -1,4 +1,5 @@
 import { Switch, Route, Router as WouterRouter } from "wouter";
+import type { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -31,16 +32,20 @@ const queryClient = new QueryClient({
   },
 });
 
+function PublicPage({ children }: { children: ReactNode }) {
+  return <div className="public-site">{children}</div>;
+}
+
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/galeria" component={Galeria} />
-      <Route path="/agenda" component={Agenda} />
-      <Route path="/blog" component={Blog} />
-      <Route path="/blog/:id" component={BlogPost} />
-      <Route path="/sobre" component={Sobre} />
-      <Route path="/cursos" component={Cursos} />
+      <Route path="/" component={() => <PublicPage><Home /></PublicPage>} />
+      <Route path="/galeria" component={() => <PublicPage><Galeria /></PublicPage>} />
+      <Route path="/agenda" component={() => <PublicPage><Agenda /></PublicPage>} />
+      <Route path="/blog" component={() => <PublicPage><Blog /></PublicPage>} />
+      <Route path="/blog/:id" component={() => <PublicPage><BlogPost /></PublicPage>} />
+      <Route path="/sobre" component={() => <PublicPage><Sobre /></PublicPage>} />
+      <Route path="/cursos" component={() => <PublicPage><Cursos /></PublicPage>} />
       <Route path="/odoido/login" component={Login} />
       <Route path="/odoido" component={() => <AdminLayout><ObrasAdmin /></AdminLayout>} />
       <Route path="/odoido/obras" component={() => <AdminLayout><ObrasAdmin /></AdminLayout>} />

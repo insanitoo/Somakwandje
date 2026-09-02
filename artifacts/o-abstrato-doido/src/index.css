@@ -70,36 +70,35 @@
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
 
-  /* Warm Beige: #f9f6f0 -> 40 43% 96% */
-  --background: 40 43% 96%;
-  /* Dark text: #1a1a1a -> 0 0% 10% */
-  --foreground: 0 0% 10%;
+  /* Same warm palette, softened for a lighter reading experience */
+  --background: 40 32% 98%;
+  --foreground: 0 0% 16%;
   
   /* Borders */
-  --border: 40 10% 85%;
-  --input: 40 10% 85%;
+  --border: 40 12% 89%;
+  --input: 40 12% 89%;
   --ring: 155 22% 40%;
 
   /* White cards */
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 10%;
-  --card-border: 40 10% 90%;
+  --card: 40 28% 99%;
+  --card-foreground: 0 0% 16%;
+  --card-border: 40 12% 92%;
 
   /* Popovers */
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 10%;
-  --popover-border: 40 10% 90%;
+  --popover: 40 28% 99%;
+  --popover-foreground: 0 0% 16%;
+  --popover-border: 40 12% 92%;
 
   /* Emerald Green muted: 155 22% 40% */
   --primary: 155 22% 40%;
   --primary-foreground: 0 0% 100%;
 
   /* Warm secondary */
-  --secondary: 40 30% 90%;
-  --secondary-foreground: 0 0% 10%;
+  --secondary: 40 24% 94%;
+  --secondary-foreground: 0 0% 16%;
 
-  --muted: 40 20% 92%;
-  --muted-foreground: 40 5% 40%;
+  --muted: 40 16% 95%;
+  --muted-foreground: 40 5% 47%;
 
   --accent: 155 22% 40%;
   --accent-foreground: 0 0% 100%;
@@ -120,14 +119,14 @@
   --app-font-serif: 'Playfair Display', serif;
   --app-font-mono: Menlo, monospace;
   --radius: 0rem; 
-  --shadow-2xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.05);
-  --shadow-xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.05);
-  --shadow-sm: 0px 2px 0px 0px hsl(0 0% 0% / 0.05), 0px 1px 2px -1px hsl(0 0% 0% / 0.05);
-  --shadow: 0px 2px 0px 0px hsl(0 0% 0% / 0.05), 0px 1px 2px -1px hsl(0 0% 0% / 0.05);
-  --shadow-md: 0px 2px 0px 0px hsl(0 0% 0% / 0.05), 0px 2px 4px -1px hsl(0 0% 0% / 0.05);
-  --shadow-lg: 0px 2px 0px 0px hsl(0 0% 0% / 0.05), 0px 4px 6px -1px hsl(0 0% 0% / 0.05);
-  --shadow-xl: 0px 2px 0px 0px hsl(0 0% 0% / 0.05), 0px 8px 10px -1px hsl(0 0% 0% / 0.05);
-  --shadow-2xl: 0px 2px 0px 0px hsl(0 0% 0% / 0.05);
+  --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.025);
+  --shadow-xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.025);
+  --shadow-sm: 0px 1px 3px 0px hsl(0 0% 0% / 0.035);
+  --shadow: 0px 1px 3px 0px hsl(0 0% 0% / 0.035);
+  --shadow-md: 0px 2px 5px -1px hsl(0 0% 0% / 0.04);
+  --shadow-lg: 0px 3px 8px -2px hsl(0 0% 0% / 0.045);
+  --shadow-xl: 0px 5px 12px -3px hsl(0 0% 0% / 0.05);
+  --shadow-2xl: 0px 6px 16px -5px hsl(0 0% 0% / 0.055);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 
@@ -194,6 +193,60 @@
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif font-normal;
+  }
+}
+
+@keyframes public-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.public-site {
+  animation: public-page-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.public-site .font-medium {
+  font-weight: 400;
+}
+
+.public-site .font-semibold {
+  font-weight: 500;
+}
+
+.public-site [class~="bg-white"] {
+  background-color: hsl(var(--card));
+}
+
+.public-site [class~="bg-[hsl(40,43%,96%)]"] {
+  background-color: hsl(var(--background));
+}
+
+.public-site a,
+.public-site button {
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.public-site .drop-shadow-lg {
+  filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.18));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .public-site {
+    animation: none;
+  }
+
+  .public-site *,
+  .public-site *::before,
+  .public-site *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
   }
 }
 

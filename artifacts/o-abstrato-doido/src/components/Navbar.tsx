@@ -23,7 +23,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#f9f6f0]/95 backdrop-blur-sm border-b border-[hsl(40,10%,85%)]">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <Link href="/" className="font-serif text-lg tracking-wide text-foreground hover:text-primary transition-colors">
           O Abstrato Doido
@@ -72,7 +72,7 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="md:hidden bg-[#f9f6f0] border-t border-[hsl(40,10%,85%)] px-6 py-4 flex flex-col gap-4">
+        <div className="md:hidden bg-background border-t border-border px-6 py-4 flex flex-col gap-4">
           {links.map((link) => (
             <Link
               key={link.href}
