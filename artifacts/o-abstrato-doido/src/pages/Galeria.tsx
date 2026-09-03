@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useListObras } from "@workspace/api-client-react";
 import type { Obra } from "@workspace/api-client-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { X, Maximize2 } from "lucide-react";
 
 type StatusFilter = "todas" | "disponivel" | "vendido";
 type TamanhoFilter = "todos" | "grande" | "pequena";
@@ -41,80 +42,112 @@ function buildWA(titulo: string) {
 }
 
 function getObraPhotos(obra: Obra): string[] {
-  const photos: string[] = [];
-  if (obra.imagemUrl) photos.push(obra.imagemUrl);
-  if (obra.imagemUrl2) photos.push(obra.imagemUrl2);
-  if (obra.imagemUrl3) photos.push(obra.imagemUrl3);
-  if (obra.imagemUrl4) photos.push(obra.imagemUrl4);
-  return photos;
+  const photoKeys = [
+    "imagemUrl",
+    "imagemUrl2",
+    "imagemUrl3",
+    "imagemUrl4",
+    "imagemUrl5",
+    "imagemUrl6",
+    "imagemUrl7",
+    "imagemUrl8",
+    "imagemUrl9",
+    "imagemUrl10",
+  ] as const;
+  return photoKeys
+    .map((key) => obra[key])
+    .filter((url): url is string => Boolean(url));
 }
 
 function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () => void; globalDesconto: number }) {
   const photos = getObraPhotos(obra);
   const [photoIdx, setPhotoIdx] = useState(0);
+  const [fullscreenOpen, setFullscreenOpen] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+  const didSwipe = useRef(false);
   const effectiveDesconto = getEffectiveDesconto(obra, globalDesconto);
 
   const prev = () => setPhotoIdx((i) => (i - 1 + photos.length) % photos.length);
   const next = () => setPhotoIdx((i) => (i + 1) % photos.length);
 
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.changedTouches[0]?.clientX ?? null;
+    didSwipe.current = false;
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null || photos.length < 2) return;
+    const delta = e.changedTouches[0]?.clientX - touchStartX.current;
+    if (Math.abs(delta) >= 48) {
+      didSwipe.current = true;
+      if (delta < 0) next();
+      else prev();
+    }
+    touchStartX.current = null;
+  }
+
+  function handleImageClick() {
+    if (didSwipe.current) {
+      didSwipe.current = false;
+      return;
+    }
+    setFullscreenOpen(true);
+  }
+
   return (
-    <DialogContent hideClose className="max-w-3xl rounded-none p-0 overflow-hidden max-h-[92vh] flex flex-col" aria-describedby={undefined}>
+    <DialogContent hideClose className="w-[calc(100%-1rem)] max-w-4xl rounded-none p-0 overflow-hidden max-h-[calc(100dvh-1rem)] flex flex-col" aria-describedby={undefined}>
       <DialogTitle className="sr-only">{obra.titulo}</DialogTitle>
       <button
         onClick={onClose}
-        className="absolute top-3 right-3 z-10 p-1 bg-white/80 hover:bg-white rounded-full text-foreground"
+        className="absolute top-3 right-3 z-20 p-2 bg-white/85 hover:bg-white rounded-full text-foreground shadow-sm"
         aria-label="Fechar"
       >
         <X size={18} />
       </button>
 
-      <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
+      <div className="flex flex-col md:flex-row flex-1 min-h-0 overflow-hidden">
         {/* Galeria de fotos */}
-        <div className="md:w-1/2 flex-shrink-0 bg-[hsl(40,43%,96%)]">
+        <div className="w-full md:w-1/2 flex-shrink-0 bg-[hsl(40,43%,96%)]">
           {photos.length > 0 ? (
-            <div className="relative aspect-square md:h-full md:aspect-auto">
+            <div
+              className="relative h-[34dvh] min-h-[220px] max-h-[360px] md:h-[66vh] md:max-h-[640px] md:aspect-auto touch-pan-y"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+              onTouchCancel={() => { touchStartX.current = null; }}
+            >
               <img
                 src={photos[photoIdx]}
                 alt={obra.titulo}
-                className="w-full h-full object-cover"
+                onClick={handleImageClick}
+                className="w-full h-full object-contain p-2 cursor-zoom-in select-none"
               />
               {photos.length > 1 && (
-                <>
-                  <button
-                    onClick={prev}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 bg-white/80 hover:bg-white rounded-full text-foreground"
-                    aria-label="Anterior"
-                  >
-                    <ChevronLeft size={18} />
-                  </button>
-                  <button
-                    onClick={next}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-white/80 hover:bg-white rounded-full text-foreground"
-                    aria-label="Próxima"
-                  >
-                    <ChevronRight size={18} />
-                  </button>
-                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
-                    {photos.map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setPhotoIdx(i)}
-                        className={`w-2 h-2 rounded-full transition-colors ${i === photoIdx ? "bg-white" : "bg-white/50"}`}
-                      />
-                    ))}
-                  </div>
-                </>
+                <span className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/55 text-white px-2 py-1 text-[10px] tracking-wide pointer-events-none">
+                  Deslize para ver mais
+                </span>
+              )}
+              {photos.length > 1 && (
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                  {photos.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setPhotoIdx(i)}
+                      className={`w-2 h-2 rounded-full transition-colors ${i === photoIdx ? "bg-white" : "bg-white/50"}`}
+                      aria-label={`Ver foto ${i + 1}`}
+                    />
+                  ))}
+                </div>
               )}
             </div>
           ) : (
-            <div className="aspect-square md:h-full md:aspect-auto flex items-center justify-center bg-primary/10">
+            <div className="h-[34dvh] min-h-[220px] max-h-[360px] md:h-[66vh] md:max-h-[640px] flex items-center justify-center bg-primary/10">
               <span className="font-serif text-primary text-lg px-6 text-center">{obra.titulo}</span>
             </div>
           )}
 
           {/* Thumbnails */}
           {photos.length > 1 && (
-            <div className="flex gap-2 p-2 bg-white border-t border-border overflow-x-auto">
+            <div className="flex gap-2 p-2 bg-white border-t border-border overflow-x-auto overscroll-contain">
               {photos.map((url, i) => (
                 <button
                   key={i}
@@ -131,7 +164,7 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
         </div>
 
         {/* Detalhes */}
-        <div className="md:w-1/2 overflow-y-auto p-6 flex flex-col gap-4">
+        <div className="w-full md:w-1/2 min-h-0 overflow-y-auto p-5 md:p-6 flex flex-col gap-4">
           <div>
             <p className="text-xs tracking-[0.3em] uppercase text-muted-foreground mb-1">
               {obra.status === "disponivel" ? "Disponível" : "Vendida"}
@@ -207,6 +240,45 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
           </div>
         </div>
       </div>
+      {fullscreenOpen && photos.length > 0 && createPortal(
+        <div
+          role="dialog"
+          aria-label={`Imagem ampliada: ${obra.titulo}`}
+          aria-modal="true"
+          className="fixed inset-0 z-[100] bg-black/95 p-3 sm:p-8 flex items-center justify-center"
+          onClick={() => setFullscreenOpen(false)}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          onTouchCancel={() => { touchStartX.current = null; }}
+        >
+          <button
+            type="button"
+            onClick={() => setFullscreenOpen(false)}
+            className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors"
+            aria-label="Fechar imagem ampliada"
+          >
+            <X size={22} />
+          </button>
+          <div className="absolute top-4 left-4 z-10 flex items-center gap-2 text-white/75 text-xs">
+            <Maximize2 size={14} />
+            <span>{photoIdx + 1} / {photos.length}</span>
+          </div>
+          <img
+            src={photos[photoIdx]}
+            alt={obra.titulo}
+            className="max-w-full max-h-full w-full h-full object-contain select-none cursor-zoom-out"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (didSwipe.current) {
+                didSwipe.current = false;
+              } else {
+                setFullscreenOpen(false);
+              }
+            }}
+          />
+        </div>,
+        document.body,
+      )}
     </DialogContent>
   );
 }
@@ -326,7 +398,12 @@ export default function Galeria() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {filteredObras.map((obra) => (
                 <div key={obra.id} className="group bg-card border border-card-border overflow-hidden" data-testid={`card-obra-${obra.id}`}>
-                  <div className="aspect-square overflow-hidden bg-primary/10 relative">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedObra(obra)}
+                      aria-label={`Ver detalhes de ${obra.titulo}`}
+                      className="block w-full text-left aspect-square overflow-hidden bg-primary/10 relative"
+                    >
                     {obra.imagemUrl ? (
                       <img
                         src={obra.imagemUrl}
@@ -338,12 +415,12 @@ export default function Galeria() {
                         <span className="font-serif text-primary text-sm px-4 text-center">{obra.titulo}</span>
                       </div>
                     )}
-                    {obra.status === "vendido" && (
-                      <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/60 text-white text-xs tracking-wide">
-                        Vendida
-                      </div>
-                    )}
-                  </div>
+                      {obra.status === "vendido" && (
+                        <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/60 text-white text-xs tracking-wide">
+                          Vendida
+                        </div>
+                      )}
+                    </button>
                   <div className="p-4">
                     <p className="font-serif text-base text-foreground leading-tight">{obra.titulo}</p>
                     {obra.tecnica && (

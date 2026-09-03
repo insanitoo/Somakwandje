@@ -35,6 +35,12 @@ type Obra = {
   imagemUrl2?: string | null;
   imagemUrl3?: string | null;
   imagemUrl4?: string | null;
+  imagemUrl5?: string | null;
+  imagemUrl6?: string | null;
+  imagemUrl7?: string | null;
+  imagemUrl8?: string | null;
+  imagemUrl9?: string | null;
+  imagemUrl10?: string | null;
   dataCriacao: string;
 };
 
@@ -46,10 +52,7 @@ const obraSchema = z.object({
   preco: z.string().optional(),
   status: z.enum(["disponivel", "vendido"]),
   tamanho: z.enum(["grande", "pequena", "none"]).optional(),
-  imagemUrl: z.string().optional(),
-  imagemUrl2: z.string().optional(),
-  imagemUrl3: z.string().optional(),
-  imagemUrl4: z.string().optional(),
+  imagemUrls: z.array(z.string()).max(10),
 });
 
 type ObraValues = z.infer<typeof obraSchema>;
@@ -68,7 +71,7 @@ export default function ObrasAdmin() {
 
   const emptyValues: ObraValues = {
     titulo: "", descricao: "", tecnica: "", dimensoes: "", preco: "",
-    status: "disponivel", tamanho: "none", imagemUrl: "", imagemUrl2: "", imagemUrl3: "", imagemUrl4: ""
+    status: "disponivel", tamanho: "none", imagemUrls: []
   };
 
   const form = useForm<ObraValues>({
@@ -92,10 +95,18 @@ export default function ObrasAdmin() {
       preco: obra.preco ?? "",
       status: obra.status as "disponivel" | "vendido",
       tamanho: (obra.tamanho === "media" ? "none" : (obra.tamanho ?? "none")) as "grande" | "pequena" | "none",
-      imagemUrl: obra.imagemUrl ?? "",
-      imagemUrl2: obra.imagemUrl2 ?? "",
-      imagemUrl3: obra.imagemUrl3 ?? "",
-      imagemUrl4: obra.imagemUrl4 ?? "",
+      imagemUrls: [
+        obra.imagemUrl,
+        obra.imagemUrl2,
+        obra.imagemUrl3,
+        obra.imagemUrl4,
+        obra.imagemUrl5,
+        obra.imagemUrl6,
+        obra.imagemUrl7,
+        obra.imagemUrl8,
+        obra.imagemUrl9,
+        obra.imagemUrl10,
+      ].filter((url): url is string => Boolean(url)),
     });
     setOpen(true);
   }
@@ -109,10 +120,12 @@ export default function ObrasAdmin() {
       preco: values.preco || undefined,
       status: values.status,
       tamanho: (values.tamanho && values.tamanho !== "none" ? values.tamanho : undefined) as "grande" | "pequena" | undefined,
-      imagemUrl: values.imagemUrl || undefined,
-      imagemUrl2: values.imagemUrl2 || undefined,
-      imagemUrl3: values.imagemUrl3 || undefined,
-      imagemUrl4: values.imagemUrl4 || undefined,
+      ...Object.fromEntries(
+        Array.from({ length: 10 }, (_, index) => [
+          `imagemUrl${index === 0 ? "" : index + 1}`,
+          editing ? (values.imagemUrls[index] || null) : (values.imagemUrls[index] || undefined),
+        ])
+      ),
     };
 
     if (editing) {
@@ -235,27 +248,9 @@ export default function ObrasAdmin() {
               {/* Fotos */}
               <div className="space-y-3">
                 <p className="text-xs tracking-widest uppercase font-medium">Fotos</p>
-                <FormField control={form.control} name="imagemUrl" render={({ field }) => (
+                <FormField control={form.control} name="imagemUrls" render={({ field }) => (
                   <FormItem>
-                    <ImageUpload value={field.value} onChange={field.onChange} label="Foto Principal" />
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="imagemUrl2" render={({ field }) => (
-                  <FormItem>
-                    <ImageUpload value={field.value} onChange={field.onChange} label="Foto 2 (opcional)" />
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="imagemUrl3" render={({ field }) => (
-                  <FormItem>
-                    <ImageUpload value={field.value} onChange={field.onChange} label="Foto 3 (opcional)" />
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="imagemUrl4" render={({ field }) => (
-                  <FormItem>
-                    <ImageUpload value={field.value} onChange={field.onChange} label="Foto 4 (opcional)" />
+                    <ImageUpload values={field.value} onChange={field.onChange} label="Fotos da obra" maxImages={10} />
                     <FormMessage />
                   </FormItem>
                 )} />

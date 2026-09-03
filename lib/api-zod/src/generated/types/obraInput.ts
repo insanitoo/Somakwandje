@@ -20,6 +20,12 @@ export interface ObraInput {
   imagemUrl2?: string;
   imagemUrl3?: string;
   imagemUrl4?: string;
+  imagemUrl5?: string;
+  imagemUrl6?: string;
+  imagemUrl7?: string;
+  imagemUrl8?: string;
+  imagemUrl9?: string;
+  imagemUrl10?: string;
   destaque?: boolean;
   ordem?: number;
   desconto?: number;

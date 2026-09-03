@@ -51,6 +51,18 @@ export interface Obra {
   imagemUrl3?: string | null;
   /** @nullable */
   imagemUrl4?: string | null;
+  /** @nullable */
+  imagemUrl5?: string | null;
+  /** @nullable */
+  imagemUrl6?: string | null;
+  /** @nullable */
+  imagemUrl7?: string | null;
+  /** @nullable */
+  imagemUrl8?: string | null;
+  /** @nullable */
+  imagemUrl9?: string | null;
+  /** @nullable */
+  imagemUrl10?: string | null;
   destaque?: boolean;
   /** @nullable */
   ordem?: number | null;
@@ -88,6 +100,12 @@ export interface ObraInput {
   imagemUrl2?: string;
   imagemUrl3?: string;
   imagemUrl4?: string;
+  imagemUrl5?: string;
+  imagemUrl6?: string;
+  imagemUrl7?: string;
+  imagemUrl8?: string;
+  imagemUrl9?: string;
+  imagemUrl10?: string;
   destaque?: boolean;
   ordem?: number;
   desconto?: number;
@@ -121,7 +139,20 @@ export interface ObraUpdate {
   imagemUrl?: string;
   imagemUrl2?: string;
   imagemUrl3?: string;
-  imagemUrl4?: string;
+  /** @nullable */
+  imagemUrl4?: string | null;
+  /** @nullable */
+  imagemUrl5?: string | null;
+  /** @nullable */
+  imagemUrl6?: string | null;
+  /** @nullable */
+  imagemUrl7?: string | null;
+  /** @nullable */
+  imagemUrl8?: string | null;
+  /** @nullable */
+  imagemUrl9?: string | null;
+  /** @nullable */
+  imagemUrl10?: string | null;
   destaque?: boolean;
   ordem?: number;
   desconto?: number;

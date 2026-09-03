@@ -19,7 +19,20 @@ export interface ObraUpdate {
   imagemUrl?: string;
   imagemUrl2?: string;
   imagemUrl3?: string;
-  imagemUrl4?: string;
+  /** @nullable */
+  imagemUrl4?: string | null;
+  /** @nullable */
+  imagemUrl5?: string | null;
+  /** @nullable */
+  imagemUrl6?: string | null;
+  /** @nullable */
+  imagemUrl7?: string | null;
+  /** @nullable */
+  imagemUrl8?: string | null;
+  /** @nullable */
+  imagemUrl9?: string | null;
+  /** @nullable */
+  imagemUrl10?: string | null;
   destaque?: boolean;
   ordem?: number;
   desconto?: number;

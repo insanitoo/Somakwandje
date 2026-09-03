@@ -16,7 +16,7 @@ function buildWA(msg: string) {
 
 function ObraCard({ obra }: { obra: { id: number; titulo: string; imagemUrl?: string | null; status: string; dimensoes?: string | null } }) {
   return (
-    <Link href="/galeria" data-testid={`card-obra-${obra.id}`} className="group block overflow-hidden bg-card border border-card-border">
+    <Link href={`/galeria?obra=${obra.id}`} data-testid={`card-obra-${obra.id}`} className="group block overflow-hidden bg-card border border-card-border">
       <div className="aspect-square overflow-hidden bg-primary/10 relative">
         {obra.imagemUrl ? (
           <img
@@ -83,25 +83,6 @@ export default function Home() {
           </div>
       </section>
 
-      {/* About teaser */}
-      <section className="py-20 bg-[hsl(40,43%,96%)]">
-        <div className="max-w-4xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div className="order-2 md:order-1">
-            <p className="text-muted-foreground leading-relaxed text-base mb-1">
-              Dioleny Intya, artista plástico angolano reconhecido pela UNAP, e amplamente conhecido como “O Abstrato Doido".            </p>
-            <Link
-              href="/sobre"
-              data-testid="button-saber-mais"
-              className="inline-flex items-center gap-2 mt-8 text-sm tracking-widest uppercase text-primary border-b border-primary pb-0.5 hover:opacity-70 transition-opacity"
-            >
-              Sobre o artista
-              <ArrowRight size={14} />
-            </Link>
-          </div>
-          
-        </div>
-      </section>
-
       {/* Gallery highlights */}
       <section className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-6">
@@ -142,6 +123,25 @@ export default function Home() {
           <div className="mt-8 md:hidden text-center">
             <Link href="/galeria" className="text-sm tracking-widest uppercase text-primary border-b border-primary pb-0.5">
               Ver todas as obras
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* About teaser */}
+      <section className="py-20 bg-[hsl(40,43%,96%)]">
+        <div className="max-w-4xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div className="order-2 md:order-1">
+            <p className="text-muted-foreground leading-relaxed text-base mb-1">
+              Dioleny Intya, artista plástico angolano reconhecido pela UNAP, e amplamente conhecido como “O Abstrato Doido".
+            </p>
+            <Link
+              href="/sobre"
+              data-testid="button-saber-mais"
+              className="inline-flex items-center gap-2 mt-8 text-sm tracking-widest uppercase text-primary border-b border-primary pb-0.5 hover:opacity-70 transition-opacity"
+            >
+              Sobre o artista
+              <ArrowRight size={14} />
             </Link>
           </div>
         </div>

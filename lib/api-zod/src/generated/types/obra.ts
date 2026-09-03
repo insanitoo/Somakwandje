@@ -30,6 +30,18 @@ export interface Obra {
   imagemUrl3?: string | null;
   /** @nullable */
   imagemUrl4?: string | null;
+  /** @nullable */
+  imagemUrl5?: string | null;
+  /** @nullable */
+  imagemUrl6?: string | null;
+  /** @nullable */
+  imagemUrl7?: string | null;
+  /** @nullable */
+  imagemUrl8?: string | null;
+  /** @nullable */
+  imagemUrl9?: string | null;
+  /** @nullable */
+  imagemUrl10?: string | null;
   destaque?: boolean;
   /** @nullable */
   ordem?: number | null;

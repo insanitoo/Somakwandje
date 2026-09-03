@@ -551,6 +551,18 @@ components:
           type: ["string", "null"]
         imagemUrl4:
           type: ["string", "null"]
+        imagemUrl5:
+          type: ["string", "null"]
+        imagemUrl6:
+          type: ["string", "null"]
+        imagemUrl7:
+          type: ["string", "null"]
+        imagemUrl8:
+          type: ["string", "null"]
+        imagemUrl9:
+          type: ["string", "null"]
+        imagemUrl10:
+          type: ["string", "null"]
         destaque:
           type: boolean
         ordem:
@@ -588,6 +600,18 @@ components:
           type: string
         imagemUrl4:
           type: string
+        imagemUrl5:
+          type: string
+        imagemUrl6:
+          type: string
+        imagemUrl7:
+          type: string
+        imagemUrl8:
+          type: string
+        imagemUrl9:
+          type: string
+        imagemUrl10:
+          type: string
         destaque:
           type: boolean
         ordem:
@@ -621,7 +645,19 @@ components:
         imagemUrl3:
           type: string
         imagemUrl4:
-          type: string
+          type: ["string", "null"]
+        imagemUrl5:
+          type: ["string", "null"]
+        imagemUrl6:
+          type: ["string", "null"]
+        imagemUrl7:
+          type: ["string", "null"]
+        imagemUrl8:
+          type: ["string", "null"]
+        imagemUrl9:
+          type: ["string", "null"]
+        imagemUrl10:
+          type: ["string", "null"]
         destaque:
           type: boolean
         ordem:
