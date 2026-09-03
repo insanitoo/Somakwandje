@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useListObras, useUpdateObra, getListObrasQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GripVertical, Star } from "lucide-react";
+import { ArrowDown, ArrowUp, GripVertical, Star } from "lucide-react";
 
 type ObraRow = {
   id: number;
@@ -23,6 +23,9 @@ export default function OrdemAdmin() {
   const [lista, setLista] = useState<ObraRow[]>([]);
   const [saving, setSaving] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dropIndex, setDropIndex] = useState<number | null>(null);
+  const dragRef = useRef<{ index: number; pointerId: number; startY: number } | null>(null);
+  const dropRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!obras) return;
@@ -43,13 +46,53 @@ export default function OrdemAdmin() {
     setLista(next);
   }
 
-  function handleDrop(targetIndex: number) {
-    if (draggedIndex == null || draggedIndex === targetIndex) {
-      setDraggedIndex(null);
-      return;
+  function startDrag(index: number, e: React.PointerEvent<HTMLDivElement>) {
+    if ((e.target as HTMLElement).closest("button")) return;
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragRef.current = { index, pointerId: e.pointerId, startY: e.clientY };
+    setDraggedIndex(index);
+    setDropIndex(index);
+    dropRef.current = index;
+  }
+
+  function updateDrag(e: React.PointerEvent<HTMLDivElement>) {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+    if (Math.abs(e.clientY - drag.startY) < 8) return;
+    e.preventDefault();
+
+    const target = document
+      .elementFromPoint(e.clientX, e.clientY)
+      ?.closest<HTMLElement>("[data-order-index]");
+    if (!target) return;
+    const targetIndex = Number(target.dataset.orderIndex);
+    if (!Number.isNaN(targetIndex)) {
+      dropRef.current = targetIndex;
+      setDropIndex(targetIndex);
     }
-    moveTo(draggedIndex, targetIndex);
+  }
+
+  function finishDrag(e: React.PointerEvent<HTMLDivElement>) {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+    const targetIndex = dropRef.current;
+    if (targetIndex != null && targetIndex !== drag.index) moveTo(drag.index, targetIndex);
+    dragRef.current = null;
+    dropRef.current = null;
     setDraggedIndex(null);
+    setDropIndex(null);
+  }
+
+  function cancelDrag() {
+    dragRef.current = null;
+    dropRef.current = null;
+    setDraggedIndex(null);
+    setDropIndex(null);
+  }
+
+  function moveByButton(index: number, direction: -1 | 1) {
+    moveTo(index, index + direction);
   }
 
   function toggleDestaque(idx: number) {
@@ -106,22 +149,26 @@ export default function OrdemAdmin() {
         <Star size={14} className="text-amber-400 fill-amber-400" />
         <span>= aparece em Destaque na página inicial (destaque até 4 obras)</span>
       </div>
-      <p className="mb-4 text-xs text-muted-foreground">Arraste as obras para definir a ordem. Clique em Guardar para aplicar.</p>
+      <p className="mb-4 text-xs text-muted-foreground">Pressione e arraste uma obra para definir a ordem. Também pode usar as setas. Clique em Guardar para aplicar.</p>
 
       {isLoading ? (
         <div className="space-y-2">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}</div>
       ) : (
-        <div className="border border-[hsl(40,10%,85%)] bg-white divide-y divide-[hsl(40,10%,85%)]">
+        <div
+          className="border border-[hsl(40,10%,85%)] bg-white divide-y divide-[hsl(40,10%,85%)]"
+          onPointerMove={updateDrag}
+          onPointerUp={finishDrag}
+          onPointerCancel={cancelDrag}
+        >
           {lista.map((obra, idx) => (
             <div
               key={obra.id}
-              draggable
-              onDragStart={() => setDraggedIndex(idx)}
-              onDragEnd={() => setDraggedIndex(null)}
-              onDragOver={(event) => event.preventDefault()}
-              onDrop={() => handleDrop(idx)}
-              className={`flex items-center gap-3 px-4 py-3 cursor-grab active:cursor-grabbing transition-colors ${
-                draggedIndex === idx ? "bg-[hsl(40,43%,96%)] opacity-60" : "hover:bg-[hsl(40,43%,98%)]"
+              data-order-index={idx}
+              onPointerDown={(e) => startDrag(idx, e)}
+              className={`flex items-center gap-3 px-3 py-3 select-none touch-none transition-colors ${
+                draggedIndex === idx ? "bg-[hsl(40,43%,96%)] opacity-60" : ""
+              } ${
+                dropIndex === idx && draggedIndex !== idx ? "bg-primary/10 ring-inset ring-2 ring-primary/40" : ""
               }`}
               data-testid={`draggable-obra-${obra.id}`}
             >
@@ -135,7 +182,7 @@ export default function OrdemAdmin() {
               <p className="flex-1 text-sm font-medium truncate">{obra.titulo}</p>
               <button
                 onClick={() => toggleDestaque(idx)}
-                className="p-1.5 rounded-sm transition-colors"
+                className="p-2 rounded-sm transition-colors shrink-0"
                 aria-label="Toggle destaque"
               >
                 <Star
@@ -143,6 +190,26 @@ export default function OrdemAdmin() {
                   className={obra.destaque ? "text-amber-400 fill-amber-400" : "text-muted-foreground/40"}
                 />
               </button>
+              <div className="flex items-center gap-0.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => moveByButton(idx, -1)}
+                  disabled={idx === 0}
+                  className="p-2 text-muted-foreground disabled:opacity-20"
+                  aria-label={`Subir ${obra.titulo}`}
+                >
+                  <ArrowUp size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => moveByButton(idx, 1)}
+                  disabled={idx === lista.length - 1}
+                  className="p-2 text-muted-foreground disabled:opacity-20"
+                  aria-label={`Descer ${obra.titulo}`}
+                >
+                  <ArrowDown size={16} />
+                </button>
+              </div>
             </div>
           ))}
         </div>

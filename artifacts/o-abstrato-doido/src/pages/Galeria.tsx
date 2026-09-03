@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { useListObras } from "@workspace/api-client-react";
+import { getGetObraQueryKey, useGetObra, useListObras } from "@workspace/api-client-react";
 import type { Obra } from "@workspace/api-client-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -63,26 +63,57 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
   const photos = getObraPhotos(obra);
   const [photoIdx, setPhotoIdx] = useState(0);
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
+  const [frameRatio, setFrameRatio] = useState(4 / 3);
   const touchStartX = useRef<number | null>(null);
   const didSwipe = useRef(false);
   const effectiveDesconto = getEffectiveDesconto(obra, globalDesconto);
 
+  useEffect(() => {
+    let cancelled = false;
+    const loadSizes = photos.map(
+      (src) =>
+        new Promise<{ width: number; height: number } | null>((resolve) => {
+          const image = new window.Image();
+          image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight });
+          image.onerror = () => resolve(null);
+          image.src = src;
+        }),
+    );
+    Promise.all(loadSizes).then((sizes) => {
+      if (cancelled) return;
+      const largest = sizes
+        .filter((size): size is { width: number; height: number } => Boolean(size?.width && size?.height))
+        .sort((a, b) => b.width * b.height - a.width * a.height)[0];
+      if (largest) setFrameRatio(largest.width / largest.height);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [obra.id]);
+
   const prev = () => setPhotoIdx((i) => (i - 1 + photos.length) % photos.length);
   const next = () => setPhotoIdx((i) => (i + 1) % photos.length);
 
-  function handleTouchStart(e: React.TouchEvent) {
-    touchStartX.current = e.changedTouches[0]?.clientX ?? null;
+  function handleSwipeStart(e: React.PointerEvent<HTMLElement>) {
+    if (photos.length < 2) return;
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    touchStartX.current = e.clientX;
     didSwipe.current = false;
   }
 
-  function handleTouchEnd(e: React.TouchEvent) {
+  function handleSwipeEnd(e: React.PointerEvent<HTMLElement>) {
     if (touchStartX.current === null || photos.length < 2) return;
-    const delta = e.changedTouches[0]?.clientX - touchStartX.current;
+    const delta = e.clientX - touchStartX.current;
     if (Math.abs(delta) >= 48) {
       didSwipe.current = true;
       if (delta < 0) next();
       else prev();
     }
+    touchStartX.current = null;
+  }
+
+  function cancelSwipe() {
     touchStartX.current = null;
   }
 
@@ -95,7 +126,14 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
   }
 
   return (
-    <DialogContent hideClose className="w-[calc(100%-1rem)] max-w-4xl rounded-none p-0 overflow-hidden max-h-[calc(100dvh-1rem)] flex flex-col" aria-describedby={undefined}>
+    <DialogContent
+      hideClose
+      onPointerDownOutside={(event) => {
+        if (fullscreenOpen) event.preventDefault();
+      }}
+      className="w-[calc(100%-1rem)] max-w-4xl rounded-none p-0 overflow-hidden max-h-[calc(100dvh-1rem)] flex flex-col"
+      aria-describedby={undefined}
+    >
       <DialogTitle className="sr-only">{obra.titulo}</DialogTitle>
       <button
         onClick={onClose}
@@ -110,20 +148,22 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
         <div className="w-full md:w-1/2 flex-shrink-0 bg-[hsl(40,43%,96%)]">
           {photos.length > 0 ? (
             <div
-              className="relative h-[34dvh] min-h-[220px] max-h-[360px] md:h-[66vh] md:max-h-[640px] md:aspect-auto touch-pan-y"
-              onTouchStart={handleTouchStart}
-              onTouchEnd={handleTouchEnd}
-              onTouchCancel={() => { touchStartX.current = null; }}
+              className="relative w-full max-h-[44dvh] md:max-h-[66vh] touch-pan-y select-none"
+              style={{ aspectRatio: frameRatio }}
+              onPointerDown={handleSwipeStart}
+              onPointerUp={handleSwipeEnd}
+              onPointerCancel={cancelSwipe}
             >
               <img
                 src={photos[photoIdx]}
                 alt={obra.titulo}
                 onClick={handleImageClick}
-                className="w-full h-full object-contain p-2 cursor-zoom-in select-none"
+                draggable={false}
+                className="w-full h-full object-contain p-1 cursor-zoom-in select-none pointer-events-auto"
               />
               {photos.length > 1 && (
                 <span className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/55 text-white px-2 py-1 text-[10px] tracking-wide pointer-events-none">
-                  Deslize para ver mais
+                  Deslize em qualquer parte para ver mais
                 </span>
               )}
               {photos.length > 1 && (
@@ -241,19 +281,25 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
         </div>
       </div>
       {fullscreenOpen && photos.length > 0 && createPortal(
-        <div
+          <div
           role="dialog"
           aria-label={`Imagem ampliada: ${obra.titulo}`}
           aria-modal="true"
-          className="fixed inset-0 z-[100] bg-black/95 p-3 sm:p-8 flex items-center justify-center"
-          onClick={() => setFullscreenOpen(false)}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-          onTouchCancel={() => { touchStartX.current = null; }}
+            className="fixed inset-0 z-[100] bg-black/95 p-3 sm:p-8 flex items-center justify-center select-none touch-none"
+            onClick={(event) => {
+              if (event.target === event.currentTarget) setFullscreenOpen(false);
+            }}
+            onPointerDown={handleSwipeStart}
+            onPointerUp={handleSwipeEnd}
+            onPointerCancel={cancelSwipe}
         >
           <button
             type="button"
-            onClick={() => setFullscreenOpen(false)}
+              onClick={(event) => {
+                event.stopPropagation();
+                setFullscreenOpen(false);
+              }}
+              onPointerDown={(event) => event.stopPropagation()}
             className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors"
             aria-label="Fechar imagem ampliada"
           >
@@ -266,16 +312,14 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
           <img
             src={photos[photoIdx]}
             alt={obra.titulo}
-            className="max-w-full max-h-full w-full h-full object-contain select-none cursor-zoom-out"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (didSwipe.current) {
-                didSwipe.current = false;
-              } else {
-                setFullscreenOpen(false);
-              }
-            }}
+              draggable={false}
+              className="max-w-full max-h-full w-full h-full object-contain select-none pointer-events-auto"
           />
+            {photos.length > 1 && (
+              <span className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1.5 text-[11px] tracking-wide pointer-events-none">
+                Deslize em qualquer parte · {photoIdx + 1} / {photos.length}
+              </span>
+            )}
         </div>,
         document.body,
       )}
@@ -288,6 +332,11 @@ export default function Galeria() {
   const [tamanhoFilter, setTamanhoFilter] = useState<TamanhoFilter>("todos");
   const [selectedObra, setSelectedObra] = useState<Obra | null>(null);
   const [globalDesconto, setGlobalDesconto] = useState(0);
+  const sharedObraId = (() => {
+    const value = new URLSearchParams(window.location.search).get("obra");
+    if (!value || !/^\d+$/.test(value)) return null;
+    return Number(value);
+  })();
 
   useEffect(() => {
     fetch("/api/configuracoes/desconto_global")
@@ -306,14 +355,15 @@ export default function Galeria() {
   const { data: obras, isLoading } = useListObras(
     Object.keys(params).length > 0 ? params : undefined
   );
+  const { data: sharedObra } = useGetObra(sharedObraId ?? 0, {
+    query: { enabled: sharedObraId != null, queryKey: getGetObraQueryKey(sharedObraId ?? 0) },
+  });
 
   useEffect(() => {
-    if (!obras || selectedObra) return;
-    const obraId = new URLSearchParams(window.location.search).get("obra");
-    if (!obraId) return;
-    const obra = obras.find((item) => String(item.id) === obraId);
+    if (selectedObra || sharedObraId == null) return;
+    const obra = sharedObra ?? obras?.find((item) => item.id === sharedObraId);
     if (obra) setSelectedObra(obra);
-  }, [obras, selectedObra]);
+  }, [obras, selectedObra, sharedObra, sharedObraId]);
 
   function closeSelectedObra() {
     const url = new URL(window.location.href);
