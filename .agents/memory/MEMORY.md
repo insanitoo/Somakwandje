@@ -1,1 +1,2 @@
 - [O Abstrato Doido stack](o-abstrato-doido-stack.md) — key decisions for the artist website: DB tables, API hooks, admin auth pattern.
+- [Schema legado de obras](o-abstrato-doido-db-schema.md) — a base de desenvolvimento pode conter colunas antigas e exigir alterações aditivas compatíveis.
