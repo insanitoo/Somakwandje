@@ -165,7 +165,7 @@ export default function OrdemAdmin() {
               key={obra.id}
               data-order-index={idx}
               onPointerDown={(e) => startDrag(idx, e)}
-              className={`flex items-center gap-3 px-3 py-3 select-none touch-none transition-colors ${
+              className={`flex items-center gap-3 px-3 py-4 select-none touch-none transition-colors ${
                 draggedIndex === idx ? "bg-[hsl(40,43%,96%)] opacity-60" : ""
               } ${
                 dropIndex === idx && draggedIndex !== idx ? "bg-primary/10 ring-inset ring-2 ring-primary/40" : ""
@@ -175,9 +175,9 @@ export default function OrdemAdmin() {
               <span className="text-xs text-muted-foreground w-5 text-right shrink-0">{idx + 1}</span>
               <GripVertical size={18} className="text-muted-foreground/60 shrink-0" aria-label="Arrastar obra" />
               {obra.imagemUrl ? (
-                <img src={obra.imagemUrl} alt={obra.titulo} className="w-10 h-10 object-cover shrink-0" />
+                <img src={obra.imagemUrl} alt={obra.titulo} className="w-16 h-16 object-cover shrink-0" />
               ) : (
-                <div className="w-10 h-10 bg-[hsl(40,43%,96%)] shrink-0" />
+                <div className="w-16 h-16 bg-[hsl(40,43%,96%)] shrink-0" />
               )}
               <p className="flex-1 text-sm font-medium truncate">{obra.titulo}</p>
               <button

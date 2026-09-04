@@ -178,7 +178,7 @@ export default function ObrasAdmin() {
           <table className="w-full text-sm min-w-[500px]">
             <thead>
               <tr className="border-b border-[hsl(40,10%,85%)] bg-[hsl(40,43%,96%)]">
-                <th className="text-left px-4 py-3 text-xs tracking-widest uppercase text-muted-foreground font-normal w-14">Img</th>
+                <th className="text-left px-4 py-3 text-xs tracking-widest uppercase text-muted-foreground font-normal w-24">Img</th>
                 <th className="text-left px-4 py-3 text-xs tracking-widest uppercase text-muted-foreground font-normal">Título</th>
                 <th className="text-left px-4 py-3 text-xs tracking-widest uppercase text-muted-foreground font-normal hidden sm:table-cell">Técnica</th>
                 <th className="text-left px-4 py-3 text-xs tracking-widest uppercase text-muted-foreground font-normal hidden sm:table-cell">Estado</th>
@@ -190,9 +190,9 @@ export default function ObrasAdmin() {
                 <tr key={obra.id} className="border-b border-[hsl(40,10%,85%)] last:border-0" data-testid={`row-obra-${obra.id}`}>
                   <td className="px-4 py-3">
                     {obra.imagemUrl ? (
-                      <img src={obra.imagemUrl} alt={obra.titulo} className="w-12 h-12 object-cover" />
+                       <img src={obra.imagemUrl} alt={obra.titulo} className="w-20 h-20 sm:w-16 sm:h-16 object-cover" />
                     ) : (
-                      <div className="w-12 h-12 bg-[hsl(40,43%,96%)] flex items-center justify-center text-muted-foreground text-xs">—</div>
+                       <div className="w-20 h-20 sm:w-16 sm:h-16 bg-[hsl(40,43%,96%)] flex items-center justify-center text-muted-foreground text-xs">—</div>
                     )}
                   </td>
                   <td className="px-4 py-3">

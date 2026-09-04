@@ -3,7 +3,7 @@ import { useListObras, useListEventos } from "@workspace/api-client-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Calendar, MapPin, ArrowRight } from "lucide-react";
+import { Calendar, MapPin } from "lucide-react";
 import heroPng from "@assets/image_1782859145516.png";
 import artistPng from "@assets/00e79b8a-e616-4d9a-a14d-930bfb0bffb1_1788518663426.jpeg";
 
@@ -69,7 +69,6 @@ export default function Home() {
             className="inline-flex items-center gap-3 px-7 py-3.5 bg-primary text-white text-sm tracking-[0.18em] uppercase shadow-[0_12px_28px_rgba(0,0,0,0.25)] ring-1 ring-white/20 hover:bg-primary/90 hover:-translate-y-0.5 transition-all"
           >
             Ver Obras
-            <ArrowRight size={16} />
           </Link>
         </div>
       </section>
@@ -86,7 +85,7 @@ export default function Home() {
               href="/galeria"
               className="text-sm tracking-widest uppercase text-primary border-b border-primary pb-0.5 hover:opacity-70 transition-opacity hidden md:inline-flex items-center gap-1"
             >
-              Ver todas <ArrowRight size={14} />
+              Ver todas
             </Link>
           </div>
 
@@ -140,7 +139,6 @@ export default function Home() {
               className="inline-flex items-center gap-2 mt-8 text-sm tracking-widest uppercase text-primary border-b border-primary pb-0.5 hover:opacity-70 transition-opacity"
             >
               Sobre o artista
-              <ArrowRight size={14} />
             </Link>
           </div>
         </div>
@@ -199,7 +197,7 @@ export default function Home() {
                   data-testid="button-ver-agenda"
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-primary text-primary text-sm tracking-widest uppercase hover:bg-primary/5 transition-colors whitespace-nowrap"
                 >
-                  Ver Agenda <ArrowRight size={14} />
+                  Ver Agenda
                 </Link>
               </div>
             </div>

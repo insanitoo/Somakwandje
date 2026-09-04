@@ -3,7 +3,6 @@ import { useGetBlogPost, getGetBlogPostQueryKey } from "@workspace/api-client-re
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft } from "lucide-react"
 
 
 function formatDate(iso: string) {
@@ -49,7 +48,7 @@ export default function BlogPost() {
             )}
             <div className="max-w-3xl mx-auto px-6 py-16">
               <Link href="/blog" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
-                <ArrowLeft size={16} /> Voltar às Opiniões
+                Voltar às Opiniões
               </Link>
               <p className="text-xs text-muted-foreground tracking-widest uppercase mb-4">
                 {formatDate(post.dataPublicacao)}

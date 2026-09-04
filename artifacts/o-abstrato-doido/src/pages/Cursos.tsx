@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Lock, Play, ChevronLeft, GraduationCap } from "lucide-react";
+import { Lock, Play, GraduationCap } from "lucide-react";
 
 const WA = "244934959424";
 
@@ -150,7 +150,7 @@ function CursoModal({ curso, onClose }: { curso: Curso; onClose: () => void }) {
                         onClick={() => setAulaIdx(aulaIdx - 1)}
                         className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
                       >
-                        <ChevronLeft size={14} /> Anterior
+                        Anterior
                       </button>
                     )}
                     <p className="font-medium text-sm text-foreground flex-1 text-center">
@@ -161,7 +161,7 @@ function CursoModal({ curso, onClose }: { curso: Curso; onClose: () => void }) {
                         onClick={() => setAulaIdx(aulaIdx + 1)}
                         className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
                       >
-                        Próxima <ChevronLeft size={14} className="rotate-180" />
+                        Próxima
                       </button>
                     )}
                   </div>

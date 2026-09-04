@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { X, Maximize2 } from "lucide-react";
+import { X } from "lucide-react";
 
 type StatusFilter = "todas" | "disponivel" | "vendido";
 type TamanhoFilter = "todos" | "grande" | "pequena";
@@ -162,11 +162,6 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
                 className="w-full h-full object-contain p-1 cursor-zoom-in select-none pointer-events-auto"
               />
               {photos.length > 1 && (
-                <span className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/55 text-white px-2 py-1 text-[10px] tracking-wide pointer-events-none">
-                  Deslize em qualquer parte para ver mais
-                </span>
-              )}
-              {photos.length > 1 && (
                 <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
                   {photos.map((_, i) => (
                     <button
@@ -296,19 +291,20 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
           <button
             type="button"
               onClick={(event) => {
+                event.preventDefault();
                 event.stopPropagation();
                 setFullscreenOpen(false);
               }}
-              onPointerDown={(event) => event.stopPropagation()}
+              onPointerDown={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                setFullscreenOpen(false);
+              }}
             className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors"
             aria-label="Fechar imagem ampliada"
           >
             <X size={22} />
           </button>
-          <div className="absolute top-4 left-4 z-10 flex items-center gap-2 text-white/75 text-xs">
-            <Maximize2 size={14} />
-            <span>{photoIdx + 1} / {photos.length}</span>
-          </div>
           <img
             src={photos[photoIdx]}
             alt={obra.titulo}
@@ -317,7 +313,7 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
           />
             {photos.length > 1 && (
               <span className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1.5 text-[11px] tracking-wide pointer-events-none">
-                Deslize em qualquer parte · {photoIdx + 1} / {photos.length}
+                {photoIdx + 1} / {photos.length}
               </span>
             )}
         </div>,

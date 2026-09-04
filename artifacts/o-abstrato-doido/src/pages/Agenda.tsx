@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Calendar, MapPin, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, MapPin, X } from "lucide-react";
 
 const WA = "244934959424";
 
@@ -73,14 +73,14 @@ function EventoModal({ evento, onClose }: { evento: EventoType; onClose: () => v
                     className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 bg-white/80 hover:bg-white rounded-full"
                     aria-label="Anterior"
                   >
-                    <ChevronLeft size={16} />
+                    Anterior
                   </button>
                   <button
                     onClick={() => setFotoIdx((i) => (i + 1) % fotos.length)}
                     className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-white/80 hover:bg-white rounded-full"
                     aria-label="Próxima"
                   >
-                    <ChevronRight size={16} />
+                    Próxima
                   </button>
                   <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
                     {fotos.map((_, i) => (

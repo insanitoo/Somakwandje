@@ -3,7 +3,6 @@ import { useListBlog } from "@workspace/api-client-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowRight } from "lucide-react";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("pt-PT", {
@@ -71,7 +70,7 @@ export default function Blog() {
                     <div className="flex items-center justify-between mt-5">
                       <p className="text-xs text-muted-foreground">{formatDate(post.dataPublicacao)}</p>
                       <span className="text-xs tracking-widest uppercase text-primary flex items-center gap-1">
-                        Ler mais <ArrowRight size={12} />
+                        Ler mais
                       </span>
                     </div>
                   </div>
