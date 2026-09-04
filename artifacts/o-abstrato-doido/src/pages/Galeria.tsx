@@ -620,8 +620,7 @@ export default function Galeria() {
               </div>
             </div>
 
-<<<<<<< HEAD
-=======
+
             {/* Moeda */}
             <div className="flex items-center gap-3">
               <span className="text-xs tracking-widest uppercase text-muted-foreground w-20 shrink-0">Moeda</span>
@@ -641,7 +640,7 @@ export default function Galeria() {
                 ))}
               </div>
             </div>
->>>>>>> 5d517f04c5549650efac4c52eae7bd9c8bcc1043
+
           </div>
         </div>
 
