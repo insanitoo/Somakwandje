@@ -56,25 +56,22 @@ export default function Home() {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative h-[77vh] md:h-[130vh] min-h-[420px] flex items-end pb-15 md:pb-24">
+      <section className="relative min-h-[calc(100svh-4rem)] md:h-[min(92vh,980px)] md:min-h-[620px] flex items-end pb-8 md:pb-16 overflow-hidden">
         <div
-          className="absolute inset-0 bg-cover bg-top"
+          className="absolute inset-0 bg-cover bg-[center_18%] md:bg-top"
           style={{ backgroundImage: `url(${heroPng})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/5" />
         <div className="relative z-10 max-w-6xl mx-auto px-6 w-full">
-
-          <div className="mt-72"> 
-              <Link
-                href="/galeria"
-                data-testid="button-ver-galeria"
-                className="inline-flex items-center gap-2 px-8 py-3 bg-primary text-white text-sm tracking-widest uppercase hover:bg-primary/90 transition-colors"
-              >
-                Ver Obras
-                <ArrowRight size={16} />
-              </Link>
-            </div>
-          </div>
+          <Link
+            href="/galeria"
+            data-testid="button-ver-galeria"
+            className="inline-flex items-center gap-3 px-7 py-3.5 bg-primary text-white text-sm tracking-[0.18em] uppercase shadow-[0_12px_28px_rgba(0,0,0,0.25)] ring-1 ring-white/20 hover:bg-primary/90 hover:-translate-y-0.5 transition-all"
+          >
+            Ver Obras
+            <ArrowRight size={16} />
+          </Link>
+        </div>
       </section>
 
       {/* Gallery highlights */}
@@ -124,18 +121,18 @@ export default function Home() {
 
       {/* About teaser */}
       <section className="py-20 bg-[hsl(40,43%,96%)]">
-        <div className="max-w-4xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 items-center">
           <div className="order-1">
             <img
               src={artistPng}
-              alt="Dioleny Intya no atelier"
-              className="w-full aspect-[4/5] object-cover"
+              alt="O Abstrato Doido no atelier"
+              className="w-36 h-36 md:w-full md:h-auto md:aspect-[4/3] object-cover"
               data-testid="img-artist-home"
             />
           </div>
           <div className="order-2">
             <p className="text-muted-foreground leading-relaxed text-base mb-1">
-              O Abstrato Doido - Dioleny Intya - é um artista plástico angolano cuja prática se desenvolve através da abstração como forma de investigar as contradições da condição humana, a espiritualidade e as escolhas que moldam quem somos. As suas obras não procuram oferecer respostas, mas criar um espaço onde o espectador possa confrontar as próprias perguntas.
+              Dioleny Intya, artista plástico angolano reconhecido pela UNAP, e amplamente conhecido como “O Abstrato Doido".
             </p>
             <Link
               href="/sobre"
