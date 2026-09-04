@@ -3,9 +3,10 @@ import { useListBlog } from "@workspace/api-client-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/i18n";
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("pt-PT", {
+function formatDate(iso: string, locale: string) {
+  return new Date(iso).toLocaleDateString(locale, {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -13,6 +14,7 @@ function formatDate(iso: string) {
 }
 
 export default function Blog() {
+  const { t, locale } = useLanguage();
   const { data: posts, isLoading } = useListBlog();
 
   return (
@@ -22,8 +24,8 @@ export default function Blog() {
         {/* Header */}
         <div className="bg-white border-b border-border py-14 px-6">
           <div className="max-w-6xl mx-auto">
-            <p className="text-xs tracking-[0.3em] uppercase text-primary mb-2">Pense Comigo</p>
-            <h1 className="font-serif text-4xl md:text-5xl text-foreground">Opiniões & Reflexões</h1>
+            <p className="text-xs tracking-[0.3em] uppercase text-primary mb-2">{t("blog.eyebrow")}</p>
+            <h1 className="font-serif text-4xl md:text-5xl text-foreground">{t("blog.title")}</h1>
           </div>
         </div>
 
@@ -68,9 +70,9 @@ export default function Blog() {
                       </p>
                     </div>
                     <div className="flex items-center justify-between mt-5">
-                      <p className="text-xs text-muted-foreground">{formatDate(post.dataPublicacao)}</p>
+                       <p className="text-xs text-muted-foreground">{formatDate(post.dataPublicacao, locale)}</p>
                       <span className="text-xs tracking-widest uppercase text-primary flex items-center gap-1">
-                        Ler mais
+                         {t("blog.readMore")}
                       </span>
                     </div>
                   </div>
@@ -79,8 +81,8 @@ export default function Blog() {
             </div>
           ) : (
             <div className="py-24 text-center">
-              <p className="font-serif text-2xl text-muted-foreground">Sem artigos publicados</p>
-              <p className="text-muted-foreground text-sm mt-2">Volte em breve</p>
+                <p className="font-serif text-2xl text-muted-foreground">{t("blog.noPosts")}</p>
+                <p className="text-muted-foreground text-sm mt-2">{t("blog.comeBack")}</p>
             </div>
           )}
         </div>

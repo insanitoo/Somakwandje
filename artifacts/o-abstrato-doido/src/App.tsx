@@ -19,6 +19,7 @@ import BlogAdmin from "@/pages/admin/BlogAdmin";
 import CursosAdmin from "@/pages/admin/CursosAdmin";
 import OrdemAdmin from "@/pages/admin/OrdemAdmin";
 import DescontosAdmin from "@/pages/admin/DescontosAdmin";
+import { LanguageProvider } from "@/i18n";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -62,12 +63,14 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Router />
-        </WouterRouter>
-        <Toaster />
-      </TooltipProvider>
+      <LanguageProvider>
+        <TooltipProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <Router />
+          </WouterRouter>
+          <Toaster />
+        </TooltipProvider>
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }

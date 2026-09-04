@@ -5,12 +5,18 @@ import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Calendar, MapPin, X } from "lucide-react";
+import { useLanguage, type Language } from "@/i18n";
 
 const WA = "244934959424";
 
-function buildWA(nome: string) {
+function buildWA(nome: string, language: Language) {
+  const messages: Record<Language, string> = {
+    pt: `Olá, vi no site o evento "${nome}" e gostaria de saber mais / inscrever-me.`,
+    en: `Hello, I saw the event "${nome}" on your website and would like to know more / register.`,
+    fr: `Bonjour, j’ai vu l’événement « ${nome} » sur votre site et j’aimerais en savoir plus / m’inscrire.`,
+  };
   const msg = encodeURIComponent(
-    `Olá, vi no site o evento "${nome}" e gostaria de saber mais / inscrever-me.`
+    messages[language]
   );
   return `https://wa.me/${WA}?text=${msg}`;
 }
@@ -37,6 +43,7 @@ function parseImagens(raw: string | null | undefined): string[] {
 }
 
 function EventoModal({ evento, onClose }: { evento: EventoType; onClose: () => void }) {
+  const { t, language } = useLanguage();
   const adicionais = parseImagens(evento.imagensAdicionais);
   const fotos = [
     ...(evento.imagemCapaUrl ? [evento.imagemCapaUrl] : []),
@@ -51,7 +58,7 @@ function EventoModal({ evento, onClose }: { evento: EventoType; onClose: () => v
       <button
         onClick={onClose}
         className="absolute top-6 right-3 z-10 p-1 bg-white/80 hover:bg-white rounded-full text-foreground"
-        aria-label="Fechar"
+         aria-label={t("common.close")}
       >
         <X size={18} />
       </button>
@@ -71,16 +78,16 @@ function EventoModal({ evento, onClose }: { evento: EventoType; onClose: () => v
                   <button
                     onClick={() => setFotoIdx((i) => (i - 1 + fotos.length) % fotos.length)}
                     className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 bg-white/80 hover:bg-white rounded-full"
-                    aria-label="Anterior"
+                     aria-label={t("common.previous")}
                   >
-                    Anterior
+                    {t("common.previous")}
                   </button>
                   <button
                     onClick={() => setFotoIdx((i) => (i + 1) % fotos.length)}
                     className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-white/80 hover:bg-white rounded-full"
-                    aria-label="Próxima"
+                    aria-label={t("common.next")}
                   >
-                    Próxima
+                    {t("common.next")}
                   </button>
                   <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
                     {fotos.map((_, i) => (
@@ -101,7 +108,7 @@ function EventoModal({ evento, onClose }: { evento: EventoType; onClose: () => v
         <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
           <div>
             <p className="text-xs tracking-[0.3em] uppercase text-primary mb-1">
-              {isFuture ? "Próximo Evento" : "Evento Realizado"}
+              {isFuture ? t("agenda.upcomingEvent") : t("agenda.completedEvent")}
             </p>
             <h2 className="font-serif text-2xl text-foreground">{evento.nome}</h2>
           </div>
@@ -117,7 +124,7 @@ function EventoModal({ evento, onClose }: { evento: EventoType; onClose: () => v
 
           {evento.descricao && (
             <div>
-              <p className="text-xs tracking-widest uppercase text-muted-foreground mb-1">Descrição</p>
+              <p className="text-xs tracking-widest uppercase text-muted-foreground mb-1">{t("common.description")}</p>
               <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">{evento.descricao}</p>
             </div>
           )}
@@ -125,12 +132,12 @@ function EventoModal({ evento, onClose }: { evento: EventoType; onClose: () => v
           {isFuture && (
             <div className="mt-auto pt-4">
               <a
-                href={buildWA(evento.nome)}
+                href={buildWA(evento.nome, language)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center px-6 py-3 bg-primary text-white text-xs tracking-widest uppercase hover:bg-primary/90 transition-colors"
               >
-                Interessado
+                {t("common.interested")}
               </a>
             </div>
           )}
@@ -141,6 +148,7 @@ function EventoModal({ evento, onClose }: { evento: EventoType; onClose: () => v
 }
 
 export default function Agenda() {
+  const { t } = useLanguage();
   const { data: eventos, isLoading } = useListEventos();
   const [selected, setSelected] = useState<EventoType | null>(null);
 
@@ -154,8 +162,8 @@ export default function Agenda() {
         {/* Header */}
         <div className="bg-white border-b border-border py-14 px-6">
           <div className="max-w-6xl mx-auto">
-            <p className="text-xs tracking-[0.3em] uppercase text-primary mb-2">Eventos</p>
-            <h1 className="font-serif text-4xl md:text-5xl text-foreground">Agenda</h1>
+            <p className="text-xs tracking-[0.3em] uppercase text-primary mb-2">{t("agenda.eyebrow")}</p>
+            <h1 className="font-serif text-4xl md:text-5xl text-foreground">{t("agenda.title")}</h1>
           </div>
         </div>
 
@@ -163,7 +171,7 @@ export default function Agenda() {
           {/* Próximos eventos */}
           <div>
             <h2 className="font-serif text-2xl text-primary mb-8 pb-3 border-b border-primary/30">
-              Próximos Eventos
+              {t("agenda.upcoming")}
             </h2>
             {isLoading ? (
               <div className="flex flex-col gap-4">
@@ -181,14 +189,14 @@ export default function Agenda() {
                 ))}
               </div>
             ) : (
-              <p className="text-muted-foreground font-serif">Sem eventos futuros agendados</p>
+              <p className="text-muted-foreground font-serif">{t("agenda.noUpcoming")}</p>
             )}
           </div>
 
           {/* Eventos passados */}
           <div>
             <h2 className="font-serif text-2xl text-muted-foreground mb-8 pb-3 border-b border-border">
-              Eventos Passados
+              {t("agenda.past")}
             </h2>
             {isLoading ? (
               <div className="grid grid-cols-1 gap-4">
@@ -206,7 +214,7 @@ export default function Agenda() {
                 ))}
               </div>
             ) : (
-              <p className="text-muted-foreground font-serif">Sem eventos anteriores</p>
+              <p className="text-muted-foreground font-serif">{t("agenda.noPast")}</p>
             )}
           </div>
         </div>
@@ -229,6 +237,8 @@ function EventoCard({
   isFuture: boolean;
   onVer: () => void;
 }) {
+  const { t, language } = useLanguage();
+
   return (
     <div className="border border-border bg-white overflow-hidden" data-testid={`card-evento-${evento.id}`}>
       <div className="flex">
@@ -259,22 +269,22 @@ function EventoCard({
               data-testid={`button-ver-evento-${evento.id}`}
               className="text-xs px-3 py-1 border border-foreground text-foreground hover:bg-foreground hover:text-white transition-colors tracking-wide"
             >
-              Ver
+              {t("common.view")}
             </button>
             {isFuture && (
               <a
-                href={buildWA(evento.nome)}
+                href={buildWA(evento.nome, language)}
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid={`button-interessado-evento-${evento.id}`}
                 className="text-xs px-4 py-1 bg-primary text-white tracking-widest uppercase hover:bg-primary/90 transition-colors"
               >
-                Interessado
+                {t("common.interested")}
               </a>
             )}
             {!isFuture && (
               <span className="text-xs tracking-widest uppercase text-muted-foreground border border-border px-3 py-1">
-                Realizado
+                {t("common.realized")}
               </span>
             )}
           </div>

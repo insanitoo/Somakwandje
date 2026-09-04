@@ -3,10 +3,11 @@ import { useGetBlogPost, getGetBlogPostQueryKey } from "@workspace/api-client-re
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/i18n";
 
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("pt-PT", {
+function formatDate(iso: string, locale: string) {
+  return new Date(iso).toLocaleDateString(locale, {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -14,6 +15,7 @@ function formatDate(iso: string) {
 }
 
 export default function BlogPost() {
+  const { t, locale } = useLanguage();
   const params = useParams<{ id: string }>();
   const id = parseInt(params.id ?? "0", 10);
 
@@ -48,10 +50,10 @@ export default function BlogPost() {
             )}
             <div className="max-w-3xl mx-auto px-6 py-16">
               <Link href="/blog" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
-                Voltar às Opiniões
+                 {t("blogPost.back")}
               </Link>
               <p className="text-xs text-muted-foreground tracking-widest uppercase mb-4">
-                {formatDate(post.dataPublicacao)}
+                 {formatDate(post.dataPublicacao, locale)}
               </p>
               <h1 className="font-serif text-3xl md:text-4xl text-foreground leading-tight mb-8">
                 {post.titulo}
@@ -62,10 +64,10 @@ export default function BlogPost() {
             </div>
           </>
         ) : (
-          <div className="py-32 text-center">
-            <p className="font-serif text-2xl text-muted-foreground">Artigo não encontrado</p>
+           <div className="py-32 text-center">
+             <p className="font-serif text-2xl text-muted-foreground">{t("blogPost.notFound")}</p>
             <Link href="/blog" className="text-sm tracking-widest uppercase text-primary border-b border-primary pb-0.5 mt-4 inline-block">
-              Voltar
+               {t("blogPost.goBack")}
             </Link>
           </div>
         )}

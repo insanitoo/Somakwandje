@@ -8,11 +8,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Lock, Play, GraduationCap } from "lucide-react";
+import { useLanguage, type Language } from "@/i18n";
 
 const WA = "244934959424";
 
-function buildWACurso(nome: string) {
-  const msg = encodeURIComponent(`Vi o curso "${nome}" disponível, quero um acesso.`);
+function buildWACurso(nome: string, language: Language) {
+  const messages: Record<Language, string> = {
+    pt: `Vi o curso "${nome}" disponível, quero um acesso.`,
+    en: `I saw the course "${nome}" available and would like access.`,
+    fr: `J’ai vu que le cours « ${nome} » est disponible et j’aimerais y accéder.`,
+  };
+  const msg = encodeURIComponent(messages[language]);
   return `https://wa.me/${WA}?text=${msg}`;
 }
 
@@ -32,10 +38,12 @@ function parseAulas(raw: string | null | undefined): Aula[] {
 }
 
 function VideoPlayer({ url }: { url: string }) {
+  const { t } = useLanguage();
+
   if (!url) {
     return (
       <div className="relative w-full aspect-video bg-black flex items-center justify-center">
-        <p className="text-white/60 text-sm">Vídeo não disponível</p>
+        <p className="text-white/60 text-sm">{t("courses.videoUnavailable")}</p>
       </div>
     );
   }
@@ -53,6 +61,7 @@ function VideoPlayer({ url }: { url: string }) {
 }
 
 function CursoModal({ curso, onClose }: { curso: Curso; onClose: () => void }) {
+  const { t, language } = useLanguage();
   const [chave, setChave] = useState("");
   const [unlocked, setUnlocked] = useState(false);
   const [erro, setErro] = useState("");
@@ -69,11 +78,11 @@ function CursoModal({ curso, onClose }: { curso: Curso; onClose: () => void }) {
           setUnlocked(true);
           setErro("");
         } else {
-          setErro("Chave incorrecta. Tenta novamente.");
+          setErro(t("courses.wrongKey"));
         }
       },
       onError: () => {
-        setErro("Chave incorrecta. Tenta novamente.");
+        setErro(t("courses.wrongKey"));
       }
     });
   }
@@ -95,7 +104,7 @@ function CursoModal({ curso, onClose }: { curso: Curso; onClose: () => void }) {
             {curso.descricao && (
               <p className="text-sm text-muted-foreground mt-1">{curso.descricao}</p>
             )}
-            <p className="text-xs text-muted-foreground mt-1">{aulas.length} {aulas.length === 1 ? "aula" : "aulas"}</p>
+            <p className="text-xs text-muted-foreground mt-1">{aulas.length} {aulas.length === 1 ? t("courses.lesson") : t("courses.lessons")}</p>
           </div>
         </div>
 
@@ -105,12 +114,12 @@ function CursoModal({ curso, onClose }: { curso: Curso; onClose: () => void }) {
             <div className="text-center">
               
               
-              <p className="text-sm text-muted-foreground">Insere a chave de acesso para ver as aulas</p>
+              <p className="text-sm text-muted-foreground">{t("courses.accessPrompt")}</p>
             </div>
             <div className="w-full max-w-xs flex flex-col gap-3">
               <Input
                 type="password"
-                placeholder="Chave de acesso"
+                placeholder={t("courses.accessKey")}
                 value={chave}
                 onChange={(e) => { setChave(e.target.value); setErro(""); }}
                 onKeyDown={(e) => e.key === "Enter" && handleVerificar()}
@@ -122,17 +131,17 @@ function CursoModal({ curso, onClose }: { curso: Curso; onClose: () => void }) {
                 disabled={verificar.isPending || !chave.trim()}
                 className="rounded-none text-xs tracking-widest uppercase bg-primary hover:bg-primary/90"
               >
-                {verificar.isPending ? "A verificar..." : "Desbloquear"}
+                {verificar.isPending ? t("courses.checking") : t("courses.unlock")}
               </Button>
               <p className="text-xs text-muted-foreground text-center mt-1">
-                Se não tem acesso a este curso,{" "}
+                {t("courses.noAccess")}{" "}
                 <a
-                  href={buildWACurso(curso.nome)}
+                   href={buildWACurso(curso.nome, language)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary underline underline-offset-2"
                 >
-                  clique aqui para Participar
+                  {t("courses.participate")}
                 </a>
               </p>
             </div>
@@ -150,7 +159,7 @@ function CursoModal({ curso, onClose }: { curso: Curso; onClose: () => void }) {
                         onClick={() => setAulaIdx(aulaIdx - 1)}
                         className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
                       >
-                        Anterior
+                        {t("common.previous")}
                       </button>
                     )}
                     <p className="font-medium text-sm text-foreground flex-1 text-center">
@@ -161,14 +170,14 @@ function CursoModal({ curso, onClose }: { curso: Curso; onClose: () => void }) {
                         onClick={() => setAulaIdx(aulaIdx + 1)}
                         className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
                       >
-                        Próxima
+                        {t("common.next")}
                       </button>
                     )}
                   </div>
 
                   {aulas.length > 1 && (
                     <div className="border border-border">
-                      <p className="px-3 py-2 text-xs tracking-widest uppercase text-muted-foreground border-b border-border">Aulas</p>
+                      <p className="px-3 py-2 text-xs tracking-widest uppercase text-muted-foreground border-b border-border">{t("courses.lessonsTitle")}</p>
                       {aulas.map((aula, i) => (
                         <button
                           key={i}
@@ -187,7 +196,7 @@ function CursoModal({ curso, onClose }: { curso: Curso; onClose: () => void }) {
               </>
             ) : (
               <div className="flex-1 flex items-center justify-center p-8 text-center">
-                <p className="text-muted-foreground font-serif">Este curso ainda não tem aulas disponíveis.</p>
+                <p className="text-muted-foreground font-serif">{t("courses.noLessons")}</p>
               </div>
             )}
           </div>
@@ -198,6 +207,7 @@ function CursoModal({ curso, onClose }: { curso: Curso; onClose: () => void }) {
 }
 
 export default function Cursos() {
+  const { t } = useLanguage();
   const { data: cursos, isLoading } = useListCursos();
   const [selected, setSelected] = useState<Curso | null>(null);
 
@@ -208,8 +218,8 @@ export default function Cursos() {
         {/* Header */}
         <div className="bg-white border-b border-border py-14 px-6">
           <div className="max-w-6xl mx-auto">
-            <p className="text-xs tracking-[0.3em] uppercase text-primary mb-2">Aprendizagem</p>
-            <h1 className="font-serif text-4xl md:text-5xl text-foreground">Cursos</h1>
+            <p className="text-xs tracking-[0.3em] uppercase text-primary mb-2">{t("courses.eyebrow")}</p>
+            <h1 className="font-serif text-4xl md:text-5xl text-foreground">{t("courses.title")}</h1>
           </div>
         </div>
 
@@ -256,13 +266,13 @@ export default function Cursos() {
                       )}
                       <div className="mt-3 flex items-center justify-between">
                         <span className="text-xs text-muted-foreground">
-                          {aulas.length} {aulas.length === 1 ? "aula" : "aulas"}
+                          {aulas.length} {aulas.length === 1 ? t("courses.lesson") : t("courses.lessons")}
                         </span>
                         <button
                           onClick={() => setSelected(curso)}
                           className="text-xs px-4 py-1.5 bg-primary text-white hover:bg-primary/90 transition-colors tracking-wide flex items-center gap-1.5"
                         >
-                          <Lock size={12} /> Aceder
+                          <Lock size={12} /> {t("common.view")}
                         </button>
                       </div>
                     </div>
@@ -272,9 +282,9 @@ export default function Cursos() {
             </div>
           ) : (
             <div className="py-32 text-center">
-              <h2 className="font-serif text-2xl text-foreground mb-2">Cursos disponíveis em breve</h2>
+              <h2 className="font-serif text-2xl text-foreground mb-2">{t("courses.availableSoon")}</h2>
               <p className="text-muted-foreground text-sm max-w-md mx-auto">
-                Estamos a preparar conteúdo especial para ti. Volta em breve para saber mais.
+                {t("courses.preparing")}
               </p>
             </div>
           )}

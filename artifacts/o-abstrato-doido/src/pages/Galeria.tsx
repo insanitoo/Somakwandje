@@ -6,7 +6,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { X } from "lucide-react";
+import { Minus, Plus, X } from "lucide-react";
+import { useLanguage, type Language } from "@/i18n";
 
 type StatusFilter = "todas" | "disponivel" | "vendido";
 type TamanhoFilter = "todos" | "grande" | "pequena";
@@ -34,9 +35,14 @@ function getEffectiveDesconto(obra: Obra, globalDesconto: number): number {
 
 const WA = "244934959424";
 
-function buildWA(titulo: string) {
+function buildWA(titulo: string, language: Language) {
+  const messages: Record<Language, string> = {
+    pt: `Olá, vi no seu site que a obra "${titulo}" ainda está disponível... Gostaria de comprá-la.`,
+    en: `Hello, I saw on your website that the work "${titulo}" is still available. I would like to buy it.`,
+    fr: `Bonjour, j’ai vu sur votre site que l’œuvre « ${titulo} » est encore disponible. J’aimerais l’acheter.`,
+  };
   const msg = encodeURIComponent(
-    `Olá, vi no seu site que a obra "${titulo}" ainda está disponível... Gostaria de comprá-la.`
+    messages[language]
   );
   return `https://wa.me/${WA}?text=${msg}`;
 }
@@ -60,13 +66,31 @@ function getObraPhotos(obra: Obra): string[] {
 }
 
 function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () => void; globalDesconto: number }) {
+  const { t, language } = useLanguage();
   const photos = getObraPhotos(obra);
   const [photoIdx, setPhotoIdx] = useState(0);
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
+  const [zoom, setZoom] = useState(1);
   const [frameRatio, setFrameRatio] = useState(4 / 3);
   const touchStartX = useRef<number | null>(null);
   const didSwipe = useRef(false);
+  const pinchPointers = useRef(new Map<number, { x: number; y: number }>());
+  const pinchStartDistance = useRef<number | null>(null);
+  const pinchStartZoom = useRef(1);
+  const backgroundCloseTimer = useRef<number | null>(null);
   const effectiveDesconto = getEffectiveDesconto(obra, globalDesconto);
+
+  useEffect(() => {
+    setZoom(1);
+  }, [photoIdx, fullscreenOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (backgroundCloseTimer.current !== null) {
+        window.clearTimeout(backgroundCloseTimer.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -117,6 +141,78 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
     touchStartX.current = null;
   }
 
+  function clampZoom(value: number) {
+    return Math.min(4, Math.max(1, Number(value.toFixed(2))));
+  }
+
+  function pointerDistance() {
+    const points = Array.from(pinchPointers.current.values());
+    if (points.length < 2) return 0;
+    return Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
+  }
+
+  function handleFullscreenPointerDown(e: React.PointerEvent<HTMLElement>) {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    pinchPointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    e.currentTarget.setPointerCapture(e.pointerId);
+
+    if (pinchPointers.current.size === 2) {
+      pinchStartDistance.current = pointerDistance();
+      pinchStartZoom.current = zoom;
+      touchStartX.current = null;
+      didSwipe.current = true;
+      return;
+    }
+
+    if (zoom <= 1) handleSwipeStart(e);
+  }
+
+  function handleFullscreenPointerMove(e: React.PointerEvent<HTMLElement>) {
+    if (!pinchPointers.current.has(e.pointerId)) return;
+    pinchPointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pinchStartDistance.current) {
+      e.preventDefault();
+      setZoom(clampZoom(pinchStartZoom.current * (pointerDistance() / pinchStartDistance.current)));
+    }
+  }
+
+  function handleFullscreenPointerUp(e: React.PointerEvent<HTMLElement>) {
+    const wasPinching = pinchPointers.current.size >= 2 || pinchStartDistance.current !== null;
+    pinchPointers.current.delete(e.pointerId);
+    if (pinchPointers.current.size < 2) pinchStartDistance.current = null;
+    if (wasPinching) {
+      touchStartX.current = null;
+      didSwipe.current = true;
+      return;
+    }
+    if (zoom <= 1) handleSwipeEnd(e);
+  }
+
+  function handleFullscreenWheel(e: React.WheelEvent<HTMLElement>) {
+    e.preventDefault();
+    setZoom((current) => clampZoom(current - e.deltaY * 0.002));
+  }
+
+  function toggleZoom() {
+    setZoom((current) => (current > 1 ? 1 : 2));
+  }
+
+  function handleFullscreenClick(e: React.MouseEvent<HTMLElement>) {
+    if (e.target !== e.currentTarget) return;
+    if (e.detail > 1 || didSwipe.current) {
+      if (backgroundCloseTimer.current !== null) {
+        window.clearTimeout(backgroundCloseTimer.current);
+        backgroundCloseTimer.current = null;
+      }
+      didSwipe.current = false;
+      return;
+    }
+    backgroundCloseTimer.current = window.setTimeout(() => {
+      setFullscreenOpen(false);
+      backgroundCloseTimer.current = null;
+    }, 220);
+  }
+
   function handleImageClick() {
     if (didSwipe.current) {
       didSwipe.current = false;
@@ -144,7 +240,7 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
       <button
         onClick={onClose}
         className="absolute top-3 right-3 z-20 p-2 bg-white/85 hover:bg-white rounded-full text-foreground shadow-sm"
-        aria-label="Fechar"
+        aria-label={t("common.close")}
       >
         <X size={18} />
       </button>
@@ -174,7 +270,7 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
                       key={i}
                       onClick={() => setPhotoIdx(i)}
                       className={`w-2 h-2 rounded-full transition-colors ${i === photoIdx ? "bg-white" : "bg-white/50"}`}
-                      aria-label={`Ver foto ${i + 1}`}
+                      aria-label={`${t("gallery.photoOf")} ${i + 1}`}
                     />
                   ))}
                 </div>
@@ -208,36 +304,36 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
         <div className="w-full md:w-1/2 min-h-0 overflow-y-auto p-5 md:p-6 flex flex-col gap-4">
           <div>
             <p className="text-xs tracking-[0.3em] uppercase text-muted-foreground mb-1">
-              {obra.status === "disponivel" ? "Disponível" : "Vendida"}
-              {obra.tamanho && obra.tamanho !== "media" && ` · ${obra.tamanho === "grande" ? "Grande" : "Pequena"}`}
+              {obra.status === "disponivel" ? t("common.available") : t("common.soldFemale")}
+              {obra.tamanho && obra.tamanho !== "media" && ` · ${obra.tamanho === "grande" ? t("common.large") : t("common.small")}`}
             </p>
             <h2 className="font-serif text-2xl text-foreground">{obra.titulo}</h2>
           </div>
 
           {obra.tecnica && (
             <div>
-              <p className="text-xs tracking-widest uppercase text-muted-foreground mb-0.5">Técnica</p>
+              <p className="text-xs tracking-widest uppercase text-muted-foreground mb-0.5">{t("gallery.technique")}</p>
               <p className="text-sm text-foreground">{obra.tecnica}</p>
             </div>
           )}
 
           {obra.tamanho && obra.tamanho !== "media" && (
             <div>
-              <p className="text-xs tracking-widest uppercase text-muted-foreground mb-0.5">Tamanho</p>
+              <p className="text-xs tracking-widest uppercase text-muted-foreground mb-0.5">{t("gallery.size")}</p>
               <p className="text-sm text-foreground">{obra.tamanho === "grande" ? "Grande" : "Pequena"}</p>
             </div>
           )}
 
           {obra.dimensoes && (
             <div>
-              <p className="text-xs tracking-widest uppercase text-muted-foreground mb-0.5">Dimensões</p>
+              <p className="text-xs tracking-widest uppercase text-muted-foreground mb-0.5">{t("gallery.dimensions")}</p>
               <p className="text-sm text-foreground">{obra.dimensoes}</p>
             </div>
           )}
 
           {obra.status === "disponivel" && obra.preco && (
             <div>
-              <p className="text-xs tracking-widest uppercase text-muted-foreground mb-0.5">Preço</p>
+              <p className="text-xs tracking-widest uppercase text-muted-foreground mb-0.5">{t("gallery.price")}</p>
               {effectiveDesconto > 0 ? (() => {
                 const num = parsePrecoNum(obra.preco);
                 const discountedNum = num != null ? num * (1 - effectiveDesconto / 100) : null;
@@ -247,7 +343,7 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
                       {discountedNum != null ? formatPreco(discountedNum) : formatObraPreco(obra.preco)}
                     </p>
                     <p className="text-sm line-through text-muted-foreground">{formatObraPreco(obra.preco)}</p>
-                    <span className="text-xs text-green-700 font-medium">-{effectiveDesconto}%</span>
+                    <span className="text-xs text-green-700 font-medium">-{effectiveDesconto}% {t("gallery.discount")}</span>
                   </div>
                 );
               })() : (
@@ -258,7 +354,7 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
 
           {obra.descricao && (
             <div>
-              <p className="text-xs tracking-widest uppercase text-muted-foreground mb-0.5">Descrição</p>
+              <p className="text-xs tracking-widest uppercase text-muted-foreground mb-0.5">{t("common.description")}</p>
               <p className="text-sm text-foreground leading-relaxed">{obra.descricao}</p>
             </div>
           )}
@@ -266,16 +362,16 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
           <div className="mt-auto pt-4">
             {obra.status === "disponivel" ? (
               <a
-                href={buildWA(obra.titulo)}
+                href={buildWA(obra.titulo, language)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center px-6 py-3 bg-primary text-white text-xs tracking-widest uppercase hover:bg-primary/90 transition-colors"
               >
-                Saber mais
+                {t("gallery.moreInfo")}
               </a>
             ) : (
               <div className="w-full flex items-center justify-center px-6 py-3 bg-muted text-muted-foreground text-xs tracking-widest uppercase">
-                Obra vendida
+                {t("gallery.workSold")}
               </div>
             )}
           </div>
@@ -284,15 +380,20 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
       {fullscreenOpen && photos.length > 0 && createPortal(
           <div
           role="dialog"
-          aria-label={`Imagem ampliada: ${obra.titulo}`}
+          aria-label={`${t("gallery.enlargedImageOf")}: ${obra.titulo}`}
           aria-modal="true"
-            className="fixed inset-0 z-[100] bg-black/95 p-3 sm:p-8 flex items-center justify-center select-none touch-none pointer-events-auto"
-            onClick={(event) => {
-              if (event.target === event.currentTarget) setFullscreenOpen(false);
+            className="fixed inset-0 z-[100] bg-black/95 p-3 sm:p-8 flex items-center justify-center overflow-hidden select-none touch-none pointer-events-auto"
+            onClick={handleFullscreenClick}
+            onDoubleClick={toggleZoom}
+            onWheel={handleFullscreenWheel}
+            onPointerDown={handleFullscreenPointerDown}
+            onPointerMove={handleFullscreenPointerMove}
+            onPointerUp={handleFullscreenPointerUp}
+            onPointerCancel={(event) => {
+              pinchPointers.current.delete(event.pointerId);
+              pinchStartDistance.current = null;
+              cancelSwipe();
             }}
-            onPointerDown={handleSwipeStart}
-            onPointerUp={handleSwipeEnd}
-            onPointerCancel={cancelSwipe}
         >
           <button
             type="button"
@@ -306,15 +407,47 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
                 setFullscreenOpen(false);
               }}
             className="absolute top-4 left-4 z-[120] pointer-events-auto p-2 rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors"
-            aria-label="Fechar imagem ampliada"
+            aria-label={t("gallery.closeEnlarged")}
           >
             <X size={22} />
           </button>
+          <div
+            className="absolute bottom-4 right-4 z-[120] flex items-center gap-1 bg-black/55 text-white pointer-events-auto"
+            onPointerDown={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setZoom((current) => clampZoom(current - 0.5))}
+              className="p-2 hover:bg-white/15 transition-colors disabled:opacity-40"
+              disabled={zoom <= 1}
+              aria-label={t("gallery.zoomOut")}
+            >
+              <Minus size={18} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setZoom(1)}
+              className="min-w-12 px-1 py-2 text-xs tabular-nums hover:bg-white/15 transition-colors"
+              aria-label={t("gallery.resetZoom")}
+            >
+              {Math.round(zoom * 100)}%
+            </button>
+            <button
+              type="button"
+              onClick={() => setZoom((current) => clampZoom(current + 0.5))}
+              className="p-2 hover:bg-white/15 transition-colors disabled:opacity-40"
+              disabled={zoom >= 4}
+              aria-label={t("gallery.zoomIn")}
+            >
+              <Plus size={18} />
+            </button>
+          </div>
           <img
             src={photos[photoIdx]}
             alt={obra.titulo}
               draggable={false}
-              className="max-w-full max-h-full w-full h-full object-contain select-none pointer-events-none"
+              className="max-w-full max-h-full w-full h-full object-contain select-none pointer-events-none transition-transform duration-150"
+              style={{ transform: `scale(${zoom})` }}
           />
             {photos.length > 1 && (
               <span className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1.5 text-[11px] tracking-wide pointer-events-none">
@@ -329,6 +462,7 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
 }
 
 export default function Galeria() {
+  const { t } = useLanguage();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("todas");
   const [tamanhoFilter, setTamanhoFilter] = useState<TamanhoFilter>("todos");
   const [selectedObra, setSelectedObra] = useState<Obra | null>(null);
@@ -383,7 +517,7 @@ export default function Galeria() {
         <div className="bg-white border-b border-border py-14 px-6">
           <div className="max-w-6xl mx-auto">
             <p className="text-xs tracking-[0.3em] uppercase text-primary mb-2"></p>
-            <h1 className="font-serif text-4xl md:text-5xl text-foreground">Galeria</h1>
+            <h1 className="font-serif text-4xl md:text-5xl text-foreground">{t("gallery.title")}</h1>
           </div>
         </div>
 
@@ -392,7 +526,7 @@ export default function Galeria() {
           <div className="max-w-6xl mx-auto flex flex-col gap-3">
             {/* Estado */}
             <div className="flex items-center gap-3">
-              <span className="text-xs tracking-widest uppercase text-muted-foreground w-20 shrink-0">Estado</span>
+              <span className="text-xs tracking-widest uppercase text-muted-foreground w-20 shrink-0">{t("gallery.state")}</span>
               <div className="flex gap-2">
                 {(["disponivel", "vendido"] as const).map((f) => (
                   <button
@@ -404,7 +538,7 @@ export default function Galeria() {
                         : "bg-white border border-border text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    {f === "disponivel" ? "Disponíveis" : "Vendidas"}
+                    {f === "disponivel" ? t("common.availablePlural") : t("common.soldPlural")}
                   </button>
                 ))}
               </div>
@@ -412,7 +546,7 @@ export default function Galeria() {
 
             {/* Tamanho */}
             <div className="flex items-center gap-3">
-              <span className="text-xs tracking-widest uppercase text-muted-foreground w-20 shrink-0">Tamanho</span>
+              <span className="text-xs tracking-widest uppercase text-muted-foreground w-20 shrink-0">{t("gallery.size")}</span>
               <div className="flex gap-2">
                 {(["grande", "pequena"] as const).map((f) => (
                   <button
@@ -424,7 +558,7 @@ export default function Galeria() {
                         : "bg-white border border-border text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    {f === "grande" ? "Grandes" : "Pequenas"}
+                    {f === "grande" ? t("common.largePlural") : t("common.smallPlural")}
                   </button>
                 ))}
               </div>
@@ -452,7 +586,7 @@ export default function Galeria() {
                     <button
                       type="button"
                       onClick={() => setSelectedObra(obra)}
-                      aria-label={`Ver detalhes de ${obra.titulo}`}
+                      aria-label={`${t("gallery.detailsOf")} ${obra.titulo}`}
                       className="block w-full text-left aspect-square overflow-hidden bg-primary/10 relative"
                     >
                     {obra.imagemUrl ? (
@@ -468,7 +602,7 @@ export default function Galeria() {
                     )}
                       {obra.status === "vendido" && (
                         <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/60 text-white text-xs tracking-wide">
-                          Vendida
+                          {t("common.soldFemale")}
                         </div>
                       )}
                     </button>
@@ -498,14 +632,14 @@ export default function Galeria() {
                     <div className="mt-3 flex items-center justify-between gap-2">
                       <span className={`text-xs flex items-center gap-1 ${obra.status === "disponivel" ? "text-primary" : "text-muted-foreground"}`}>
                         <span className={`inline-block w-1.5 h-1.5 rounded-full ${obra.status === "disponivel" ? "bg-primary" : "bg-muted-foreground"}`} />
-                        {obra.status === "disponivel" ? "Disponível" : "Vendido"}
+                        {obra.status === "disponivel" ? t("common.available") : t("common.sold")}
                       </span>
                       <button
                         onClick={() => setSelectedObra(obra)}
                         data-testid={`button-ver-${obra.id}`}
                         className="text-xs px-3 py-1 border border-foreground text-foreground hover:bg-foreground hover:text-white transition-colors tracking-wide"
                       >
-                        Ver
+                         {t("common.view")}
                       </button>
                     </div>
                   </div>
@@ -514,12 +648,12 @@ export default function Galeria() {
             </div>
           ) : (
             <div className="py-24 text-center">
-              <p className="font-serif text-2xl text-muted-foreground">Nenhuma obra encontrada</p>
+               <p className="font-serif text-2xl text-muted-foreground">{t("gallery.noWorks")}</p>
               <button
                 onClick={() => { setStatusFilter("todas"); setTamanhoFilter("todos"); }}
                 className="mt-4 text-sm tracking-widest uppercase text-primary border-b border-primary pb-0.5"
               >
-                Ver todas
+                 {t("gallery.seeAll")}
               </button>
             </div>
           )}

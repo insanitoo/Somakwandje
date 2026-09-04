@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
+import { languageOptions, useLanguage } from "@/i18n";
 
 function WhatsAppIcon({ size = 20 }: { size?: number }) {
   return (
@@ -11,15 +12,16 @@ function WhatsAppIcon({ size = 20 }: { size?: number }) {
 }
 
 const links = [
-  { href: "/", label: "Home" },
-  { href: "/galeria", label: "Galeria" },
-  { href: "/agenda", label: "Agenda" },
-  { href: "/sobre", label: "Sobre" },
+  { href: "/", key: "home" as const },
+  { href: "/galeria", key: "gallery" as const },
+  { href: "/agenda", key: "agenda" as const },
+  { href: "/sobre", key: "about" as const },
 ];
 
 export default function Navbar() {
   const [location] = useLocation();
   const [open, setOpen] = useState(false);
+  const { language, setLanguage, t } = useLanguage();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
@@ -34,25 +36,42 @@ export default function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              data-testid={`nav-${link.label.toLowerCase()}`}
+              data-testid={`nav-${link.key}`}
               className={`text-sm tracking-widest uppercase transition-colors ${
                 location === link.href
                   ? "text-primary font-medium border-b border-primary pb-0.5"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {link.label}
+              {t(`nav.${link.key}`)}
             </Link>
           ))}
         </div>
 
-        {/* WhatsApp + Mobile hamburger */}
+        {/* Language + WhatsApp + Mobile hamburger */}
         <div className="flex items-center gap-3 md:gap-4">
+          <label className="relative flex items-center text-foreground" title={t("nav.language")}>
+            <span className="sr-only">{t("nav.language")}</span>
+            <select
+              value={language}
+              onChange={(event) => setLanguage(event.target.value as typeof language)}
+              aria-label={t("nav.language")}
+              className="appearance-none bg-transparent pl-1 pr-5 py-1 text-xs font-medium tracking-widest cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
+              data-testid="select-language"
+            >
+              {languageOptions.map((option) => (
+                <option key={option.code} value={option.code}>
+                  {option.code.toUpperCase()} — {option.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown size={13} className="absolute right-0 pointer-events-none" aria-hidden="true" />
+          </label>
           <a
             href="https://wa.me/244934959424"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="WhatsApp"
+            aria-label={t("nav.whatsapp")}
             className="text-foreground hover:text-primary transition-colors"
             data-testid="link-whatsapp-header"
           >
@@ -62,7 +81,7 @@ export default function Navbar() {
             className="md:hidden text-foreground"
             onClick={() => setOpen(!open)}
             data-testid="button-menu-mobile"
-            aria-label="Menu"
+            aria-label={t("nav.menu")}
           >
             {open ? <X size={22} /> : <Menu size={22} />}
           </button>
@@ -81,7 +100,7 @@ export default function Navbar() {
                 location === link.href ? "text-primary font-medium" : "text-muted-foreground"
               }`}
             >
-              {link.label}
+              {t(`nav.${link.key}`)}
             </Link>
           ))}
         </div>
