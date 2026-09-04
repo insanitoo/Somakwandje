@@ -73,6 +73,8 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [frameRatio, setFrameRatio] = useState(4 / 3);
+  const zoomRef = useRef(1);
+  const panRef = useRef({ x: 0, y: 0 });
   const touchStartX = useRef<number | null>(null);
   const didSwipe = useRef(false);
   const pinchPointers = useRef(new Map<number, { x: number; y: number }>());
@@ -85,8 +87,13 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
   const effectiveDesconto = getEffectiveDesconto(obra, globalDesconto);
 
   useEffect(() => {
+    zoomRef.current = 1;
+    panRef.current = { x: 0, y: 0 };
     setZoom(1);
     setPan({ x: 0, y: 0 });
+    if (fullscreenImageRef.current) {
+      fullscreenImageRef.current.style.transform = "translate3d(0, 0, 0) scale(1)";
+    }
   }, [photoIdx, fullscreenOpen]);
 
   useEffect(() => {
@@ -150,7 +157,7 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
     return Math.min(4, Math.max(1, Number(value.toFixed(2))));
   }
 
-  function clampPan(next: { x: number; y: number }, scale = zoom) {
+  function clampPan(next: { x: number; y: number }, scale = zoomRef.current) {
     const frame = fullscreenFrameRef.current;
     const image = fullscreenImageRef.current;
     const frameWidth = frame?.clientWidth ?? window.innerWidth;
@@ -165,10 +172,19 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
     };
   }
 
-  function updateZoom(nextZoom: number) {
+  function applyTransform(nextZoom: number, nextPan: { x: number; y: number }, commit = false) {
     const next = clampZoom(nextZoom);
-    setZoom(next);
-    setPan((current) => clampPan(current, next));
+    const constrainedPan = clampPan(nextPan, next);
+    zoomRef.current = next;
+    panRef.current = constrainedPan;
+    if (fullscreenImageRef.current) {
+      fullscreenImageRef.current.style.transform =
+        `translate3d(${constrainedPan.x}px, ${constrainedPan.y}px, 0) scale(${next})`;
+    }
+    if (commit) {
+      setZoom(next);
+      setPan(constrainedPan);
+    }
   }
 
   function pointerDistance() {
@@ -184,15 +200,20 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
 
     if (pinchPointers.current.size === 2) {
       pinchStartDistance.current = pointerDistance();
-      pinchStartZoom.current = zoom;
+      pinchStartZoom.current = zoomRef.current;
       panStart.current = null;
       touchStartX.current = null;
       didSwipe.current = true;
       return;
     }
 
-    if (zoom > 1) {
-      panStart.current = { x: e.clientX, y: e.clientY, panX: pan.x, panY: pan.y };
+    if (zoomRef.current > 1) {
+      panStart.current = {
+        x: e.clientX,
+        y: e.clientY,
+        panX: panRef.current.x,
+        panY: panRef.current.y,
+      };
     } else {
       handleSwipeStart(e);
     }
@@ -203,13 +224,16 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
     pinchPointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pinchStartDistance.current) {
       e.preventDefault();
-      updateZoom(pinchStartZoom.current * (pointerDistance() / pinchStartDistance.current));
-    } else if (zoom > 1 && panStart.current) {
+      applyTransform(
+        pinchStartZoom.current * (pointerDistance() / pinchStartDistance.current),
+        panRef.current,
+      );
+    } else if (zoomRef.current > 1 && panStart.current) {
       e.preventDefault();
-      setPan(clampPan({
+      applyTransform(zoomRef.current, {
         x: panStart.current.panX + e.clientX - panStart.current.x,
         y: panStart.current.panY + e.clientY - panStart.current.y,
-      }));
+      });
     }
   }
 
@@ -218,12 +242,16 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
     pinchPointers.current.delete(e.pointerId);
     if (pinchPointers.current.size < 2) pinchStartDistance.current = null;
     if (wasPinching) {
+      setZoom(zoomRef.current);
+      setPan(panRef.current);
       panStart.current = null;
       touchStartX.current = null;
       didSwipe.current = true;
       return;
     }
-    if (zoom > 1) {
+    if (zoomRef.current > 1) {
+      setZoom(zoomRef.current);
+      setPan(panRef.current);
       panStart.current = null;
       touchStartX.current = null;
       didSwipe.current = true;
@@ -234,11 +262,11 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
 
   function handleFullscreenWheel(e: React.WheelEvent<HTMLElement>) {
     e.preventDefault();
-    updateZoom(zoom - e.deltaY * 0.002);
+    applyTransform(zoomRef.current - e.deltaY * 0.002, panRef.current, true);
   }
 
   function toggleZoom() {
-    updateZoom(zoom > 1 ? 1 : 2);
+    applyTransform(zoomRef.current > 1 ? 1 : 2, panRef.current, true);
   }
 
   function handleFullscreenClick(e: React.MouseEvent<HTMLElement>) {
@@ -462,7 +490,7 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
             src={photos[photoIdx]}
             alt={obra.titulo}
               draggable={false}
-              className={`max-w-full max-h-full object-contain select-none pointer-events-none transition-transform duration-150 ${
+              className={`max-w-full max-h-full object-contain select-none pointer-events-none will-change-transform ${
                 zoom > 1 ? "cursor-grab" : "cursor-zoom-in"
               }`}
               style={{ transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${zoom})` }}

@@ -16,6 +16,7 @@ const links = [
   { href: "/galeria", key: "gallery" as const },
   { href: "/agenda", key: "agenda" as const },
   { href: "/sobre", key: "about" as const },
+  { href: "/cursos", key: "courses" as const },
 ];
 
 export default function Navbar() {
