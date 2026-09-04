@@ -60,9 +60,6 @@ export default function MetricsAdmin() {
         <div>
           <p className="text-xs tracking-widest uppercase text-muted-foreground mb-2">Análise do site</p>
           <h1 className="text-2xl font-semibold text-foreground">Métricas de acesso</h1>
-          <p className="text-sm text-muted-foreground mt-2">
-            Dados recolhidos pelo próprio site, sem serviços externos de analytics.
-          </p>
         </div>
         <div className="flex border border-[hsl(40,10%,85%)] bg-white self-start sm:self-auto">
           {(["day", "week", "month"] as Period[]).map((item) => (

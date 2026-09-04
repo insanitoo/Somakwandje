@@ -149,7 +149,7 @@ export default function OrdemAdmin() {
         <Star size={14} className="text-amber-400 fill-amber-400" />
         <span>= aparece em Destaque na página inicial (destaque até 4 obras)</span>
       </div>
-      <p className="mb-4 text-xs text-muted-foreground">Pressione e arraste uma obra para definir a ordem. Também pode usar as setas. Clique em Guardar para aplicar.</p>
+      
 
       {isLoading ? (
         <div className="space-y-2">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-14 w-full" />)}</div>
