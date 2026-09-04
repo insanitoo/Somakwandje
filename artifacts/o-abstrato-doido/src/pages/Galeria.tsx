@@ -131,6 +131,12 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
       onPointerDownOutside={(event) => {
         if (fullscreenOpen) event.preventDefault();
       }}
+      onInteractOutside={(event) => {
+        if (fullscreenOpen) event.preventDefault();
+      }}
+      onFocusOutside={(event) => {
+        if (fullscreenOpen) event.preventDefault();
+      }}
       className="w-[calc(100%-1rem)] max-w-4xl rounded-none p-0 overflow-hidden max-h-[calc(100dvh-1rem)] flex flex-col"
       aria-describedby={undefined}
     >
@@ -291,27 +297,15 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
           <button
             type="button"
             data-testid="button-close-fullscreen"
-            onClickCapture={(event) => {
-              event.preventDefault();
+            onPointerDown={(event) => {
               event.stopPropagation();
-              setFullscreenOpen(false);
-            }}
-            onPointerDownCapture={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              setFullscreenOpen(false);
             }}
               onClick={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
                 setFullscreenOpen(false);
               }}
-              onPointerDown={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                setFullscreenOpen(false);
-              }}
-            className="absolute top-4 right-4 z-[120] pointer-events-auto p-2 rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors"
+            className="absolute top-4 left-4 z-[120] pointer-events-auto p-2 rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors"
             aria-label="Fechar imagem ampliada"
           >
             <X size={22} />
