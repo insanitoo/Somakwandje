@@ -4,8 +4,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, MapPin, ArrowRight } from "lucide-react";
-import heroPng from "@assets/Hero.png";
-import artistPng from "@assets/artista.png";
+import heroPng from "@assets/image_1782859145516.png";
+import artistPng from "@assets/00e79b8a-e616-4d9a-a14d-930bfb0bffb1_1788518663426.jpeg";
 
 
 const WA = "244934959424";
@@ -64,19 +64,13 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
         <div className="relative z-10 max-w-6xl mx-auto px-6 w-full">
 
-          <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl text-white leading-tight max-w-2xl drop-shadow-lg">
-            Algumas pessoas compram quadros
-          </h1>
-          <p className="text-white/90 text-sm mt-3 max-w-md drop-shadow">
-            Outras levam perguntas para casa.
-          </p>
           <div className="mt-72"> 
               <Link
                 href="/galeria"
                 data-testid="button-ver-galeria"
                 className="inline-flex items-center gap-2 px-8 py-3 bg-primary text-white text-sm tracking-widest uppercase hover:bg-primary/90 transition-colors"
               >
-                Ver Galeria
+                Ver Obras
                 <ArrowRight size={16} />
               </Link>
             </div>
@@ -131,9 +125,17 @@ export default function Home() {
       {/* About teaser */}
       <section className="py-20 bg-[hsl(40,43%,96%)]">
         <div className="max-w-4xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div className="order-2 md:order-1">
+          <div className="order-1">
+            <img
+              src={artistPng}
+              alt="Dioleny Intya no atelier"
+              className="w-full aspect-[4/5] object-cover"
+              data-testid="img-artist-home"
+            />
+          </div>
+          <div className="order-2">
             <p className="text-muted-foreground leading-relaxed text-base mb-1">
-              Dioleny Intya, artista plástico angolano reconhecido pela UNAP, e amplamente conhecido como “O Abstrato Doido".
+              O Abstrato Doido - Dioleny Intya - é um artista plástico angolano cuja prática se desenvolve através da abstração como forma de investigar as contradições da condição humana, a espiritualidade e as escolhas que moldam quem somos. As suas obras não procuram oferecer respostas, mas criar um espaço onde o espectador possa confrontar as próprias perguntas.
             </p>
             <Link
               href="/sobre"

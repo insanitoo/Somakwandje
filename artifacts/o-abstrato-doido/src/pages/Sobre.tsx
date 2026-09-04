@@ -1,148 +1,39 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import artistPng from "@assets/image_1782859145516.png";
-import artistaisPng from "@assets/artista.png";
-import artistais2Png from "@assets/image_1782860231531.png";
+import artistPng from "@assets/00e79b8a-e616-4d9a-a14d-930bfb0bffb1_1788518663426.jpeg";
 
 export default function Sobre() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="pt-16">
-        {/* Header */}
-        <div className="bg-white border-b border-border py-14 px-6">
-          <div className="max-w-6xl mx-auto">
-            <p className="text-xs tracking-[0.3em] uppercase text-primary mb-2">
-              O Artista
-            </p>
-            <h1 className="font-serif text-4xl md:text-5xl text-foreground">
-              Sobre O Abstrato Doido
-            </h1>
-          </div>
-        </div>
-
-        {/* Main photo + bio */}
-        <section className="py-20 bg-[hsl(40,43%,96%)]">
-          <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+      <main className="pt-16">
+        <section className="py-14 md:py-20 bg-[hsl(40,43%,96%)]">
+          <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-10 md:gap-16 items-start">
             <div>
               <img
                 src={artistPng}
-                alt="O Abstrato Doido no atelier"
-                className="w-full aspect-[3/4] object-cover"
+                alt="Dioleny Intya no atelier"
+                className="w-full aspect-[4/5] object-cover"
                 data-testid="img-artist-sobre"
               />
             </div>
-            <div className="pt-4">
-              <p className="text-5xl font-serif text-primary leading-none mb-1">
-                "
+            <div className="space-y-6 text-muted-foreground leading-relaxed">
+              <p>
+                O Abstrato Doido - Dioleny Intya - é um artista plástico angolano cuja prática se desenvolve através da abstração como forma de investigar as contradições da condição humana, a espiritualidade e as escolhas que moldam quem somos. As suas obras não procuram oferecer respostas, mas criar um espaço onde o espectador possa confrontar as próprias perguntas.
               </p>
-              
-              <p className="text-muted-foreground leading-relaxed mb-6">
-                Dioleny Intya, 23 anos, Angola.
+              <p>
+                Embora tenha iniciado a sua carreira profissional a poucos anos, a sua relação com a abstração começou muito antes, literalmente aos 6 anos. Cresceu no Lubango, no sul de Angola, longe dos grandes centros culturais e sem conhecer um único artista plástico. Ainda criança, enchia cadernos de rascunhos, fascinava-se por formas distorcidas, rachaduras nas paredes e imagens que sugeriam mais do que explicavam. Só anos mais tarde percebeu que aquela linguagem já tinha um nome. A abstração nunca foi uma escolha consciente. Foi a forma como sempre viu o mundo.
               </p>
-              <p className="text-muted-foreground leading-relaxed">
-                Artista plástico abstrato. Não pinto paisagens bonitas nem
-                coisas fáceis de entender à primeira vista. Pinto relações
-                humanas, aquelas que não se explicam bem, mas
-                também não se calam.
+              <p>
+                Depois de iniciar a sua produção artística, decidiu deixar a cidade onde vivia e mudar-se para Luanda para dedicar-se integralmente à construção de uma carreira de longo prazo. Desde então, participou em diversas exposições coletivas, integrou duas edições da Luanda Feira de Arte, o principal evento de arte contemporânea de Angola, e apresentou a sua primeira exposição individual em formato digital, criada de forma independente quando ainda não encontrava espaço nas galerias tradicionais. As suas obras integram coleções particulares em países como Angola, Portugal, Brasil, Espanha, Moçambique e África do Sul.
+              </p>
+              <p>
+                A exposição O Jardim de Barrabás, a sua primeira individual presencial em galeria, marca um novo momento da sua trajetória e o início público de uma investigação artística que pretende desenvolver ao longo das próximas décadas. Para Dioleny, cada obra é um capítulo de uma mesma pesquisa. Não sobre aquilo que sabemos a respeito de nós mesmos, mas sobre o instante em que percebemos que somos muito mais contraditórios do que imaginávamos.
               </p>
             </div>
           </div>
         </section>
-
-        {/* A Minha História */}
-        <section className="py-20 bg-white">
-          <div className="max-w-3xl mx-auto px-6">
-            <h2 className="font-serif text-3xl text-primary mb-6">
-              Manifesto Artístico
-            </h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              Eu não pinto porque entendi a vida. Pinto porque claramente não entendi.
-              A verdade é simples: somos imperfeitos. E não é um defeito do sistema. É o
-              sistema.
-              Enquanto toda gente anda numa corrida meio desesperada para “evoluir”,
-              “crescer”, “se tornar melhor”… eu olho para isso e penso: melhor em relação a quê
-              exatamente?
-            </p>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              O meu trabalho nasce desse incômodo.
-              De um lado, tens a Bíblia a falar de sabedoria, disciplina, propósito. Do outro, tens
-              a vida real: gente cansada, atrasada, confusa, a tentar lembrar se já lavou os
-              pratos ou se esqueceu o pão.
-              E, curiosamente, tudo isso coexistindo sem pedir autorização.
-              Eu pinto esse meio.
-              Esse espaço onde a pessoa quer ser extraordinária… mas ainda está a tentar
-              acordar antes das 9h.
-              Onde se fala de propósito… mas também de preguiça.
-              De espiritualidade… mas também de distração.
-              Nada disso é contradição. É só humano.
-            </p>
-            <p className="text-muted-foreground leading-relaxed">
-              Uso a abstração porque seria ridículo tentar explicar isso de forma direta. Não
-              cabe. Escapa. Mistura.
-              As cores, as formas, as camadas — tudo ali é meio desorganizado de propósito.
-              Porque a vida também é.
-              E tem mais: eu gosto de ironizar isso tudo.
-              Não como quem desrespeita… mas como quem percebe que levar tudo
-              demasiado a sério também é uma forma de ilusão.
-              No fundo, o meu trabalho não tenta corrigir nada.
-              Só olha e diz:
-              “é isso mesmo… e já chega.”
-              Se alguém vê beleza nisso, ótimo.
-              Se vê confusão, melhor ainda.
-              Porque provavelmente é a mesma coisa.
-            </p>
-          </div>
-        </section>
-
-        {/* O Processo Criativo */}
-        <section className="py-20 bg-[hsl(40,43%,96%)]">
-          <div className="max-w-3xl mx-auto px-6">
-            <h2 className="font-serif text-3xl text-foreground mb-6">
-              O Processo Criativo
-            </h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              Começar a pintar é uma jornada onde cada pincelada pode mudar
-              tudo. Não trabalho com esboços — o processo é intuitivo, guiado
-              pela emoção do momento e pela energia do espaço.
-            </p>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              Uso tintas acrílicas e óleo, espátulas e os próprios dedos. O
-              corpo todo participa na criação. Cada obra nasce de uma série de
-              camadas, cada uma com a sua história, invisível mas presente.
-            </p>
-            <p className="text-muted-foreground leading-relaxed">
-              O caos é parte do método. Acredito que a obra perfeita é a que
-              surpreende o próprio artista.
-            </p>
-          </div>
-        </section>
-
-
-        {/* Bastidores */}
-        <section className="py-20 bg-white">
-          <div className="max-w-6xl mx-auto px-6">
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-              <img
-                src={artistPng}
-                alt="Atelier 1"
-                className="w-full aspect-square object-cover"
-              />
-              <img
-                src={artistaisPng}
-                alt="Atelier 2"
-                className="w-full aspect-square object-cover md:translate-y-8"
-              />
-              <img
-                src={artistais2Png}
-                alt="Atelier 3"
-                className="w-full aspect-square object-cover"
-              />
-            </div>
-          </div>
-        </section>
-      </div>
+      </main>
       <Footer />
     </div>
   );
