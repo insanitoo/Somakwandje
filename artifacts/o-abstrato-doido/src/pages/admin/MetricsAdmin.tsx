@@ -150,7 +150,7 @@ export default function MetricsAdmin() {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="font-medium text-foreground">Acessos por país</h2>
-                  <p className="text-xs text-muted-foreground mt-1">Origem aproximada por endereço IP</p>
+                  
                 </div>
                 <Globe2 size={18} className="text-muted-foreground" />
               </div>
@@ -181,7 +181,7 @@ export default function MetricsAdmin() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="font-medium text-foreground">Distribuição por hora</h2>
-                <p className="text-xs text-muted-foreground mt-1">Hora local de Luanda</p>
+               
               </div>
               <Clock3 size={18} className="text-muted-foreground" />
             </div>

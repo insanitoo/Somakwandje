@@ -164,23 +164,33 @@ export default function OrdemAdmin() {
             <div
               key={obra.id}
               data-order-index={idx}
-              onPointerDown={(e) => startDrag(idx, e)}
-              className={`flex items-center gap-3 px-3 py-4 select-none touch-none transition-colors ${
+              className={`flex items-center gap-3 px-3 py-4 select-none transition-colors ${
                 draggedIndex === idx ? "bg-[hsl(40,43%,96%)] opacity-60" : ""
               } ${
                 dropIndex === idx && draggedIndex !== idx ? "bg-primary/10 ring-inset ring-2 ring-primary/40" : ""
               }`}
               data-testid={`draggable-obra-${obra.id}`}
             >
-              <span className="text-xs text-muted-foreground w-5 text-right shrink-0">{idx + 1}</span>
-              <GripVertical size={18} className="text-muted-foreground/60 shrink-0" aria-label="Arrastar obra" />
+              {/* ÁREA DE PEGA (HANDLE) - Apenas este bloco inicia o arrasto */}
+              <div
+                onPointerDown={(e) => startDrag(idx, e)}
+                className="flex items-center gap-2 cursor-grab active:cursor-grabbing touch-none py-1 pr-2 shrink-0"
+              >
+                <span className="text-xs text-muted-foreground w-5 text-right shrink-0">{idx + 1}</span>
+                <GripVertical size={18} className="text-muted-foreground/60 shrink-0" aria-label="Arrastar obra" />
+              </div>
+
+              {/* CONTEÚDO DA OBRA - Permite o scroll normal da página */}
               {obra.imagemUrl ? (
                 <img src={obra.imagemUrl} alt={obra.titulo} className="w-16 h-16 object-cover shrink-0" />
               ) : (
                 <div className="w-16 h-16 bg-[hsl(40,43%,96%)] shrink-0" />
               )}
               <p className="flex-1 text-sm font-medium truncate">{obra.titulo}</p>
+
+              {/* BOTÕES DE AÇÃO */}
               <button
+                type="button"
                 onClick={() => toggleDestaque(idx)}
                 className="p-2 rounded-sm transition-colors shrink-0"
                 aria-label="Toggle destaque"
