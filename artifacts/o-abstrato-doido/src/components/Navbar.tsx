@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { languageOptions, useLanguage } from "@/i18n";
 
@@ -21,7 +21,30 @@ const links = [
 export default function Navbar() {
   const [location] = useLocation();
   const [open, setOpen] = useState(false);
+  const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
+  const languageMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!languageMenuOpen) return;
+
+    function handleOutsidePointerDown(event: PointerEvent) {
+      if (languageMenuRef.current && !languageMenuRef.current.contains(event.target as Node)) {
+        setLanguageMenuOpen(false);
+      }
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setLanguageMenuOpen(false);
+    }
+
+    document.addEventListener("pointerdown", handleOutsidePointerDown);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("pointerdown", handleOutsidePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [languageMenuOpen]);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
@@ -50,23 +73,47 @@ export default function Navbar() {
 
         {/* Language + WhatsApp + Mobile hamburger */}
         <div className="flex items-center gap-3 md:gap-4">
-          <label className="relative flex items-center text-foreground" title={t("nav.language")}>
-            <span className="sr-only">{t("nav.language")}</span>
-            <select
-              value={language}
-              onChange={(event) => setLanguage(event.target.value as typeof language)}
+          <div className="relative" ref={languageMenuRef}>
+            <button
+              type="button"
+              onClick={() => setLanguageMenuOpen((current) => !current)}
               aria-label={t("nav.language")}
-              className="appearance-none bg-transparent pl-1 pr-5 py-1 text-xs font-medium tracking-widest cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
+              aria-haspopup="menu"
+              aria-expanded={languageMenuOpen}
+              className="flex items-center gap-1 px-1 py-1 text-xs font-medium tracking-widest text-foreground hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary"
               data-testid="select-language"
             >
-              {languageOptions.map((option) => (
-                <option key={option.code} value={option.code}>
-                  {option.code.toUpperCase()} — {option.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown size={13} className="absolute right-0 pointer-events-none" aria-hidden="true" />
-          </label>
+              {language.toUpperCase()}
+              <ChevronDown size={13} aria-hidden="true" />
+            </button>
+            {languageMenuOpen && (
+              <div
+                role="menu"
+                aria-label={t("nav.language")}
+                className="absolute right-0 top-full mt-3 min-w-32 bg-white border border-border shadow-lg py-1 z-50"
+              >
+                {languageOptions.map((option) => (
+                  <button
+                    key={option.code}
+                    type="button"
+                    role="menuitemradio"
+                    aria-checked={language === option.code}
+                    onClick={() => {
+                      setLanguage(option.code);
+                      setLanguageMenuOpen(false);
+                    }}
+                    className={`block w-full px-4 py-2 text-left text-xs transition-colors ${
+                      language === option.code
+                        ? "text-primary font-medium bg-primary/5"
+                        : "text-muted-foreground hover:bg-[hsl(40,43%,96%)] hover:text-foreground"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <a
             href="https://wa.me/244934959424"
             target="_blank"

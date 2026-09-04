@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Minus, Plus, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useLanguage, type Language } from "@/i18n";
 
 type StatusFilter = "todas" | "disponivel" | "vendido";
@@ -71,17 +71,22 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
   const [photoIdx, setPhotoIdx] = useState(0);
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
   const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
   const [frameRatio, setFrameRatio] = useState(4 / 3);
   const touchStartX = useRef<number | null>(null);
   const didSwipe = useRef(false);
   const pinchPointers = useRef(new Map<number, { x: number; y: number }>());
   const pinchStartDistance = useRef<number | null>(null);
   const pinchStartZoom = useRef(1);
+  const panStart = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
+  const fullscreenFrameRef = useRef<HTMLDivElement>(null);
+  const fullscreenImageRef = useRef<HTMLImageElement>(null);
   const backgroundCloseTimer = useRef<number | null>(null);
   const effectiveDesconto = getEffectiveDesconto(obra, globalDesconto);
 
   useEffect(() => {
     setZoom(1);
+    setPan({ x: 0, y: 0 });
   }, [photoIdx, fullscreenOpen]);
 
   useEffect(() => {
@@ -145,6 +150,27 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
     return Math.min(4, Math.max(1, Number(value.toFixed(2))));
   }
 
+  function clampPan(next: { x: number; y: number }, scale = zoom) {
+    const frame = fullscreenFrameRef.current;
+    const image = fullscreenImageRef.current;
+    const frameWidth = frame?.clientWidth ?? window.innerWidth;
+    const frameHeight = frame?.clientHeight ?? window.innerHeight;
+    const imageWidth = image?.offsetWidth ?? frameWidth;
+    const imageHeight = image?.offsetHeight ?? frameHeight;
+    const maxX = Math.max(0, (imageWidth * scale - frameWidth) / 2);
+    const maxY = Math.max(0, (imageHeight * scale - frameHeight) / 2);
+    return {
+      x: Math.min(maxX, Math.max(-maxX, next.x)),
+      y: Math.min(maxY, Math.max(-maxY, next.y)),
+    };
+  }
+
+  function updateZoom(nextZoom: number) {
+    const next = clampZoom(nextZoom);
+    setZoom(next);
+    setPan((current) => clampPan(current, next));
+  }
+
   function pointerDistance() {
     const points = Array.from(pinchPointers.current.values());
     if (points.length < 2) return 0;
@@ -159,12 +185,17 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
     if (pinchPointers.current.size === 2) {
       pinchStartDistance.current = pointerDistance();
       pinchStartZoom.current = zoom;
+      panStart.current = null;
       touchStartX.current = null;
       didSwipe.current = true;
       return;
     }
 
-    if (zoom <= 1) handleSwipeStart(e);
+    if (zoom > 1) {
+      panStart.current = { x: e.clientX, y: e.clientY, panX: pan.x, panY: pan.y };
+    } else {
+      handleSwipeStart(e);
+    }
   }
 
   function handleFullscreenPointerMove(e: React.PointerEvent<HTMLElement>) {
@@ -172,7 +203,13 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
     pinchPointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pinchStartDistance.current) {
       e.preventDefault();
-      setZoom(clampZoom(pinchStartZoom.current * (pointerDistance() / pinchStartDistance.current)));
+      updateZoom(pinchStartZoom.current * (pointerDistance() / pinchStartDistance.current));
+    } else if (zoom > 1 && panStart.current) {
+      e.preventDefault();
+      setPan(clampPan({
+        x: panStart.current.panX + e.clientX - panStart.current.x,
+        y: panStart.current.panY + e.clientY - panStart.current.y,
+      }));
     }
   }
 
@@ -181,20 +218,27 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
     pinchPointers.current.delete(e.pointerId);
     if (pinchPointers.current.size < 2) pinchStartDistance.current = null;
     if (wasPinching) {
+      panStart.current = null;
       touchStartX.current = null;
       didSwipe.current = true;
       return;
     }
-    if (zoom <= 1) handleSwipeEnd(e);
+    if (zoom > 1) {
+      panStart.current = null;
+      touchStartX.current = null;
+      didSwipe.current = true;
+    } else {
+      handleSwipeEnd(e);
+    }
   }
 
   function handleFullscreenWheel(e: React.WheelEvent<HTMLElement>) {
     e.preventDefault();
-    setZoom((current) => clampZoom(current - e.deltaY * 0.002));
+    updateZoom(zoom - e.deltaY * 0.002);
   }
 
   function toggleZoom() {
-    setZoom((current) => (current > 1 ? 1 : 2));
+    updateZoom(zoom > 1 ? 1 : 2);
   }
 
   function handleFullscreenClick(e: React.MouseEvent<HTMLElement>) {
@@ -382,6 +426,7 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
           role="dialog"
           aria-label={`${t("gallery.enlargedImageOf")}: ${obra.titulo}`}
           aria-modal="true"
+            ref={fullscreenFrameRef}
             className="fixed inset-0 z-[100] bg-black/95 p-3 sm:p-8 flex items-center justify-center overflow-hidden select-none touch-none pointer-events-auto"
             onClick={handleFullscreenClick}
             onDoubleClick={toggleZoom}
@@ -392,6 +437,7 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
             onPointerCancel={(event) => {
               pinchPointers.current.delete(event.pointerId);
               pinchStartDistance.current = null;
+              panStart.current = null;
               cancelSwipe();
             }}
         >
@@ -411,43 +457,15 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
           >
             <X size={22} />
           </button>
-          <div
-            className="absolute bottom-4 right-4 z-[120] flex items-center gap-1 bg-black/55 text-white pointer-events-auto"
-            onPointerDown={(event) => event.stopPropagation()}
-          >
-            <button
-              type="button"
-              onClick={() => setZoom((current) => clampZoom(current - 0.5))}
-              className="p-2 hover:bg-white/15 transition-colors disabled:opacity-40"
-              disabled={zoom <= 1}
-              aria-label={t("gallery.zoomOut")}
-            >
-              <Minus size={18} />
-            </button>
-            <button
-              type="button"
-              onClick={() => setZoom(1)}
-              className="min-w-12 px-1 py-2 text-xs tabular-nums hover:bg-white/15 transition-colors"
-              aria-label={t("gallery.resetZoom")}
-            >
-              {Math.round(zoom * 100)}%
-            </button>
-            <button
-              type="button"
-              onClick={() => setZoom((current) => clampZoom(current + 0.5))}
-              className="p-2 hover:bg-white/15 transition-colors disabled:opacity-40"
-              disabled={zoom >= 4}
-              aria-label={t("gallery.zoomIn")}
-            >
-              <Plus size={18} />
-            </button>
-          </div>
           <img
+            ref={fullscreenImageRef}
             src={photos[photoIdx]}
             alt={obra.titulo}
               draggable={false}
-              className="max-w-full max-h-full w-full h-full object-contain select-none pointer-events-none transition-transform duration-150"
-              style={{ transform: `scale(${zoom})` }}
+              className={`max-w-full max-h-full object-contain select-none pointer-events-none transition-transform duration-150 ${
+                zoom > 1 ? "cursor-grab" : "cursor-zoom-in"
+              }`}
+              style={{ transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${zoom})` }}
           />
             {photos.length > 1 && (
               <span className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1.5 text-[11px] tracking-wide pointer-events-none">
