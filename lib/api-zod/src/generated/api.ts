@@ -462,3 +462,50 @@ export const GetMeResponse = zod.object({
 })
 
 
+/**
+ * @summary Record a public page visit
+ */
+export const trackVisitBodyPathMax = 500;
+
+
+
+export const TrackVisitBody = zod.object({
+  "path": zod.string().min(1).max(trackVisitBodyPathMax)
+})
+
+
+/**
+ * @summary Get admin access metrics
+ */
+export const getAnalyticsMetricsQueryPeriodDefault = `day`;
+
+export const GetAnalyticsMetricsQueryParams = zod.object({
+  "period": zod.enum(['day', 'week', 'month']).default(getAnalyticsMetricsQueryPeriodDefault)
+})
+
+export const GetAnalyticsMetricsResponse = zod.object({
+  "period": zod.enum(['day', 'week', 'month']),
+  "total": zod.number(),
+  "mostVisitedDay": zod.union([zod.object({
+  "label": zod.string(),
+  "count": zod.number()
+}),zod.null()]).optional(),
+  "peakHour": zod.union([zod.object({
+  "label": zod.string(),
+  "count": zod.number()
+}),zod.null()]).optional(),
+  "daily": zod.array(zod.object({
+  "label": zod.string(),
+  "count": zod.number()
+})),
+  "hourly": zod.array(zod.object({
+  "label": zod.string(),
+  "count": zod.number()
+})),
+  "countries": zod.array(zod.object({
+  "countryCode": zod.string().nullable(),
+  "count": zod.number()
+}))
+})
+
+

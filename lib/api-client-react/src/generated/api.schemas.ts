@@ -289,6 +289,44 @@ export interface AuthUser {
   username: string;
 }
 
+export interface AnalyticsVisitInput {
+  /**
+     * @minLength 1
+     * @maxLength 500
+     */
+  path: string;
+}
+
+export interface AnalyticsMetricPoint {
+  label: string;
+  count: number;
+}
+
+export interface AnalyticsCountryMetric {
+  /** @nullable */
+  countryCode: string | null;
+  count: number;
+}
+
+export type AnalyticsMetricsPeriod = typeof AnalyticsMetricsPeriod[keyof typeof AnalyticsMetricsPeriod];
+
+
+export const AnalyticsMetricsPeriod = {
+  day: 'day',
+  week: 'week',
+  month: 'month',
+} as const;
+
+export interface AnalyticsMetrics {
+  period: AnalyticsMetricsPeriod;
+  total: number;
+  mostVisitedDay?: AnalyticsMetricPoint | null;
+  peakHour?: AnalyticsMetricPoint | null;
+  daily: AnalyticsMetricPoint[];
+  hourly: AnalyticsMetricPoint[];
+  countries: AnalyticsCountryMetric[];
+}
+
 export type ListObrasParams = {
 status?: ListObrasStatus;
 tamanho?: ListObrasTamanho;
@@ -327,4 +365,17 @@ export const ListEventosTipo = {
 export type ListBlogParams = {
 limit?: number;
 };
+
+export type GetAnalyticsMetricsParams = {
+period?: GetAnalyticsMetricsPeriod;
+};
+
+export type GetAnalyticsMetricsPeriod = typeof GetAnalyticsMetricsPeriod[keyof typeof GetAnalyticsMetricsPeriod];
+
+
+export const GetAnalyticsMetricsPeriod = {
+  day: 'day',
+  week: 'week',
+  month: 'month',
+} as const;
 

@@ -1,5 +1,6 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import type { ReactNode } from "react";
+import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +20,7 @@ import BlogAdmin from "@/pages/admin/BlogAdmin";
 import CursosAdmin from "@/pages/admin/CursosAdmin";
 import OrdemAdmin from "@/pages/admin/OrdemAdmin";
 import DescontosAdmin from "@/pages/admin/DescontosAdmin";
+import MetricsAdmin from "@/pages/admin/MetricsAdmin";
 import { LanguageProvider } from "@/i18n";
 
 const queryClient = new QueryClient({
@@ -35,6 +37,23 @@ const queryClient = new QueryClient({
 
 function PublicPage({ children }: { children: ReactNode }) {
   return <div className="public-site">{children}</div>;
+}
+
+function PublicAnalytics() {
+  const [location] = useLocation();
+
+  useEffect(() => {
+    if (location.startsWith("/odoido")) return;
+
+    void fetch("/api/analytics/visit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path: location.split("?")[0] || "/" }),
+      keepalive: true,
+    }).catch(() => undefined);
+  }, [location]);
+
+  return null;
 }
 
 function Router() {
@@ -55,6 +74,7 @@ function Router() {
       <Route path="/odoido/cursos" component={() => <AdminLayout><CursosAdmin /></AdminLayout>} />
       <Route path="/odoido/ordem" component={() => <AdminLayout><OrdemAdmin /></AdminLayout>} />
       <Route path="/odoido/descontos" component={() => <AdminLayout><DescontosAdmin /></AdminLayout>} />
+      <Route path="/odoido/metricas" component={() => <AdminLayout><MetricsAdmin /></AdminLayout>} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -66,6 +86,7 @@ function App() {
       <LanguageProvider>
         <TooltipProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <PublicAnalytics />
             <Router />
           </WouterRouter>
           <Toaster />

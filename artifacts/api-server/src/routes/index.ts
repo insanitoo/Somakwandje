@@ -7,6 +7,7 @@ import authRouter from "./auth";
 import uploadRouter from "./upload";
 import cursosRouter from "./cursos";
 import configuracoesRouter from "./configuracoes";
+import analyticsRouter from "./analytics";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(eventosRouter);
 router.use(blogRouter);
 router.use(cursosRouter);
 router.use(configuracoesRouter);
+router.use(analyticsRouter);
 
 export default router;

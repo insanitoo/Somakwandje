@@ -20,6 +20,8 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AnalyticsMetrics,
+  AnalyticsVisitInput,
   AuthUser,
   BlogPost,
   BlogPostInput,
@@ -30,6 +32,7 @@ import type {
   Evento,
   EventoInput,
   EventoUpdate,
+  GetAnalyticsMetricsParams,
   HealthStatus,
   ListBlogParams,
   ListEventosParams,
@@ -1898,6 +1901,161 @@ export function useGetMe<TData = Awaited<ReturnType<typeof getMe>>, TError = Err
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetMeQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getTrackVisitUrl = () => {
+
+
+
+
+  return `/api/analytics/visit`
+}
+
+/**
+ * @summary Record a public page visit
+ */
+export const trackVisit = async (analyticsVisitInput: AnalyticsVisitInput, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getTrackVisitUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      analyticsVisitInput,)
+  }
+);}
+
+
+
+
+export const getTrackVisitMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof trackVisit>>, TError,{data: BodyType<AnalyticsVisitInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof trackVisit>>, TError,{data: BodyType<AnalyticsVisitInput>}, TContext> => {
+
+const mutationKey = ['trackVisit'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof trackVisit>>, {data: BodyType<AnalyticsVisitInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  trackVisit(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type TrackVisitMutationResult = NonNullable<Awaited<ReturnType<typeof trackVisit>>>
+    export type TrackVisitMutationBody = BodyType<AnalyticsVisitInput>
+    export type TrackVisitMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Record a public page visit
+ */
+export const useTrackVisit = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof trackVisit>>, TError,{data: BodyType<AnalyticsVisitInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof trackVisit>>,
+        TError,
+        {data: BodyType<AnalyticsVisitInput>},
+        TContext
+      > => {
+      return useMutation(getTrackVisitMutationOptions(options));
+    }
+
+export const getGetAnalyticsMetricsUrl = (params?: GetAnalyticsMetricsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/analytics/metrics?${stringifiedParams}` : `/api/analytics/metrics`
+}
+
+/**
+ * @summary Get admin access metrics
+ */
+export const getAnalyticsMetrics = async (params?: GetAnalyticsMetricsParams, options?: RequestInit): Promise<AnalyticsMetrics> => {
+
+  return customFetch<AnalyticsMetrics>(getGetAnalyticsMetricsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAnalyticsMetricsQueryKey = (params?: GetAnalyticsMetricsParams,) => {
+    return [
+    `/api/analytics/metrics`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAnalyticsMetricsQueryOptions = <TData = Awaited<ReturnType<typeof getAnalyticsMetrics>>, TError = ErrorType<void>>(params?: GetAnalyticsMetricsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsMetrics>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAnalyticsMetricsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAnalyticsMetrics>>> = ({ signal }) => getAnalyticsMetrics(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsMetrics>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAnalyticsMetricsQueryResult = NonNullable<Awaited<ReturnType<typeof getAnalyticsMetrics>>>
+export type GetAnalyticsMetricsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get admin access metrics
+ */
+
+export function useGetAnalyticsMetrics<TData = Awaited<ReturnType<typeof getAnalyticsMetrics>>, TError = ErrorType<void>>(
+ params?: GetAnalyticsMetricsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsMetrics>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAnalyticsMetricsQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

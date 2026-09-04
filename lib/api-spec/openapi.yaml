@@ -21,6 +21,8 @@ tags:
     description: Authentication
   - name: configuracoes
     description: Settings
+  - name: analytics
+    description: Site access metrics
 paths:
   /healthz:
     get:
@@ -510,6 +512,44 @@ paths:
         "401":
           description: Unauthorized
 
+  /analytics/visit:
+    post:
+      operationId: trackVisit
+      tags: [analytics]
+      summary: Record a public page visit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalyticsVisitInput"
+      responses:
+        "204":
+          description: Visit recorded
+
+  /analytics/metrics:
+    get:
+      operationId: getAnalyticsMetrics
+      tags: [analytics]
+      summary: Get admin access metrics
+      parameters:
+        - name: period
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [day, week, month]
+            default: day
+      responses:
+        "200":
+          description: Access metrics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalyticsMetrics"
+        "401":
+          description: Unauthorized
+
 
 components:
   schemas:
@@ -847,3 +887,60 @@ components:
           type: integer
         username:
           type: string
+
+    AnalyticsVisitInput:
+      type: object
+      required: [path]
+      properties:
+        path:
+          type: string
+          minLength: 1
+          maxLength: 500
+
+    AnalyticsMetricPoint:
+      type: object
+      required: [label, count]
+      properties:
+        label:
+          type: string
+        count:
+          type: integer
+
+    AnalyticsCountryMetric:
+      type: object
+      required: [countryCode, count]
+      properties:
+        countryCode:
+          type: ["string", "null"]
+        count:
+          type: integer
+
+    AnalyticsMetrics:
+      type: object
+      required: [period, total, daily, hourly, countries]
+      properties:
+        period:
+          type: string
+          enum: [day, week, month]
+        total:
+          type: integer
+        mostVisitedDay:
+          anyOf:
+            - $ref: "#/components/schemas/AnalyticsMetricPoint"
+            - type: "null"
+        peakHour:
+          anyOf:
+            - $ref: "#/components/schemas/AnalyticsMetricPoint"
+            - type: "null"
+        daily:
+          type: array
+          items:
+            $ref: "#/components/schemas/AnalyticsMetricPoint"
+        hourly:
+          type: array
+          items:
+            $ref: "#/components/schemas/AnalyticsMetricPoint"
+        countries:
+          type: array
+          items:
+            $ref: "#/components/schemas/AnalyticsCountryMetric"

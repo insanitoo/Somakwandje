@@ -4,3 +4,4 @@ export * from "./blog";
 export * from "./usuarios";
 export * from "./cursos";
 export * from "./configuracoes";
+export * from "./analytics";

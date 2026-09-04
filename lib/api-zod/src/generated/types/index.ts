@@ -6,6 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './analyticsCountryMetric';
+export * from './analyticsMetricPoint';
+export * from './analyticsMetrics';
+export * from './analyticsMetricsPeriod';
+export * from './analyticsVisitInput';
 export * from './authUser';
 export * from './blogPost';
 export * from './blogPostInput';
@@ -19,6 +24,8 @@ export * from './eventoInputTipo';
 export * from './eventoTipo';
 export * from './eventoUpdate';
 export * from './eventoUpdateTipo';
+export * from './getAnalyticsMetricsParams';
+export * from './getAnalyticsMetricsPeriod';
 export * from './healthStatus';
 export * from './listBlogParams';
 export * from './listEventosParams';
