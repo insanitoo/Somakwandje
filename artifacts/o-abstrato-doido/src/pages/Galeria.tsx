@@ -12,14 +12,24 @@ import { useLanguage, type Language } from "@/i18n";
 type StatusFilter = "todas" | "disponivel" | "vendido";
 type TamanhoFilter = "todos" | "grande" | "pequena";
 
+
+type MoedaFilter = "kz" | "usd" | "eur" | "brl";
+
+const RATES: Record<MoedaFilter, number> = { kz: 1, usd: 1 / 950, eur: 1 / 1050, brl: 0.0056 };
+const SYMBOLS: Record<MoedaFilter, string> = { kz: "Kz", usd: "USD", eur: "EUR", brl: "R$" };
+
+
 function parsePrecoNum(preco: string | null | undefined): number | null {
   if (!preco) return null;
   const num = parseFloat(preco.replace(/[^\d.,]/g, "").replace(",", "."));
   return isNaN(num) ? null : num;
 }
 
-function formatPreco(num: number): string {
-  return `${num.toLocaleString("pt-AO")} Kz`;
+
+function formatPreco(num: number, moeda: MoedaFilter): string {
+  if (moeda === "kz") return `${num.toLocaleString("pt-AO")} Kz`;
+  const converted = num * RATES[moeda];
+  return `${converted.toLocaleString("pt-AO", { maximumFractionDigits: 2 })} ${SYMBOLS[moeda]}`;
 }
 
 function formatObraPreco(preco: string | null | undefined): string | null {
@@ -610,6 +620,28 @@ export default function Galeria() {
               </div>
             </div>
 
+<<<<<<< HEAD
+=======
+            {/* Moeda */}
+            <div className="flex items-center gap-3">
+              <span className="text-xs tracking-widest uppercase text-muted-foreground w-20 shrink-0">Moeda</span>
+              <div className="flex gap-2">
+                {(["usd", "eur", "brl"] as const).map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => setMoeda(moeda === m ? "kz" : m)}
+                    className={`px-3 py-1 text-xs tracking-widest uppercase transition-colors ${
+                      moeda === m
+                        ? "bg-primary text-white"
+                        : "bg-white border border-border text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {SYMBOLS[m]}
+                  </button>
+                ))}
+              </div>
+            </div>
+>>>>>>> 5d517f04c5549650efac4c52eae7bd9c8bcc1043
           </div>
         </div>
 

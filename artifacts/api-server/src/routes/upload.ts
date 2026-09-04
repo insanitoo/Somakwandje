@@ -1,25 +1,17 @@
 import { Router, type IRouter } from "express";
 import multer from "multer";
-import path from "path";
-import fs from "fs";
+import { v2 as cloudinary } from "cloudinary";
 
-const uploadsDir = path.join(process.cwd(), "uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadsDir),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const name = `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`;
-    cb(null, name);
-  },
+cloudinary.config({
+  cloud_name: process.env["CLOUDINARY_CLOUD_NAME"],
+  api_key: process.env["CLOUDINARY_API_KEY"],
+  api_secret: process.env["CLOUDINARY_API_SECRET"],
 });
 
-// Imagens: até 10 MB
+const memStorage = multer.memoryStorage();
+
 const uploadImage = multer({
-  storage,
+  storage: memStorage,
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     if (file.mimetype.startsWith("image/")) cb(null, true);
@@ -27,9 +19,8 @@ const uploadImage = multer({
   },
 });
 
-// Vídeos: até 500 MB
 const uploadVideo = multer({
-  storage,
+  storage: memStorage,
   limits: { fileSize: 500 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     if (file.mimetype.startsWith("video/")) cb(null, true);
@@ -37,24 +28,48 @@ const uploadVideo = multer({
   },
 });
 
+function uploadToCloudinary(
+  buffer: Buffer,
+  resourceType: "image" | "video" | "raw" | "auto"
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { resource_type: resourceType, folder: "o-abstrato-doido" },
+      (error, result) => {
+        if (error || !result) return reject(error ?? new Error("Upload falhou"));
+        resolve(result.secure_url);
+      }
+    );
+    stream.end(buffer);
+  });
+}
+
 const router: IRouter = Router();
 
-router.post("/upload", uploadImage.single("file"), (req, res): void => {
+router.post("/upload", uploadImage.single("file"), async (req, res): Promise<void> => {
   if (!req.file) {
     res.status(400).json({ error: "Nenhum ficheiro enviado" });
     return;
   }
-  const url = `/api/uploads/${req.file.filename}`;
-  res.json({ url });
+  try {
+    const url = await uploadToCloudinary(req.file.buffer, "image");
+    res.json({ url });
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao enviar para o Cloudinary" });
+  }
 });
 
-router.post("/upload/video", uploadVideo.single("file"), (req, res): void => {
+router.post("/upload/video", uploadVideo.single("file"), async (req, res): Promise<void> => {
   if (!req.file) {
     res.status(400).json({ error: "Nenhum vídeo enviado" });
     return;
   }
-  const url = `/api/uploads/${req.file.filename}`;
-  res.json({ url });
+  try {
+    const url = await uploadToCloudinary(req.file.buffer, "video");
+    res.json({ url });
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao enviar para o Cloudinary" });
+  }
 });
 
 export default router;
