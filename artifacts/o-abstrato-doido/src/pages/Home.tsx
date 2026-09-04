@@ -8,7 +8,21 @@ import heroPng from "@assets/image_1782859145516.png";
 import artistPng from "@assets/00e79b8a-e616-4d9a-a14d-930bfb0bffb1_1788518663426.jpeg";
 import { useLanguage, type Language } from "@/i18n";
 
+function parsePrecoNum(preco: string | null | undefined): number | null {
+  if (!preco) return null;
+  const num = parseFloat(preco.replace(/[^\d.,]/g, "").replace(",", "."));
+  return isNaN(num) ? null : num;
+}
 
+function formatPreco(num: number): string {
+  return `${num.toLocaleString("pt-AO")} Kz`;
+}
+
+function formatObraPreco(preco: string | null | undefined): string | null {
+  const num = parsePrecoNum(preco);
+  if (num === null) return preco ?? null;
+  return formatPreco(num);
+}
 const WA = "244934959424";
 
 function buildWA(msg: string) {
@@ -40,7 +54,7 @@ function ObraCard({ obra }: { obra: { id: number; titulo: string; imagemUrl?: st
       </div>
       <div className="p-4">
         <p className="font-serif text-base text-foreground">{obra.titulo}</p>
-        <p className="text-xs text-muted-foreground mt-1">{obra.preco || t("home.priceOnRequest")}</p>
+        <p className="text-xs text-muted-foreground mt-1">{formatObraPreco(obra.preco) || t("home.priceOnRequest")}</p>
       </div>
     </Link>
   );
