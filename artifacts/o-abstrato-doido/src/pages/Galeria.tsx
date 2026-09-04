@@ -280,7 +280,7 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
           role="dialog"
           aria-label={`Imagem ampliada: ${obra.titulo}`}
           aria-modal="true"
-            className="fixed inset-0 z-[100] bg-black/95 p-3 sm:p-8 flex items-center justify-center select-none touch-none"
+            className="fixed inset-0 z-[100] bg-black/95 p-3 sm:p-8 flex items-center justify-center select-none touch-none pointer-events-auto"
             onClick={(event) => {
               if (event.target === event.currentTarget) setFullscreenOpen(false);
             }}
@@ -290,6 +290,17 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
         >
           <button
             type="button"
+            data-testid="button-close-fullscreen"
+            onClickCapture={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              setFullscreenOpen(false);
+            }}
+            onPointerDownCapture={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              setFullscreenOpen(false);
+            }}
               onClick={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
@@ -300,7 +311,7 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
                 event.stopPropagation();
                 setFullscreenOpen(false);
               }}
-            className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors"
+            className="absolute top-4 right-4 z-[120] pointer-events-auto p-2 rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors"
             aria-label="Fechar imagem ampliada"
           >
             <X size={22} />
@@ -309,7 +320,7 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
             src={photos[photoIdx]}
             alt={obra.titulo}
               draggable={false}
-              className="max-w-full max-h-full w-full h-full object-contain select-none pointer-events-auto"
+              className="max-w-full max-h-full w-full h-full object-contain select-none pointer-events-none"
           />
             {photos.length > 1 && (
               <span className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1.5 text-[11px] tracking-wide pointer-events-none">

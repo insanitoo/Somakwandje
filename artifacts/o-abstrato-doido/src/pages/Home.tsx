@@ -14,7 +14,7 @@ function buildWA(msg: string) {
   return `https://wa.me/${WA}?text=${encodeURIComponent(msg)}`;
 }
 
-function ObraCard({ obra }: { obra: { id: number; titulo: string; imagemUrl?: string | null; status: string; dimensoes?: string | null } }) {
+function ObraCard({ obra }: { obra: { id: number; titulo: string; imagemUrl?: string | null; status: string; preco?: string | null } }) {
   return (
     <Link href={`/galeria?obra=${obra.id}`} data-testid={`card-obra-${obra.id}`} className="group block overflow-hidden bg-card border border-card-border">
       <div className="aspect-square overflow-hidden bg-primary/10 relative">
@@ -37,7 +37,7 @@ function ObraCard({ obra }: { obra: { id: number; titulo: string; imagemUrl?: st
       </div>
       <div className="p-4">
         <p className="font-serif text-base text-foreground">{obra.titulo}</p>
-        {obra.dimensoes && <p className="text-xs text-muted-foreground mt-1">{obra.dimensoes}</p>}
+        <p className="text-xs text-muted-foreground mt-1">{obra.preco || "Preço sob consulta"}</p>
       </div>
     </Link>
   );
@@ -62,7 +62,7 @@ export default function Home() {
           style={{ backgroundImage: `url(${heroPng})` }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/5" />
-        <div className="relative z-10 max-w-6xl mx-auto px-6 w-full">
+        <div className="relative z-10 max-w-6xl mx-auto px-6 w-full flex justify-center">
           <Link
             href="/galeria"
             data-testid="button-ver-galeria"
@@ -145,7 +145,7 @@ export default function Home() {
       </section>
 
       {/* Next event banner */}
-      <section className="py-20 bg-[hsl(40,43%,96%)]">
+      <section className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <p className="text-xs tracking-[0.3em] uppercase text-primary mb-4">Agenda</p>
           <h2 className="font-serif text-3xl text-foreground mb-8"></h2>
