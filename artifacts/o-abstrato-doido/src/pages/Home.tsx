@@ -138,7 +138,7 @@ export default function Home() {
 
       {/* About teaser */}
       <section className="py-20 bg-[hsl(40,43%,96%)]">
-        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 items-center">
+        <div className="max-w-4xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="order-1">
             <img
               src={artistPng}
