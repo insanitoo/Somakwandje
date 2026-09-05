@@ -143,7 +143,7 @@ export default function Home() {
             <img
               src={artistPng}
               alt="O Abstrato Doido no atelier"
-              className="w-36 h-36 md:w-full md:h-auto md:aspect-[4/3] object-cover"
+              className="w-full aspect-[4/5] object-cover"
               data-testid="img-artist-home"
             />
           </div>
