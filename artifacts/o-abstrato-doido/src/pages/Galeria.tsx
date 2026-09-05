@@ -558,7 +558,7 @@ export default function Galeria() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="pt-16">
+      <div className="pt-[4.5rem]">
         {/* Header */}
         <div className="bg-white border-b border-border py-14 px-6">
           <div className="max-w-6xl mx-auto">
@@ -568,7 +568,7 @@ export default function Galeria() {
         </div>
 
         {/* Filters */}
-        <div className="sticky top-16 z-40 bg-[hsl(40,43%,96%)]/95 backdrop-blur-sm border-b border-border px-6 py-5">
+        <div className="sticky top-[4.5rem] z-40 bg-background/95 backdrop-blur-sm border-b border-border px-6 py-5">
           <div className="max-w-6xl mx-auto flex flex-col gap-3">
             {/* Estado */}
             <div className="flex items-center gap-3">
@@ -581,7 +581,7 @@ export default function Galeria() {
                     className={`px-3 py-1 text-xs tracking-widest uppercase transition-colors ${
                       statusFilter === f
                         ? "bg-primary text-white"
-                        : "bg-white border border-border text-muted-foreground hover:text-foreground"
+                        : "bg-background border border-border text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     {f === "disponivel" ? t("common.availablePlural") : t("common.soldPlural")}
@@ -601,7 +601,7 @@ export default function Galeria() {
                     className={`px-3 py-1 text-xs tracking-widest uppercase transition-colors ${
                       tamanhoFilter === f
                         ? "bg-primary text-white"
-                        : "bg-white border border-border text-muted-foreground hover:text-foreground"
+                        : "bg-background border border-border text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     {f === "grande" ? t("common.largePlural") : t("common.smallPlural")}

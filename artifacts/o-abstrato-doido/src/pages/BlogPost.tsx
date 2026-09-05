@@ -26,7 +26,7 @@ export default function BlogPost() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="pt-16">
+      <div className="pt-[4.5rem]">
         {isLoading ? (
           <div className="max-w-3xl mx-auto px-6 py-16">
             <Skeleton className="h-8 w-3/4 mb-4" />

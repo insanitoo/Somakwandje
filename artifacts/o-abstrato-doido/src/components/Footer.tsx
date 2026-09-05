@@ -21,14 +21,14 @@ export default function Footer() {
   const { t } = useLanguage();
 
   return (
-    <footer className="bg-[hsl(155,22%,40%)] text-white">
+    <footer className="bg-[#0F172A] text-white">
       <div className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 gap-10">
         <div>
-          <h3 className="font-serif text-xl mb-4 text-white/90">{t("footer.contacts")}</h3>
+          <h3 className="font-serif text-xl mb-4 text-white">{t("footer.contacts")}</h3>
           <div className="flex flex-col gap-3">
             <a
               href="mailto:diolenyintya@gmail.com"
-              className="flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm"
+              className="flex items-center gap-2 text-white hover:text-white/80 transition-colors text-sm"
               data-testid="link-email"
             >
               <Mail size={16} />
@@ -38,7 +38,7 @@ export default function Footer() {
               href="https://wa.me/244934959424"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm"
+              className="flex items-center gap-2 text-white hover:text-white/80 transition-colors text-sm"
               data-testid="link-phone"
             >
               <Phone size={16} />
@@ -48,13 +48,13 @@ export default function Footer() {
         </div>
 
         <div>
-          <h3 className="font-serif text-xl mb-4 text-white/90">{t("footer.social")}</h3>
+          <h3 className="font-serif text-xl mb-4 text-white">{t("footer.social")}</h3>
           <div className="flex items-center gap-4">
             <a
               href="https://www.instagram.com/o.abstrato.doido?igsh=dmVwZnV3dGlreDN4"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white/80 hover:text-white transition-colors"
+              className="text-white hover:text-white/80 transition-colors"
               data-testid="link-instagram"
               aria-label="Instagram"
             >
@@ -64,7 +64,7 @@ export default function Footer() {
               href="https://www.tiktok.com/@o.abstrato.doido?_r=1&_t=ZS-97QFFxUdN0j"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white/80 hover:text-white transition-colors"
+              className="text-white hover:text-white/80 transition-colors"
               data-testid="link-tiktok"
               aria-label="TikTok"
             >
@@ -74,7 +74,7 @@ export default function Footer() {
               href="https://www.facebook.com/profile.php?id=61565947238625"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white/80 hover:text-white transition-colors"
+              className="text-white hover:text-white/80 transition-colors"
               data-testid="link-facebook"
               aria-label="Facebook"
             >
@@ -83,7 +83,7 @@ export default function Footer() {
           </div>
         </div>
       </div>
-      <div className="border-t border-white/20 py-4 px-6 text-center text-white/50 text-xs">
+      <div className="border-t border-white/20 py-4 px-6 text-center text-white text-xs">
         © {new Date().getFullYear()} Dioleny Intya. {t("footer.rights")}
       </div>
     </footer>

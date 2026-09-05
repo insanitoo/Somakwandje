@@ -4,8 +4,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, MapPin } from "lucide-react";
-import heroPng from "@assets/image_1782859145516.png";
-import artistPng from "@assets/00e79b8a-e616-4d9a-a14d-930bfb0bffb1_1788518663426.jpeg";
+import heroPng from "@assets/image_1788615103140.png";
+import artistPng from "@assets/image_1788615145695.png";
 import { useLanguage, type Language } from "@/i18n";
 
 function parsePrecoNum(preco: string | null | undefined): number | null {
@@ -91,8 +91,35 @@ export default function Home() {
         </div>
       </section>
 
+      {/* About teaser */}
+      <section className="py-20 md:py-24 bg-background">
+        <div className="max-w-5xl mx-auto px-6 grid grid-cols-1 md:grid-cols-[0.8fr_1.2fr] gap-12 md:gap-20 items-center">
+          <div className="order-1 flex justify-center">
+            <img
+              src={artistPng}
+              alt="Victor Eurico Somakwendje no atelier"
+              className="w-64 h-64 md:w-80 md:h-80 rounded-full object-cover object-top ring-1 ring-primary/15 shadow-[0_14px_36px_rgba(15,23,42,0.08)]"
+              data-testid="img-artist-home"
+            />
+          </div>
+          <div className="order-2 max-w-xl">
+            <p className="text-xs tracking-[0.3em] uppercase text-primary mb-5">{t("home.aboutArtist")}</p>
+            <p className="text-muted-foreground leading-relaxed text-lg md:text-xl">
+              {t("home.aboutTeaser")}
+            </p>
+            <Link
+              href="/sobre"
+              data-testid="button-saber-mais"
+              className="inline-flex items-center gap-2 mt-8 text-sm tracking-widest uppercase text-primary border-b border-primary/60 pb-1 hover:border-primary hover:gap-3 transition-all"
+            >
+              {t("home.aboutArtist")}
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Gallery highlights */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-background">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-end justify-between mb-10">
             <div>
@@ -136,34 +163,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* About teaser */}
-      <section className="py-20 bg-[hsl(40,43%,96%)]">
-        <div className="max-w-4xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div className="order-1">
-            <img
-              src={artistPng}
-              alt="O Abstrato Doido no atelier"
-              className="w-full aspect-[4/5] object-cover"
-              data-testid="img-artist-home"
-            />
-          </div>
-          <div className="order-2">
-            <p className="text-muted-foreground leading-relaxed text-base mb-1">
-              {t("home.aboutTeaser")}
-            </p>
-            <Link
-              href="/sobre"
-              data-testid="button-saber-mais"
-              className="inline-flex items-center gap-2 mt-8 text-sm tracking-widest uppercase text-primary border-b border-primary pb-0.5 hover:opacity-70 transition-opacity"
-            >
-              {t("home.aboutArtist")}
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* Next event banner */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-background">
         <div className="max-w-6xl mx-auto px-6">
           <p className="text-xs tracking-[0.3em] uppercase text-primary mb-4">{t("home.agenda")}</p>
           <h2 className="font-serif text-3xl text-foreground mb-8"></h2>
@@ -174,7 +175,7 @@ export default function Home() {
               <Skeleton className="h-4 w-36" />
             </div>
           ) : proximoEvento ? (
-            <div className="border border-border bg-white p-8 flex flex-col md:flex-row md:items-center justify-between gap-6" data-testid={`card-evento-${proximoEvento.id}`}>
+            <div className="border border-border bg-background p-8 flex flex-col md:flex-row md:items-center justify-between gap-6" data-testid={`card-evento-${proximoEvento.id}`}>
               <div className="flex items-start gap-6">
                 {proximoEvento.imagemCapaUrl && (
                   <img
@@ -226,7 +227,7 @@ export default function Home() {
               </div>
             </div>
           ) : (
-            <div className="border border-border bg-white p-8 text-center">
+            <div className="border border-border bg-background p-8 text-center">
               <p className="text-muted-foreground font-serif text-lg">{t("home.noEvents")}</p>
               <Link href="/agenda" className="text-sm tracking-widest uppercase text-primary border-b border-primary pb-0.5 mt-4 inline-block">
                 {t("home.fullAgenda")}

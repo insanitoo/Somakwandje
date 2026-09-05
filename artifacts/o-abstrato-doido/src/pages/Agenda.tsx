@@ -158,7 +158,7 @@ export default function Agenda() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="pt-16">
+      <div className="pt-[4.5rem]">
         {/* Header */}
         <div className="bg-white border-b border-border py-14 px-6">
           <div className="max-w-6xl mx-auto">

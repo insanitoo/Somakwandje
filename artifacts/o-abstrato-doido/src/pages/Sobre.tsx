@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import artistPng from "@assets/00e79b8a-e616-4d9a-a14d-930bfb0bffb1_1788518663426.jpeg";
+import artistPng from "@assets/image_1788615145695.png";
 import { useLanguage } from "@/i18n";
 
 export default function Sobre() {
@@ -9,14 +9,14 @@ export default function Sobre() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="pt-16">
-        <section className="py-14 md:py-20 bg-[hsl(40,43%,96%)]">
+      <main className="pt-[4.5rem]">
+        <section className="py-14 md:py-20 bg-background">
           <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-10 md:gap-16 items-start">
             <div>
               <img
                 src={artistPng}
-                alt="Dioleny Intya no atelier"
-                className="w-full aspect-[4/5] object-cover"
+                alt="Victor Eurico Somakwendje"
+                className="w-full max-w-md mx-auto aspect-square rounded-full object-cover object-top shadow-[0_14px_36px_rgba(15,23,42,0.08)]"
                 data-testid="img-artist-sobre"
               />
             </div>

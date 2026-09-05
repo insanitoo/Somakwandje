@@ -48,14 +48,24 @@ export default function Navbar() {
   }, [languageMenuOpen]);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
-      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link href="/" className="font-serif text-lg tracking-wide text-foreground hover:text-primary transition-colors">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
+      <div className="max-w-6xl mx-auto px-5 md:px-6 h-[4.5rem] flex items-center">
+        <button
+          className="md:hidden mr-4 text-foreground hover:text-primary transition-colors"
+          onClick={() => setOpen(!open)}
+          data-testid="button-menu-mobile"
+          aria-label={t("nav.menu")}
+          aria-expanded={open}
+        >
+          {open ? <X size={21} /> : <Menu size={21} />}
+        </button>
+
+        <Link href="/" className="font-serif text-xl tracking-wide text-foreground hover:text-primary transition-colors md:mr-auto">
           O Abstrato Doido
         </Link>
 
         {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-7 ml-12">
           {links.map((link) => (
             <Link
               key={link.href}
@@ -73,7 +83,7 @@ export default function Navbar() {
         </div>
 
         {/* Language + WhatsApp + Mobile hamburger */}
-        <div className="flex items-center gap-3 md:gap-4">
+        <div className="flex items-center gap-3 md:gap-4 md:ml-auto">
           <div className="relative" ref={languageMenuRef}>
             <button
               type="button"
@@ -91,7 +101,7 @@ export default function Navbar() {
               <div
                 role="menu"
                 aria-label={t("nav.language")}
-                className="absolute right-0 top-full mt-3 min-w-32 bg-white border border-border shadow-lg py-1 z-50"
+                className="absolute right-0 top-full mt-3 min-w-32 bg-background border border-border shadow-lg py-1 z-50"
               >
                 {languageOptions.map((option) => (
                   <button
@@ -106,7 +116,7 @@ export default function Navbar() {
                     className={`block w-full px-4 py-2 text-left text-xs transition-colors ${
                       language === option.code
                         ? "text-primary font-medium bg-primary/5"
-                        : "text-muted-foreground hover:bg-[hsl(40,43%,96%)] hover:text-foreground"
+                        : "text-muted-foreground hover:bg-background hover:text-foreground"
                     }`}
                   >
                     {option.label}
@@ -125,14 +135,6 @@ export default function Navbar() {
           >
             <WhatsAppIcon size={20} />
           </a>
-          <button
-            className="md:hidden text-foreground"
-            onClick={() => setOpen(!open)}
-            data-testid="button-menu-mobile"
-            aria-label={t("nav.menu")}
-          >
-            {open ? <X size={22} /> : <Menu size={22} />}
-          </button>
         </div>
       </div>
 

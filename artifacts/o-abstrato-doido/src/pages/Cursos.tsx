@@ -183,7 +183,7 @@ function CursoModal({ curso, onClose }: { curso: Curso; onClose: () => void }) {
                           key={i}
                           onClick={() => setAulaIdx(i)}
                           className={`w-full flex items-center gap-3 px-3 py-3 text-sm border-b border-border last:border-0 transition-colors ${
-                            i === aulaIdx ? "bg-primary/5 text-primary" : "text-foreground hover:bg-[hsl(40,43%,96%)]"
+                            i === aulaIdx ? "bg-primary/5 text-primary" : "text-foreground hover:bg-background"
                           }`}
                         >
                           <Play size={14} className="flex-shrink-0" />
@@ -214,7 +214,7 @@ export default function Cursos() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="pt-16">
+      <div className="pt-[4.5rem]">
         {/* Header */}
         <div className="bg-white border-b border-border py-14 px-6">
           <div className="max-w-6xl mx-auto">
