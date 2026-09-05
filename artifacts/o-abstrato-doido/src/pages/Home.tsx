@@ -102,15 +102,14 @@ export default function Home() {
               data-testid="img-artist-home"
             />
           </div>
-          <div className="order-2 max-w-xl">
-            <p className="text-xs tracking-[0.3em] uppercase text-primary mb-5">{t("home.aboutArtist")}</p>
-            <p className="text-muted-foreground leading-relaxed text-lg md:text-xl">
+          <div className="order-2 max-w-xl text-center">
+            <p className="text-muted-foreground leading-relaxed text-sm md:text-base">
               {t("home.aboutTeaser")}
             </p>
             <Link
               href="/sobre"
               data-testid="button-saber-mais"
-              className="inline-flex items-center gap-2 mt-8 text-sm tracking-widest uppercase text-primary border-b border-primary/60 pb-1 hover:border-primary hover:gap-3 transition-all"
+              className="inline-flex items-center justify-center gap-2 mt-6 text-xs tracking-[0.18em] uppercase text-primary border-b border-primary/60 pb-1 hover:border-primary hover:gap-3 transition-all"
             >
               {t("home.aboutArtist")}
             </Link>
@@ -121,14 +120,11 @@ export default function Home() {
       {/* Gallery highlights */}
       <section className="py-20 bg-background">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="flex items-end justify-between mb-10">
-            <div>
-              
-              <h2 className="font-serif text-3xl text-foreground">{t("home.galleryHighlights")}</h2>
-            </div>
+          <div className="flex flex-col items-center text-center mb-8">
+            <h2 className="font-serif text-2xl text-foreground">{t("home.galleryHighlights")}</h2>
             <Link
               href="/galeria"
-              className="text-sm tracking-widest uppercase text-primary border-b border-primary pb-0.5 hover:opacity-70 transition-opacity hidden md:inline-flex items-center gap-1"
+              className="inline-flex items-center gap-1 mt-3 text-xs tracking-[0.18em] uppercase text-primary border-b border-primary/60 pb-0.5 hover:border-primary transition-colors"
             >
               {t("home.viewAll")}
             </Link>
@@ -155,11 +151,6 @@ export default function Home() {
             </p>
           )}
 
-          <div className="mt-8 md:hidden text-center">
-            <Link href="/galeria" className="text-sm tracking-widest uppercase text-primary border-b border-primary pb-0.5">
-              {t("home.viewAllWorks")}
-            </Link>
-          </div>
         </div>
       </section>
 
@@ -199,7 +190,7 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row justify-center gap-3">
                 {proximoEvento.tipo === "futuro" && (
                   <a
                     href={buildWA(

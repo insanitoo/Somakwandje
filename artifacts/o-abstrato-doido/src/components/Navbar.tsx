@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { ChevronDown, Globe2, Menu, X } from "lucide-react";
 import { languageOptions, useLanguage } from "@/i18n";
 
 function WhatsAppIcon({ size = 20 }: { size?: number }) {
@@ -49,9 +49,9 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
-      <div className="max-w-6xl mx-auto px-5 md:px-6 h-[4.5rem] flex items-center">
+      <div className="relative max-w-6xl mx-auto px-5 md:px-6 h-[4.5rem] flex items-center justify-center md:justify-between">
         <button
-          className="md:hidden mr-4 text-foreground hover:text-primary transition-colors"
+          className="absolute left-5 md:hidden text-foreground hover:text-primary transition-colors"
           onClick={() => setOpen(!open)}
           data-testid="button-menu-mobile"
           aria-label={t("nav.menu")}
@@ -60,12 +60,12 @@ export default function Navbar() {
           {open ? <X size={21} /> : <Menu size={21} />}
         </button>
 
-        <Link href="/" className="font-serif text-xl tracking-wide text-foreground hover:text-primary transition-colors md:mr-auto">
-          O Abstrato Doido
+        <Link href="/" className="absolute left-1/2 -translate-x-1/2 font-serif text-xl tracking-wide text-foreground hover:text-primary transition-colors">
+          Somakwendje
         </Link>
 
         {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-7 ml-12">
+        <div className="hidden md:flex items-center gap-7 absolute left-6">
           {links.map((link) => (
             <Link
               key={link.href}
@@ -82,8 +82,8 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Language + WhatsApp + Mobile hamburger */}
-        <div className="flex items-center gap-3 md:gap-4 md:ml-auto">
+        {/* Language selector */}
+        <div className="absolute right-5 md:right-6 flex items-center">
           <div className="relative" ref={languageMenuRef}>
             <button
               type="button"
@@ -91,9 +91,10 @@ export default function Navbar() {
               aria-label={t("nav.language")}
               aria-haspopup="menu"
               aria-expanded={languageMenuOpen}
-              className="flex items-center gap-1 px-1 py-1 text-xs font-medium tracking-widest text-foreground hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary"
+              className="flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-[10px] font-semibold tracking-[0.16em] text-foreground hover:border-primary/50 hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary"
               data-testid="select-language"
             >
+              <Globe2 size={13} aria-hidden="true" />
               {language.toUpperCase()}
               <ChevronDown size={13} aria-hidden="true" />
             </button>
@@ -101,7 +102,7 @@ export default function Navbar() {
               <div
                 role="menu"
                 aria-label={t("nav.language")}
-                className="absolute right-0 top-full mt-3 min-w-32 bg-background border border-border shadow-lg py-1 z-50"
+                className="absolute right-0 top-full mt-3 min-w-32 rounded-2xl bg-background border border-border shadow-[0_8px_24px_rgba(15,23,42,0.08)] p-1 z-50"
               >
                 {languageOptions.map((option) => (
                   <button
@@ -115,8 +116,8 @@ export default function Navbar() {
                     }}
                     className={`block w-full px-4 py-2 text-left text-xs transition-colors ${
                       language === option.code
-                        ? "text-primary font-medium bg-primary/5"
-                        : "text-muted-foreground hover:bg-background hover:text-foreground"
+                        ? "text-primary font-medium bg-primary/5 rounded-xl"
+                        : "text-muted-foreground hover:bg-primary/5 hover:text-foreground rounded-xl"
                     }`}
                   >
                     {option.label}
@@ -125,16 +126,6 @@ export default function Navbar() {
               </div>
             )}
           </div>
-          <a
-            href="https://wa.me/244934959424"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={t("nav.whatsapp")}
-            className="text-foreground hover:text-primary transition-colors"
-            data-testid="link-whatsapp-header"
-          >
-            <WhatsAppIcon size={20} />
-          </a>
         </div>
       </div>
 
