@@ -99,14 +99,16 @@ const messages = {
       goBack: "Voltar",
     },
     about: {
+      biographyTitle: "Biografia",
+      statementTitle: "Statement artístico",
       paragraph1:
-        "O Abstrato Doido - Dioleny Intya - é um artista plástico angolano cuja prática se desenvolve através da abstração como forma de investigar as contradições da condição humana, a espiritualidade e as escolhas que moldam quem somos. As suas obras não procuram oferecer respostas, mas criar um espaço onde o espectador possa confrontar as próprias perguntas.",
+        "Victor Eurico Somakwendje nasceu a 28 de maio, na comuna de Lândana, município de Cacongo, em Cabinda. Aos cinco anos mudou-se para o Cubal, em Benguela, onde concluiu o ensino primário. Em 2015, foi para Benguela-Sede continuar os estudos.",
       paragraph2:
-        "Embora tenha iniciado a sua carreira profissional a poucos anos, a sua relação com a abstração começou muito antes, literalmente aos 6 anos. Cresceu no Lubango, no sul de Angola, longe dos grandes centros culturais e sem conhecer um único artista plástico. Ainda criança, enchia cadernos de rascunhos, fascinava-se por formas distorcidas, rachaduras nas paredes e imagens que sugeriam mais do que explicavam. Só anos mais tarde percebeu que aquela linguagem já tinha um nome. A abstração nunca foi uma escolha consciente. Foi a forma como sempre viu o mundo.",
+        "Desde cedo, revelou paixão pelo desenho. Em 2016 conheceu o mestre Venâncio Higino, decisivo no seu desenvolvimento técnico e expressivo. Em 2022 iniciou a prática profissional, passando da pintura publicitária para a tela, os ténis e as T-shirts. Participou em exposições coletivas e, em 2025, conquistou o segundo lugar no concurso de artes visuais da Embaixada de Espanha, em parceria com a UNAP. Atualmente estuda na Faculdade de Artes da Universidade de Luanda e vive em Luanda.",
       paragraph3:
-        "Depois de iniciar a sua produção artística, decidiu deixar a cidade onde vivia e mudar-se para Luanda para dedicar-se integralmente à construção de uma carreira de longo prazo. Desde então, participou em diversas exposições coletivas, integrou duas edições da Luanda Feira de Arte, o principal evento de arte contemporânea de Angola, e apresentou a sua primeira exposição individual em formato digital, criada de forma independente quando ainda não encontrava espaço nas galerias tradicionais. As suas obras integram coleções particulares em países como Angola, Portugal, Brasil, Espanha, Moçambique e África do Sul.",
+        "Sou um artista visual angolano que utiliza o corpo feminino como campo de investigação, explorando as relações entre desejo, poder e silêncio. A partir de uma linguagem surrealista e simbólica, interrogo o male gaze, o silenciamento social e os padrões que o olhar masculino reproduz. A pintura, a escultura e a apropriação de objetos reais cruzam-se numa prática que aproxima o íntimo do universal.",
       paragraph4:
-        "A exposição O Jardim de Barrabás, a sua primeira individual presencial em galeria, marca um novo momento da sua trajetória e o início público de uma investigação artística que pretende desenvolver ao longo das próximas décadas. Para Dioleny, cada obra é um capítulo de uma mesma pesquisa. Não sobre aquilo que sabemos a respeito de nós mesmos, mas sobre o instante em que percebemos que somos muito mais contraditórios do que imaginávamos.",
+        "Não procuro oferecer respostas, mas criar perguntas. Através de entrevistas e de imagens fragmentadas, questiono quem controla o corpo feminino, o que acontece quando ele resiste e o que muda quando o homem que olha é obrigado a questionar o próprio olhar.",
     },
     courses: {
       eyebrow: "Aprendizagem",
@@ -222,14 +224,16 @@ const messages = {
       goBack: "Go back",
     },
     about: {
+      biographyTitle: "Biography",
+      statementTitle: "Artist statement",
       paragraph1:
-        "O Abstrato Doido - Dioleny Intya - is an Angolan visual artist whose practice uses abstraction to investigate the contradictions of the human condition, spirituality, and the choices that shape who we are. His works do not seek to offer answers, but to create a space where viewers can confront their own questions.",
+        "Victor Eurico Somakwendje was born on 28 May in Lândana, Cacongo, in Cabinda, Angola. At the age of five he moved to Cubal, Benguela, where he completed primary school. In 2015, he moved to Benguela city to continue his studies.",
       paragraph2:
-        "Although he began his professional career only a few years ago, his relationship with abstraction started much earlier, literally at the age of six. He grew up in Lubango, in southern Angola, far from the major cultural centres and without knowing a single visual artist. As a child, he filled notebooks with sketches and was fascinated by distorted forms, cracks in walls, and images that suggested more than they explained. Only years later did he realise that this language already had a name. Abstraction was never a conscious choice. It was the way he had always seen the world.",
+        "He discovered a passion for drawing early on. In 2016 he met his mentor Venâncio Higino, who played an important role in his technical and expressive development. He began working professionally in 2022, moving from advertising painting to canvases, sneakers and T-shirts. After taking part in group exhibitions, he won second place in the 2025 visual arts competition organised by the Embassy of Spain with UNAP. He currently studies at the Faculty of Arts of the University of Luanda.",
       paragraph3:
-        "After beginning his artistic production, he decided to leave the city where he lived and move to Luanda to dedicate himself fully to building a long-term career. Since then, he has taken part in several group exhibitions, participated in two editions of the Luanda Art Fair, Angola’s leading contemporary art event, and presented his first independent digital solo exhibition when he had not yet found a place in traditional galleries. His works are held in private collections in Angola, Portugal, Brazil, Spain, Mozambique, and South Africa.",
+        "I am an Angolan visual artist who uses the female body as a field of research, exploring the relationships between desire, power and silence. Through a surreal and symbolic language, I question the male gaze, social silencing and the patterns reproduced by the masculine gaze. Painting, sculpture and the appropriation of real objects come together in a practice that connects the intimate with the universal.",
       paragraph4:
-        "The exhibition O Jardim de Barrabás, his first in-person solo exhibition in a gallery, marks a new moment in his journey and the public beginning of an artistic investigation he intends to develop over the coming decades. For Dioleny, each work is a chapter in the same research. Not about what we know about ourselves, but about the moment we realise that we are far more contradictory than we imagined.",
+        "I do not seek to offer answers, but to create questions. Through interviews and fragmented images, I ask who controls the female body, what happens when it resists, and what changes when the man who looks is forced to question his own gaze.",
     },
     courses: {
       eyebrow: "Learning",
@@ -345,14 +349,16 @@ const messages = {
       goBack: "Retour",
     },
     about: {
+      biographyTitle: "Biographie",
+      statementTitle: "Statement artistique",
       paragraph1:
-        "O Abstrato Doido - Dioleny Intya - est un artiste plasticien angolais dont la pratique utilise l’abstraction pour explorer les contradictions de la condition humaine, la spiritualité et les choix qui façonnent ce que nous sommes. Ses œuvres ne cherchent pas à offrir des réponses, mais à créer un espace où le spectateur peut confronter ses propres questions.",
+        "Victor Eurico Somakwendje est né le 28 mai à Lândana, dans la municipalité de Cacongo, à Cabinda, en Angola. À l’âge de cinq ans, il s’est installé à Cubal, dans la province de Benguela, où il a terminé l’école primaire. En 2015, il a rejoint la ville de Benguela pour poursuivre ses études.",
       paragraph2:
-        "Bien qu’il ait commencé sa carrière professionnelle il y a seulement quelques années, sa relation avec l’abstraction a commencé bien plus tôt, littéralement à l’âge de six ans. Il a grandi à Lubango, dans le sud de l’Angola, loin des grands centres culturels et sans connaître un seul artiste plasticien. Enfant, il remplissait des carnets de croquis et se passionnait pour les formes déformées, les fissures des murs et les images qui suggéraient plus qu’elles n’expliquaient. Ce n’est que des années plus tard qu’il a compris que ce langage avait déjà un nom. L’abstraction n’a jamais été un choix conscient. C’était sa façon de voir le monde.",
+        "Passionné très tôt par le dessin, il rencontre en 2016 son maître Venâncio Higino, qui contribue à son développement technique et expressif. En 2022, il commence à travailler professionnellement, de la peinture publicitaire aux toiles, aux baskets et aux T-shirts. Après plusieurs expositions collectives, il obtient en 2025 la deuxième place du concours d’arts visuels de l’Ambassade d’Espagne, en partenariat avec l’UNAP. Il étudie actuellement à la Faculté des Arts de l’Université de Luanda.",
       paragraph3:
-        "Après avoir commencé sa production artistique, il a décidé de quitter la ville où il vivait et de s’installer à Luanda afin de se consacrer pleinement à la construction d’une carrière à long terme. Depuis, il a participé à plusieurs expositions collectives, à deux éditions de la Luanda Art Fair, le principal événement d’art contemporain d’Angola, et a présenté sa première exposition individuelle numérique, créée de manière indépendante alors qu’il ne trouvait pas encore sa place dans les galeries traditionnelles. Ses œuvres font partie de collections privées en Angola, au Portugal, au Brésil, en Espagne, au Mozambique et en Afrique du Sud.",
+        "Je suis un artiste visuel angolais qui utilise le corps féminin comme champ de recherche, en explorant les relations entre désir, pouvoir et silence. À travers un langage surréaliste et symbolique, j’interroge le male gaze, le silence social et les schémas reproduits par le regard masculin. La peinture, la sculpture et l’appropriation d’objets réels se rencontrent dans une pratique qui relie l’intime à l’universel.",
       paragraph4:
-        "L’exposition O Jardim de Barrabás, sa première exposition individuelle en présentiel dans une galerie, marque un nouveau moment de son parcours et le début public d’une recherche artistique qu’il souhaite développer au cours des prochaines décennies. Pour Dioleny, chaque œuvre est un chapitre d’une même recherche. Non pas sur ce que nous savons de nous-mêmes, mais sur l’instant où nous comprenons que nous sommes bien plus contradictoires que nous ne l’imaginions.",
+        "Je ne cherche pas à proposer des réponses, mais à faire naître des questions. À travers des entretiens et des images fragmentées, je demande qui contrôle le corps féminin, ce qui se passe lorsqu’il résiste et ce qui change lorsque l’homme qui regarde est contraint d’interroger son propre regard.",
     },
     courses: {
       eyebrow: "Apprentissage",
