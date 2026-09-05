@@ -47,7 +47,7 @@ const messages = {
       worksSoon: "As obras serão adicionadas em breve",
       aboutArtist: "Sobre o artista",
       aboutTeaser:
-        "Dioleny Intya, artista plástico angolano reconhecido pela UNAP, e amplamente conhecido como “O Abstrato Doido”.",
+        "Somakwendje — Dioleny Intya — é um artista plástico angolano reconhecido pela UNAP e amplamente conhecido como “O Abstrato Doido”.",
       agenda: "Agenda",
       nextEvent: "Próximo Evento",
       lastEvent: "Último Evento",
@@ -170,7 +170,7 @@ const messages = {
       worksSoon: "Works will be added soon",
       aboutArtist: "About the artist",
       aboutTeaser:
-        "Dioleny Intya, an Angolan visual artist recognised by UNAP and widely known as “O Abstrato Doido”.",
+        "Somakwendje — Dioleny Intya — is an Angolan visual artist recognised by UNAP and widely known as “O Abstrato Doido”.",
       agenda: "Schedule",
       nextEvent: "Next Event",
       lastEvent: "Latest Event",
@@ -293,7 +293,7 @@ const messages = {
       worksSoon: "Les œuvres seront bientôt ajoutées",
       aboutArtist: "À propos de l'artiste",
       aboutTeaser:
-        "Dioleny Intya, artiste plasticien angolais reconnu par l’UNAP et largement connu sous le nom de « O Abstrato Doido ».",
+        "Somakwendje — Dioleny Intya — est un artiste plasticien angolais reconnu par l’UNAP et largement connu sous le nom de « O Abstrato Doido ».",
       agenda: "Agenda",
       nextEvent: "Prochain événement",
       lastEvent: "Dernier événement",

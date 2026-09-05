@@ -1,295 +1,54 @@
 import { useState } from "react";
 import { useListEventos } from "@workspace/api-client-react";
+import type { Evento } from "@workspace/api-client-react";
+import { ArrowUpRight, Calendar, MapPin, X } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Calendar, MapPin, X } from "lucide-react";
 import { useLanguage, type Language } from "@/i18n";
 
 const WA = "244934959424";
-
-function buildWA(nome: string, language: Language) {
-  const messages: Record<Language, string> = {
-    pt: `Olá, vi no site o evento "${nome}" e gostaria de saber mais / inscrever-me.`,
-    en: `Hello, I saw the event "${nome}" on your website and would like to know more / register.`,
-    fr: `Bonjour, j’ai vu l’événement « ${nome} » sur votre site et j’aimerais en savoir plus / m’inscrire.`,
-  };
-  const msg = encodeURIComponent(
-    messages[language]
-  );
-  return `https://wa.me/${WA}?text=${msg}`;
+function contact(name: string, language: Language) {
+  const copy = { pt: `Olá, vi no site o evento "${name}" e gostaria de saber mais / inscrever-me.`, en: `Hello, I saw the event "${name}" on your website and would like to know more / register.`, fr: `Bonjour, j’ai vu l’événement « ${name} » sur votre site et j’aimerais en savoir plus / m’inscrire.` };
+  return `https://wa.me/${WA}?text=${encodeURIComponent(copy[language])}`;
+}
+function galleryImages(event: Evento) {
+  let extra: string[] = [];
+  try { const parsed = event.imagensAdicionais ? JSON.parse(event.imagensAdicionais) : []; if (Array.isArray(parsed)) extra = parsed.filter(Boolean); } catch { extra = []; }
+  return [event.imagemCapaUrl, ...extra].filter((url): url is string => Boolean(url));
 }
 
-type EventoType = {
-  id: number;
-  nome: string;
-  local?: string | null;
-  dataEvento: string;
-  tipo: string;
-  descricao?: string | null;
-  imagemCapaUrl?: string | null;
-  imagensAdicionais?: string | null;
-  linkInscricao?: string | null;
-};
-
-function parseImagens(raw: string | null | undefined): string[] {
-  if (!raw) return [];
-  try {
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed)) return parsed.filter(Boolean) as string[];
-  } catch { }
-  return [];
-}
-
-function EventoModal({ evento, onClose }: { evento: EventoType; onClose: () => void }) {
+function EventModal({ event, close }: { event: Evento; close: () => void }) {
   const { t, language } = useLanguage();
-  const adicionais = parseImagens(evento.imagensAdicionais);
-  const fotos = [
-    ...(evento.imagemCapaUrl ? [evento.imagemCapaUrl] : []),
-    ...adicionais,
-  ];
-  const [fotoIdx, setFotoIdx] = useState(0);
-  const isFuture = evento.tipo === "futuro";
+  const images = galleryImages(event);
+  const future = event.tipo === "futuro";
+  return <DialogContent hideClose className="max-w-4xl rounded-none p-0 overflow-hidden max-h-[90dvh] bg-card" aria-describedby={undefined}>
+    <DialogTitle className="sr-only">{event.nome}</DialogTitle>
+    <button type="button" onClick={close} className="absolute top-4 right-4 z-10 w-9 h-9 flex items-center justify-center bg-background/90 hover:bg-primary hover:text-primary-foreground" aria-label={t("common.close")} data-testid="button-close-event"><X size={17} /></button>
+    <div className="grid grid-cols-1 md:grid-cols-[.9fr_1.1fr] max-h-[90dvh]">
+      <div className="bg-foreground min-h-[260px]">{images[0] ? <img src={images[0]} alt={event.nome} className="w-full h-full min-h-[320px] object-cover" data-testid={`img-event-${event.id}`} /> : <div className="h-full min-h-[320px] flex items-center justify-center p-8 font-serif text-4xl text-background/70 text-center">{event.nome}</div>}</div>
+      <div className="overflow-y-auto p-8 md:p-12"><p className="editorial-label text-primary mb-5">{future ? t("agenda.upcomingEvent") : t("agenda.completedEvent")}</p><h2 className="font-serif text-5xl leading-[.82]">{event.nome}</h2><div className="mt-9 space-y-3 text-sm text-muted-foreground"><p className="flex gap-2 items-center"><Calendar size={14} /> {event.dataEvento}</p>{event.local && <p className="flex gap-2 items-center"><MapPin size={14} /> {event.local}</p>}</div>{event.descricao && <p className="mt-8 text-sm leading-relaxed whitespace-pre-line">{event.descricao}</p>}{future && <a href={event.linkInscricao || contact(event.nome, language)} target="_blank" rel="noopener noreferrer" className="mt-10 flex items-center justify-between px-5 py-4 bg-primary text-primary-foreground editorial-label text-[10px] hover:bg-accent" data-testid={`link-register-event-${event.id}`}>{t("common.interested")} <ArrowUpRight size={15} /></a>}</div>
+    </div>
+  </DialogContent>;
+}
 
-  return (
-    <DialogContent hideClose className="max-w-2xl rounded-none p-0 overflow-hidden max-h-[92vh] flex flex-col" aria-describedby={undefined}>
-      <DialogTitle className="sr-only">{evento.nome}</DialogTitle>
-      <button
-        onClick={onClose}
-        className="absolute top-6 right-3 z-10 p-1 bg-white/80 hover:bg-white rounded-full text-foreground"
-         aria-label={t("common.close")}
-      >
-        <X size={18} />
-      </button>
-
-      <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
-        {/* Galeria de fotos */}
-        {fotos.length > 0 && (
-          <div className="md:w-2/5 flex-shrink-0 bg-[hsl(40,43%,96%)]">
-            <div className="relative aspect-square md:h-full md:aspect-auto">
-              <img
-                src={fotos[fotoIdx]}
-                alt={evento.nome}
-                className="w-full h-full object-cover"
-              />
-              {fotos.length > 1 && (
-                <>
-                  <button
-                    onClick={() => setFotoIdx((i) => (i - 1 + fotos.length) % fotos.length)}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 bg-white/80 hover:bg-white rounded-full"
-                     aria-label={t("common.previous")}
-                  >
-                    {t("common.previous")}
-                  </button>
-                  <button
-                    onClick={() => setFotoIdx((i) => (i + 1) % fotos.length)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-white/80 hover:bg-white rounded-full"
-                    aria-label={t("common.next")}
-                  >
-                    {t("common.next")}
-                  </button>
-                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
-                    {fotos.map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setFotoIdx(i)}
-                        className={`w-2 h-2 rounded-full transition-colors ${i === fotoIdx ? "bg-white" : "bg-white/50"}`}
-                      />
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Detalhes */}
-        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
-          <div>
-            <p className="text-xs tracking-[0.3em] uppercase text-primary mb-1">
-              {isFuture ? t("agenda.upcomingEvent") : t("agenda.completedEvent")}
-            </p>
-            <h2 className="font-serif text-2xl text-foreground">{evento.nome}</h2>
-          </div>
-
-          {evento.local && (
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <MapPin size={13} /> {evento.local}
-            </div>
-          )}
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <Calendar size={13} /> {evento.dataEvento}
-          </div>
-
-          {evento.descricao && (
-            <div>
-              <p className="text-xs tracking-widest uppercase text-muted-foreground mb-1">{t("common.description")}</p>
-              <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">{evento.descricao}</p>
-            </div>
-          )}
-
-          {isFuture && (
-            <div className="mt-auto pt-4">
-              <a
-                href={buildWA(evento.nome, language)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-center px-6 py-3 bg-primary text-white text-xs tracking-widest uppercase hover:bg-primary/90 transition-colors"
-              >
-                {t("common.interested")}
-              </a>
-            </div>
-          )}
-        </div>
-      </div>
-    </DialogContent>
-  );
+function EventRow({ event, future, open }: { event: Evento; future: boolean; open: () => void }) {
+  const { t } = useLanguage();
+  return <button type="button" onClick={open} className="w-full text-left border-t border-border py-7 grid grid-cols-[1fr_auto] md:grid-cols-[120px_1fr_auto] gap-5 items-center group hover:bg-secondary/30" data-testid={`card-evento-${event.id}`}>
+    <div className="editorial-label text-[9px] text-primary">{future ? "A seguir" : "Arquivo"}<span className="block text-muted-foreground mt-2"><Calendar size={13} className="inline mr-1" />{event.dataEvento}</span></div>
+    <div className="flex items-center gap-5">{event.imagemCapaUrl && <img src={event.imagemCapaUrl} alt="" className="hidden sm:block w-20 h-20 object-cover" />}<div><h3 className="font-serif text-3xl md:text-4xl group-hover:text-primary">{event.nome}</h3>{event.local && <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1"><MapPin size={12} /> {event.local}</p>}</div></div>
+    <ArrowUpRight size={18} className="text-muted-foreground group-hover:text-primary group-hover:translate-x-1 group-hover:-translate-y-1" />
+  </button>;
 }
 
 export default function Agenda() {
-  const { t } = useLanguage();
-  const { data: eventos, isLoading } = useListEventos();
-  const [selected, setSelected] = useState<EventoType | null>(null);
-
-  const futuros = eventos?.filter((e) => e.tipo === "futuro") ?? [];
-  const passados = eventos?.filter((e) => e.tipo === "passado") ?? [];
-
-  return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="pt-16">
-        {/* Header */}
-        <div className="bg-white border-b border-border py-14 px-6">
-          <div className="max-w-6xl mx-auto">
-            <p className="text-xs tracking-[0.3em] uppercase text-primary mb-2">{t("agenda.eyebrow")}</p>
-            <h1 className="font-serif text-4xl md:text-5xl text-foreground">{t("agenda.title")}</h1>
-          </div>
-        </div>
-
-        <div className="max-w-6xl mx-auto px-6 py-16 grid grid-cols-1 lg:grid-cols-2 gap-16">
-          {/* Próximos eventos */}
-          <div>
-            <h2 className="font-serif text-2xl text-primary mb-8 pb-3 border-b border-primary/30">
-              {t("agenda.upcoming")}
-            </h2>
-            {isLoading ? (
-              <div className="flex flex-col gap-4">
-                {[...Array(2)].map((_, i) => (
-                  <div key={i} className="border border-border p-6">
-                    <Skeleton className="h-6 w-48 mb-2" />
-                    <Skeleton className="h-4 w-36" />
-                  </div>
-                ))}
-              </div>
-            ) : futuros.length > 0 ? (
-              <div className="flex flex-col gap-4">
-                {futuros.map((evento) => (
-                  <EventoCard key={evento.id} evento={evento} isFuture onVer={() => setSelected(evento)} />
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground font-serif">{t("agenda.noUpcoming")}</p>
-            )}
-          </div>
-
-          {/* Eventos passados */}
-          <div>
-            <h2 className="font-serif text-2xl text-muted-foreground mb-8 pb-3 border-b border-border">
-              {t("agenda.past")}
-            </h2>
-            {isLoading ? (
-              <div className="grid grid-cols-1 gap-4">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="border border-border p-4">
-                    <Skeleton className="h-5 w-40 mb-2" />
-                    <Skeleton className="h-4 w-32" />
-                  </div>
-                ))}
-              </div>
-            ) : passados.length > 0 ? (
-              <div className="flex flex-col gap-4">
-                {passados.map((evento) => (
-                  <EventoCard key={evento.id} evento={evento} isFuture={false} onVer={() => setSelected(evento)} />
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground font-serif">{t("agenda.noPast")}</p>
-            )}
-          </div>
-        </div>
-      </div>
-      <Footer />
-
-      <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
-        {selected && <EventoModal evento={selected} onClose={() => setSelected(null)} />}
-      </Dialog>
-    </div>
-  );
-}
-
-function EventoCard({
-  evento,
-  isFuture,
-  onVer,
-}: {
-  evento: EventoType;
-  isFuture: boolean;
-  onVer: () => void;
-}) {
   const { t, language } = useLanguage();
-
-  return (
-    <div className="border border-border bg-white overflow-hidden" data-testid={`card-evento-${evento.id}`}>
-      <div className="flex">
-        {evento.imagemCapaUrl && (
-          <img
-            src={evento.imagemCapaUrl}
-            alt={evento.nome}
-            className="w-28 h-28 object-cover flex-shrink-0"
-          />
-        )}
-        <div className="p-5 flex flex-col justify-between flex-1">
-          <div>
-            <h3 className={`font-serif text-lg leading-tight ${isFuture ? "text-primary" : "text-foreground"}`}>
-              {evento.nome}
-            </h3>
-            {evento.local && (
-              <p className="text-muted-foreground text-sm mt-1.5 flex items-center gap-1">
-                <MapPin size={12} /> {evento.local}
-              </p>
-            )}
-            <p className="text-muted-foreground text-sm mt-0.5 flex items-center gap-1">
-              <Calendar size={12} /> {evento.dataEvento}
-            </p>
-          </div>
-          <div className="flex items-center gap-3 mt-3 flex-wrap">
-            <button
-              onClick={onVer}
-              data-testid={`button-ver-evento-${evento.id}`}
-              className="text-xs px-3 py-1 border border-foreground text-foreground hover:bg-foreground hover:text-white transition-colors tracking-wide"
-            >
-              {t("common.view")}
-            </button>
-            {isFuture && (
-              <a
-                href={buildWA(evento.nome, language)}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-testid={`button-interessado-evento-${evento.id}`}
-                className="text-xs px-4 py-1 bg-primary text-white tracking-widest uppercase hover:bg-primary/90 transition-colors"
-              >
-                {t("common.interested")}
-              </a>
-            )}
-            {!isFuture && (
-              <span className="text-xs tracking-widest uppercase text-muted-foreground border border-border px-3 py-1">
-                {t("common.realized")}
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  const { data: events, isLoading, isError } = useListEventos();
+  const [selected, setSelected] = useState<Evento | null>(null);
+  const future = (events ?? []).filter((event) => event.tipo === "futuro");
+  const past = (events ?? []).filter((event) => event.tipo === "passado");
+  return <div className="min-h-screen bg-background grain"><Navbar /><main className="max-w-[1440px] mx-auto px-5 md:px-10"><section className="pt-20 pb-16 md:pt-28 md:pb-24 grid md:grid-cols-[1fr_.7fr] gap-8 items-end"><div><p className="editorial-label text-primary mb-5">Arquivo / 02</p><h1 className="font-serif text-[clamp(4rem,10vw,9rem)] leading-[.75] tracking-[-.07em]">{t("agenda.title")}</h1></div><p className="text-sm leading-relaxed text-muted-foreground max-w-xs md:pb-2">{language === "pt" ? "A vida da pintura também acontece quando saímos do estúdio." : language === "fr" ? "La vie de la peinture existe aussi lorsque nous sortons de l’atelier." : "Painting also lives beyond the studio."}</p></section>
+    {isError ? <div className="py-24 text-center border-y border-primary/30">Não foi possível carregar o programa.</div> : isLoading ? <div className="space-y-4 py-10">{[1, 2, 3].map((item) => <Skeleton key={item} className="h-28 w-full" />)}</div> : <div className="pb-24"><section><div className="flex items-baseline justify-between border-b border-foreground pb-4"><h2 className="font-serif text-4xl">{t("agenda.upcoming")}</h2><span className="editorial-label text-[9px] text-muted-foreground">{String(future.length).padStart(2, "0")}</span></div>{future.length ? future.map((event) => <EventRow key={event.id} event={event} future open={() => setSelected(event)} />) : <p className="py-10 text-sm text-muted-foreground">{t("agenda.noUpcoming")}</p>}</section><section className="mt-24"><div className="flex items-baseline justify-between border-b border-border pb-4"><h2 className="font-serif text-4xl text-muted-foreground">{t("agenda.past")}</h2><span className="editorial-label text-[9px] text-muted-foreground">{String(past.length).padStart(2, "0")}</span></div>{past.length ? past.map((event) => <EventRow key={event.id} event={event} future={false} open={() => setSelected(event)} />) : <p className="py-10 text-sm text-muted-foreground">{t("agenda.noPast")}</p>}</section></div>}
+  </main><Footer /><Dialog open={Boolean(selected)} onOpenChange={(open) => !open && setSelected(null)}>{selected && <EventModal event={selected} close={() => setSelected(null)} />}</Dialog></div>;
 }

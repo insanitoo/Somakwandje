@@ -1,3 +1,4 @@
 - [O Abstrato Doido stack](o-abstrato-doido-stack.md) — key decisions for the artist website: DB tables, API hooks, admin auth pattern.
 - [Schema legado de obras](o-abstrato-doido-db-schema.md) — a base de desenvolvimento pode conter colunas antigas e exigir alterações aditivas compatíveis.
 - [Privacidade das métricas](analytics-privacy.md) — métricas próprias guardam apenas país, rota e data; nunca persistir IP bruto.
+- [Caminhos de uploads no API](api-upload-paths.md) — no workflow do servidor, resolva uploads relativos ao bundle, não ao diretório de execução.

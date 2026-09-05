@@ -1,300 +1,39 @@
 import { useState } from "react";
 import { useListCursos, useVerificarChaveCurso } from "@workspace/api-client-react";
 import type { Curso } from "@workspace/api-client-react";
+import { ArrowUpRight, Lock, Play, X } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Lock, Play, GraduationCap } from "lucide-react";
 import { useLanguage, type Language } from "@/i18n";
 
 const WA = "244934959424";
-
-function buildWACurso(nome: string, language: Language) {
-  const messages: Record<Language, string> = {
-    pt: `Vi o curso "${nome}" disponível, quero um acesso.`,
-    en: `I saw the course "${nome}" available and would like access.`,
-    fr: `J’ai vu que le cours « ${nome} » est disponible et j’aimerais y accéder.`,
-  };
-  const msg = encodeURIComponent(messages[language]);
-  return `https://wa.me/${WA}?text=${msg}`;
+function courseContact(name: string, language: Language) {
+  const copy = { pt: `Vi o curso "${name}" disponível, quero um acesso.`, en: `I saw the course "${name}" and would like access.`, fr: `J’ai vu le cours « ${name} » et j’aimerais y accéder.` };
+  return `https://wa.me/${WA}?text=${encodeURIComponent(copy[language])}`;
 }
-
-type Aula = {
-  titulo: string;
-  videoUrl: string;
-};
-
-function parseAulas(raw: string | null | undefined): Aula[] {
-  if (!raw) return [];
-  try {
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed)) return parsed as Aula[];
-  } catch {
-  }
-  return [];
+type Lesson = { titulo: string; videoUrl: string };
+function lessons(raw?: string | null): Lesson[] {
+  try { const parsed = raw ? JSON.parse(raw) : []; return Array.isArray(parsed) ? parsed : []; } catch { return []; }
 }
-
-function VideoPlayer({ url }: { url: string }) {
-  const { t } = useLanguage();
-
-  if (!url) {
-    return (
-      <div className="relative w-full aspect-video bg-black flex items-center justify-center">
-        <p className="text-white/60 text-sm">{t("courses.videoUnavailable")}</p>
-      </div>
-    );
-  }
-  return (
-    <div className="relative w-full aspect-video bg-black">
-      <video
-        src={url}
-        controls
-        controlsList="nodownload"
-        className="w-full h-full"
-        onContextMenu={(e) => e.preventDefault()}
-      />
-    </div>
-  );
-}
-
-function CursoModal({ curso, onClose }: { curso: Curso; onClose: () => void }) {
+function CourseModal({ course, close }: { course: Curso; close: () => void }) {
   const { t, language } = useLanguage();
-  const [chave, setChave] = useState("");
+  const [key, setKey] = useState("");
   const [unlocked, setUnlocked] = useState(false);
-  const [erro, setErro] = useState("");
-  const [aulaIdx, setAulaIdx] = useState(0);
-  const aulas = parseAulas(curso.aulas);
-
-  const verificar = useVerificarChaveCurso();
-
-  function handleVerificar() {
-    if (!chave.trim()) return;
-    verificar.mutate({ id: curso.id, data: { chave: chave.trim() } }, {
-      onSuccess: (res) => {
-        if (res.valida) {
-          setUnlocked(true);
-          setErro("");
-        } else {
-          setErro(t("courses.wrongKey"));
-        }
-      },
-      onError: () => {
-        setErro(t("courses.wrongKey"));
-      }
-    });
-  }
-
-  return (
-    <DialogContent className="max-w-2xl rounded-none p-0 overflow-hidden max-h-[92vh] flex flex-col">
-      <div className="flex flex-col flex-1 overflow-hidden">
-        {/* Capa + Info */}
-        <div className="flex items-start gap-4 p-6 border-b border-border">
-          {curso.imagemCapaUrl ? (
-            <img src={curso.imagemCapaUrl} alt={curso.nome} className="w-20 h-20 object-cover flex-shrink-0" />
-          ) : (
-            <div className="w-20 h-20 bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <GraduationCap size={28} className="text-primary" />
-            </div>
-          )}
-          <div>
-            <h2 className="font-serif text-xl text-foreground">{curso.nome}</h2>
-            {curso.descricao && (
-              <p className="text-sm text-muted-foreground mt-1">{curso.descricao}</p>
-            )}
-            <p className="text-xs text-muted-foreground mt-1">{aulas.length} {aulas.length === 1 ? t("courses.lesson") : t("courses.lessons")}</p>
-          </div>
-        </div>
-
-        {!unlocked ? (
-          /* Ecrã de desbloqueio */
-          <div className="flex-1 flex flex-col items-center justify-center gap-6 p-8">
-            <div className="text-center">
-              
-              
-              <p className="text-sm text-muted-foreground">{t("courses.accessPrompt")}</p>
-            </div>
-            <div className="w-full max-w-xs flex flex-col gap-3">
-              <Input
-                type="password"
-                placeholder={t("courses.accessKey")}
-                value={chave}
-                onChange={(e) => { setChave(e.target.value); setErro(""); }}
-                onKeyDown={(e) => e.key === "Enter" && handleVerificar()}
-                className="rounded-none text-center tracking-widest"
-              />
-              {erro && <p className="text-xs text-red-600 text-center">{erro}</p>}
-              <Button
-                onClick={handleVerificar}
-                disabled={verificar.isPending || !chave.trim()}
-                className="rounded-none text-xs tracking-widest uppercase bg-primary hover:bg-primary/90"
-              >
-                {verificar.isPending ? t("courses.checking") : t("courses.unlock")}
-              </Button>
-              <p className="text-xs text-muted-foreground text-center mt-1">
-                {t("courses.noAccess")}{" "}
-                <a
-                   href={buildWACurso(curso.nome, language)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary underline underline-offset-2"
-                >
-                  {t("courses.participate")}
-                </a>
-              </p>
-            </div>
-          </div>
-        ) : (
-          /* Player de vídeo + lista de aulas */
-          <div className="flex-1 overflow-y-auto flex flex-col">
-            {aulas.length > 0 ? (
-              <>
-                <VideoPlayer url={aulas[aulaIdx].videoUrl} />
-                <div className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    {aulaIdx > 0 && (
-                      <button
-                        onClick={() => setAulaIdx(aulaIdx - 1)}
-                        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-                      >
-                        {t("common.previous")}
-                      </button>
-                    )}
-                    <p className="font-medium text-sm text-foreground flex-1 text-center">
-                      {aulaIdx + 1}. {aulas[aulaIdx].titulo}
-                    </p>
-                    {aulaIdx < aulas.length - 1 && (
-                      <button
-                        onClick={() => setAulaIdx(aulaIdx + 1)}
-                        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-                      >
-                        {t("common.next")}
-                      </button>
-                    )}
-                  </div>
-
-                  {aulas.length > 1 && (
-                    <div className="border border-border">
-                      <p className="px-3 py-2 text-xs tracking-widest uppercase text-muted-foreground border-b border-border">{t("courses.lessonsTitle")}</p>
-                      {aulas.map((aula, i) => (
-                        <button
-                          key={i}
-                          onClick={() => setAulaIdx(i)}
-                          className={`w-full flex items-center gap-3 px-3 py-3 text-sm border-b border-border last:border-0 transition-colors ${
-                            i === aulaIdx ? "bg-primary/5 text-primary" : "text-foreground hover:bg-[hsl(40,43%,96%)]"
-                          }`}
-                        >
-                          <Play size={14} className="flex-shrink-0" />
-                          <span>{i + 1}. {aula.titulo}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </>
-            ) : (
-              <div className="flex-1 flex items-center justify-center p-8 text-center">
-                <p className="text-muted-foreground font-serif">{t("courses.noLessons")}</p>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </DialogContent>
-  );
+  const [error, setError] = useState(false);
+  const [index, setIndex] = useState(0);
+  const check = useVerificarChaveCurso();
+  const items = lessons(course.aulas);
+  const verify = () => { if (!key.trim()) return; check.mutate({ id: course.id, data: { chave: key.trim() } }, { onSuccess: (result) => { setUnlocked(result.valida); setError(!result.valida); }, onError: () => setError(true) }); };
+  return <DialogContent hideClose className="max-w-3xl rounded-none p-0 overflow-hidden max-h-[92dvh] bg-card" aria-describedby={undefined}><DialogTitle className="sr-only">{course.nome}</DialogTitle><button type="button" onClick={close} className="absolute top-4 right-4 z-10 w-9 h-9 bg-background/90 flex items-center justify-center hover:bg-primary hover:text-primary-foreground" aria-label={t("common.close")} data-testid="button-close-course"><X size={17} /></button><div className="p-8 md:p-12 border-b border-border flex gap-5 items-start">{course.imagemCapaUrl ? <img src={course.imagemCapaUrl} alt="" className="w-20 h-20 object-cover" /> : <div className="w-20 h-20 bg-accent flex items-center justify-center text-background font-serif text-3xl">S</div>}<div><p className="editorial-label text-primary text-[9px] mb-3">{t("courses.eyebrow")}</p><h2 className="font-serif text-4xl leading-none">{course.nome}</h2>{course.descricao && <p className="text-sm text-muted-foreground mt-3 max-w-lg">{course.descricao}</p>}</div></div>{!unlocked ? <div className="p-8 md:p-16 text-center"><Lock size={20} className="mx-auto text-primary mb-5" /><p className="font-serif text-2xl">{t("courses.accessPrompt")}</p><div className="max-w-xs mx-auto mt-8"><Input type="password" value={key} onChange={(event) => { setKey(event.target.value); setError(false); }} onKeyDown={(event) => event.key === "Enter" && verify()} placeholder={t("courses.accessKey")} className="rounded-none text-center" data-testid="input-course-key" />{error && <p className="text-xs text-destructive mt-2">{t("courses.wrongKey")}</p>}<button type="button" disabled={check.isPending || !key.trim()} onClick={verify} className="w-full mt-3 px-5 py-3 bg-primary text-primary-foreground disabled:opacity-40 editorial-label text-[10px]" data-testid="button-unlock-course">{check.isPending ? t("courses.checking") : t("courses.unlock")}</button><a href={courseContact(course.nome, language)} target="_blank" rel="noopener noreferrer" className="block mt-6 text-xs text-primary underline underline-offset-4" data-testid="link-course-access">{t("courses.participate")}</a></div></div> : <div className="overflow-y-auto">{items.length ? <><div className="bg-foreground aspect-video">{items[index].videoUrl ? <video src={items[index].videoUrl} controls controlsList="nodownload" className="w-full h-full" onContextMenu={(event) => event.preventDefault()} /> : <div className="h-full flex items-center justify-center text-background/50 text-sm">{t("courses.videoUnavailable")}</div>}</div><div className="p-6"><div className="flex items-center justify-between gap-3"><button type="button" onClick={() => setIndex((item) => Math.max(0, item - 1))} disabled={index === 0} className="editorial-label text-[10px] disabled:opacity-30" data-testid="button-previous-lesson">{t("common.previous")}</button><p className="font-serif text-2xl text-center">{items[index].titulo}</p><button type="button" onClick={() => setIndex((item) => Math.min(items.length - 1, item + 1))} disabled={index === items.length - 1} className="editorial-label text-[10px] disabled:opacity-30" data-testid="button-next-lesson">{t("common.next")}</button></div>{items.length > 1 && <div className="mt-7 grid grid-cols-1 sm:grid-cols-2 gap-2">{items.map((lesson, lessonIndex) => <button type="button" key={lessonIndex} onClick={() => setIndex(lessonIndex)} className={`text-left px-4 py-3 border text-sm ${lessonIndex === index ? "border-primary text-primary" : "border-border hover:border-foreground"}`} data-testid={`button-lesson-${lessonIndex}`}><Play size={12} className="inline mr-2" />{lessonIndex + 1}. {lesson.titulo}</button>)}</div>}</div></> : <p className="p-16 text-center text-muted-foreground">{t("courses.noLessons")}</p>}</div>}</DialogContent>;
 }
 
 export default function Cursos() {
-  const { t } = useLanguage();
-  const { data: cursos, isLoading } = useListCursos();
+  const { t, language } = useLanguage();
+  const { data: courses, isLoading, isError } = useListCursos();
   const [selected, setSelected] = useState<Curso | null>(null);
-
-  return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="pt-16">
-        {/* Header */}
-        <div className="bg-white border-b border-border py-14 px-6">
-          <div className="max-w-6xl mx-auto">
-            <p className="text-xs tracking-[0.3em] uppercase text-primary mb-2">{t("courses.eyebrow")}</p>
-            <h1 className="font-serif text-4xl md:text-5xl text-foreground">{t("courses.title")}</h1>
-          </div>
-        </div>
-
-        {/* Conteúdo */}
-        <div className="max-w-6xl mx-auto px-6 py-12">
-          {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(3)].map((_, i) => (
-                <div key={i}>
-                  <Skeleton className="aspect-video" />
-                  <Skeleton className="h-5 mt-3 w-3/4" />
-                  <Skeleton className="h-4 mt-2 w-1/2" />
-                </div>
-              ))}
-            </div>
-          ) : cursos && cursos.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {cursos.map((curso) => {
-                const aulas = parseAulas(curso.aulas);
-                return (
-                  <div key={curso.id} className="group bg-card border border-card-border overflow-hidden">
-                    <div className="aspect-video overflow-hidden bg-primary/10 relative">
-                      {curso.imagemCapaUrl ? (
-                        <img
-                          src={curso.imagemCapaUrl}
-                          alt={curso.nome}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-primary/10">
-                          <GraduationCap size={40} className="text-primary/40" />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                        <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Lock size={20} className="text-foreground" />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="p-5">
-                      <h2 className="font-serif text-lg text-foreground leading-tight">{curso.nome}</h2>
-                      {curso.descricao && (
-                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{curso.descricao}</p>
-                      )}
-                      <div className="mt-3 flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">
-                          {aulas.length} {aulas.length === 1 ? t("courses.lesson") : t("courses.lessons")}
-                        </span>
-                        <button
-                          onClick={() => setSelected(curso)}
-                          className="text-xs px-4 py-1.5 bg-primary text-white hover:bg-primary/90 transition-colors tracking-wide flex items-center gap-1.5"
-                        >
-                          <Lock size={12} /> {t("common.view")}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="py-32 text-center">
-              <h2 className="font-serif text-2xl text-foreground mb-2">{t("courses.availableSoon")}</h2>
-              <p className="text-muted-foreground text-sm max-w-md mx-auto">
-                {t("courses.preparing")}
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-      <Footer />
-
-      <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
-        {selected && <CursoModal curso={selected} onClose={() => setSelected(null)} />}
-      </Dialog>
-    </div>
-  );
+  const copy = language === "pt" ? "O estúdio também é uma sala de aula: um lugar para praticar, observar e continuar." : language === "fr" ? "L’atelier est aussi une salle de classe : un lieu pour pratiquer, observer et continuer." : "The studio is also a classroom: a place to practise, observe and continue.";
+  return <div className="min-h-screen bg-background grain"><Navbar /><main className="max-w-[1440px] mx-auto px-5 md:px-10"><section className="pt-20 pb-16 md:pt-28 md:pb-24 grid md:grid-cols-[1fr_.7fr] gap-8 items-end"><div><p className="editorial-label text-primary mb-5">Arquivo / 05</p><h1 className="font-serif text-[clamp(4rem,10vw,9rem)] leading-[.75] tracking-[-.07em]">{t("courses.title")}</h1></div><p className="text-sm leading-relaxed text-muted-foreground max-w-xs md:pb-2">{copy}</p></section><section className="pb-24">{isError ? <div className="py-24 text-center border-y border-primary/30">Não foi possível carregar os cursos.</div> : isLoading ? <div className="grid md:grid-cols-2 gap-5">{[1, 2].map((item) => <Skeleton key={item} className="aspect-video" />)}</div> : courses?.length ? <div className="grid md:grid-cols-2 gap-x-5 gap-y-14">{courses.map((course, index) => <button type="button" key={course.id} onClick={() => setSelected(course)} className="group text-left" data-testid={`card-curso-${course.id}`}><div className="aspect-[16/10] bg-accent overflow-hidden relative">{course.imagemCapaUrl ? <img src={course.imagemCapaUrl} alt={course.nome} className="art-image w-full h-full object-cover" /> : <div className="h-full flex items-center justify-center font-serif text-8xl text-background/20">S</div>}<span className="absolute top-4 left-4 editorial-label bg-background/90 px-2 py-1 text-[9px]">{String(index + 1).padStart(2, "0")}</span><span className="absolute right-4 bottom-4 bg-background w-10 h-10 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground"><Lock size={15} /></span></div><div className="pt-4 flex justify-between gap-4"><div><h2 className="font-serif text-4xl leading-none group-hover:text-primary">{course.nome}</h2>{course.descricao && <p className="mt-3 text-sm text-muted-foreground max-w-lg line-clamp-2">{course.descricao}</p>}</div><ArrowUpRight size={17} className="mt-1 text-muted-foreground group-hover:text-primary" /></div></button>)}</div> : <div className="py-32 text-center border-y border-border"><p className="font-serif text-4xl">{t("courses.availableSoon")}</p><p className="text-sm text-muted-foreground mt-3">{t("courses.preparing")}</p></div>}</section></main><Footer /><Dialog open={Boolean(selected)} onOpenChange={(open) => !open && setSelected(null)}>{selected && <CourseModal course={selected} close={() => setSelected(null)} />}</Dialog></div>;
 }
