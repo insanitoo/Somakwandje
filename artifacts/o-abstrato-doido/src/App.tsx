@@ -22,7 +22,6 @@ import OrdemAdmin from "@/pages/admin/OrdemAdmin";
 import DescontosAdmin from "@/pages/admin/DescontosAdmin";
 import MetricsAdmin from "@/pages/admin/MetricsAdmin";
 import { LanguageProvider } from "@/i18n";
-import { useTrackVisit } from "@workspace/api-client-react";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,12 +41,17 @@ function PublicPage({ children }: { children: ReactNode }) {
 
 function PublicAnalytics() {
   const [location] = useLocation();
-  const trackVisit = useTrackVisit();
 
   useEffect(() => {
     if (location.startsWith("/odoido")) return;
-    trackVisit.mutate({ data: { path: location.split("?")[0] || "/" } });
-  }, [location, trackVisit.mutate]);
+
+    void fetch("/api/analytics/visit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path: location.split("?")[0] || "/" }),
+      keepalive: true,
+    }).catch(() => undefined);
+  }, [location]);
 
   return null;
 }

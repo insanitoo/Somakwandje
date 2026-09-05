@@ -44,16 +44,6 @@ app.use(
   }),
 );
 
-// Keep legacy/local uploads available while newer uploads use Cloudinary.
-// Existing artwork records may still reference /api/uploads/<filename>.
-app.use(
-  "/api/uploads",
-  express.static(path.resolve(import.meta.dirname, "../uploads"), {
-    fallthrough: true,
-    maxAge: "1h",
-  }),
-);
-
 app.use("/api", router);
 
 // Em produção serve o frontend React como ficheiros estáticos

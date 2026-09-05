@@ -1,126 +1,158 @@
 import { Link, useLocation } from "wouter";
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, ChevronDown, Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import { languageOptions, useLanguage } from "@/i18n";
 
+function WhatsAppIcon({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+  );
+}
+
 const links = [
-  { href: "/", key: "home" as const, label: "Início" },
-  { href: "/galeria", key: "gallery" as const, label: "Obras" },
-  { href: "/agenda", key: "agenda" as const, label: "Programa" },
-  { href: "/sobre", key: "about" as const, label: "Artista" },
-  { href: "/cursos", key: "courses" as const, label: "Estúdio" },
-  { href: "/blog", key: "blog" as const, label: "Caderno" },
+  { href: "/", key: "home" as const },
+  { href: "/galeria", key: "gallery" as const },
+  { href: "/agenda", key: "agenda" as const },
+  { href: "/sobre", key: "about" as const },
+  { href: "/cursos", key: "courses" as const },
 ];
 
 export default function Navbar() {
   const [location] = useLocation();
   const [open, setOpen] = useState(false);
-  const [languageOpen, setLanguageOpen] = useState(false);
-  const languageRef = useRef<HTMLDivElement>(null);
+  const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
+  const languageMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!languageOpen) return;
-    const close = (event: PointerEvent) => {
-      if (languageRef.current && !languageRef.current.contains(event.target as Node)) setLanguageOpen(false);
-    };
-    const escape = (event: KeyboardEvent) => event.key === "Escape" && setLanguageOpen(false);
-    document.addEventListener("pointerdown", close);
-    document.addEventListener("keydown", escape);
+    if (!languageMenuOpen) return;
+
+    function handleOutsidePointerDown(event: PointerEvent) {
+      if (languageMenuRef.current && !languageMenuRef.current.contains(event.target as Node)) {
+        setLanguageMenuOpen(false);
+      }
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setLanguageMenuOpen(false);
+    }
+
+    document.addEventListener("pointerdown", handleOutsidePointerDown);
+    document.addEventListener("keydown", handleEscape);
     return () => {
-      document.removeEventListener("pointerdown", close);
-      document.removeEventListener("keydown", escape);
+      document.removeEventListener("pointerdown", handleOutsidePointerDown);
+      document.removeEventListener("keydown", handleEscape);
     };
-  }, [languageOpen]);
+  }, [languageMenuOpen]);
 
   return (
-    <header className="relative z-50 bg-background">
-      <div className="bg-accent text-accent-foreground px-5 py-2 flex items-center justify-between editorial-label text-[9px]">
-        <span>Somakwendje · Estúdio aberto</span>
-        <span className="hidden sm:inline">Pintura, matéria e pensamento</span>
-        <Link href="/agenda" className="flex items-center gap-1 hover:opacity-70" data-testid="link-program-strip">
-          {t("nav.agenda")} <ArrowUpRight size={11} />
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <Link href="/" className="font-serif text-lg tracking-wide text-foreground hover:text-primary transition-colors">
+          O Abstrato Doido
         </Link>
-      </div>
-      <div className="border-b border-border/80">
-        <div className="max-w-[1440px] mx-auto px-5 md:px-10 h-[84px] flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => setOpen((value) => !value)}
-            className="md:hidden p-2 -ml-2 text-foreground"
-            aria-label={t("nav.menu")}
-            aria-expanded={open}
-            data-testid="button-menu-mobile"
-          >
-            {open ? <X size={20} strokeWidth={1.5} /> : <Menu size={20} strokeWidth={1.5} />}
-          </button>
-          <div className="hidden md:flex items-center gap-6 w-1/3">
-            <span className="editorial-label text-muted-foreground">Luanda · AO</span>
-          </div>
-          <Link href="/" className="absolute left-1/2 -translate-x-1/2 text-center group" data-testid="link-wordmark">
-            <span className="font-serif text-[34px] md:text-[42px] leading-none tracking-[-.05em] text-foreground">Somakwendje</span>
-            <span className="block editorial-label text-[8px] text-primary mt-1">artista plástico</span>
-          </Link>
-          <div className="ml-auto flex items-center justify-end gap-5 w-1/3">
-            <nav className="hidden md:flex items-center gap-5">
-              {links.slice(1, 4).map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  data-testid={`nav-${link.key}`}
-                  className={`editorial-label text-[10px] ${location === link.href ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-            <div className="relative" ref={languageRef}>
-              <button
-                type="button"
-                onClick={() => setLanguageOpen((value) => !value)}
-                className="flex items-center gap-1 editorial-label text-[10px] text-muted-foreground hover:text-foreground"
-                aria-label={t("nav.language")}
-                aria-expanded={languageOpen}
-                data-testid="select-language"
-              >
-                {language.toUpperCase()} <ChevronDown size={12} />
-              </button>
-              {languageOpen && (
-                <div className="absolute right-0 top-7 min-w-32 border border-border bg-card shadow-sm py-1" role="menu">
-                  {languageOptions.map((option) => (
-                    <button
-                      key={option.code}
-                      type="button"
-                      role="menuitemradio"
-                      aria-checked={language === option.code}
-                      onClick={() => { setLanguage(option.code); setLanguageOpen(false); }}
-                      className={`block w-full text-left px-4 py-2 text-xs ${language === option.code ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
-                      data-testid={`language-option-${option.code}`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+
+        {/* Desktop nav */}
+        <div className="hidden md:flex items-center gap-8">
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              data-testid={`nav-${link.key}`}
+              className={`text-sm tracking-widest uppercase transition-colors ${
+                location === link.href
+                  ? "text-primary font-medium border-b border-primary pb-0.5"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {t(`nav.${link.key}`)}
+            </Link>
+          ))}
         </div>
-        {open && (
-          <nav className="md:hidden border-t border-border px-5 py-5 flex flex-col gap-4 bg-background" aria-label="Navegação principal">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                data-testid={`mobile-nav-${link.key}`}
-                className={`font-serif text-2xl ${location === link.href ? "text-primary" : "text-foreground"}`}
+
+        {/* Language + WhatsApp + Mobile hamburger */}
+        <div className="flex items-center gap-3 md:gap-4">
+          <div className="relative" ref={languageMenuRef}>
+            <button
+              type="button"
+              onClick={() => setLanguageMenuOpen((current) => !current)}
+              aria-label={t("nav.language")}
+              aria-haspopup="menu"
+              aria-expanded={languageMenuOpen}
+              className="flex items-center gap-1 px-1 py-1 text-xs font-medium tracking-widest text-foreground hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary"
+              data-testid="select-language"
+            >
+              {language.toUpperCase()}
+              <ChevronDown size={13} aria-hidden="true" />
+            </button>
+            {languageMenuOpen && (
+              <div
+                role="menu"
+                aria-label={t("nav.language")}
+                className="absolute right-0 top-full mt-3 min-w-32 bg-white border border-border shadow-lg py-1 z-50"
               >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-        )}
+                {languageOptions.map((option) => (
+                  <button
+                    key={option.code}
+                    type="button"
+                    role="menuitemradio"
+                    aria-checked={language === option.code}
+                    onClick={() => {
+                      setLanguage(option.code);
+                      setLanguageMenuOpen(false);
+                    }}
+                    className={`block w-full px-4 py-2 text-left text-xs transition-colors ${
+                      language === option.code
+                        ? "text-primary font-medium bg-primary/5"
+                        : "text-muted-foreground hover:bg-[hsl(40,43%,96%)] hover:text-foreground"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <a
+            href="https://wa.me/244934959424"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={t("nav.whatsapp")}
+            className="text-foreground hover:text-primary transition-colors"
+            data-testid="link-whatsapp-header"
+          >
+            <WhatsAppIcon size={20} />
+          </a>
+          <button
+            className="md:hidden text-foreground"
+            onClick={() => setOpen(!open)}
+            data-testid="button-menu-mobile"
+            aria-label={t("nav.menu")}
+          >
+            {open ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
       </div>
-    </header>
+
+      {/* Mobile menu */}
+      {open && (
+        <div className="md:hidden bg-background border-t border-border px-6 py-4 flex flex-col gap-4">
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={() => setOpen(false)}
+              className={`text-sm tracking-widest uppercase ${
+                location === link.href ? "text-primary font-medium" : "text-muted-foreground"
+              }`}
+            >
+              {t(`nav.${link.key}`)}
+            </Link>
+          ))}
+        </div>
+      )}
+    </nav>
   );
 }

@@ -1,93 +1,719 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { getGetObraQueryKey, useGetObra, useListObras } from "@workspace/api-client-react";
 import type { Obra } from "@workspace/api-client-react";
-import { ArrowUpRight, ChevronLeft, ChevronRight, X } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { X } from "lucide-react";
 import { useLanguage, type Language } from "@/i18n";
 
-const WA = "244934959424";
-function message(titulo: string, language: Language) {
-  const copy = {
-    pt: `Olá, vi no seu site que a obra "${titulo}" está disponível. Gostaria de saber mais.`,
-    en: `Hello, I saw that "${titulo}" is available on your website. I would like to know more.`,
-    fr: `Bonjour, j’ai vu que l’œuvre « ${titulo} » est disponible. J’aimerais en savoir plus.`,
-  };
-  return `https://wa.me/${WA}?text=${encodeURIComponent(copy[language])}`;
-}
-function photos(obra: Obra) {
-  return [obra.imagemUrl, obra.imagemUrl2, obra.imagemUrl3, obra.imagemUrl4, obra.imagemUrl5, obra.imagemUrl6, obra.imagemUrl7, obra.imagemUrl8, obra.imagemUrl9, obra.imagemUrl10].filter((url): url is string => Boolean(url));
-}
-function price(value?: string | null) {
-  if (!value) return null;
-  const amount = Number.parseFloat(value.replace(/[^\d.,]/g, "").replace(",", "."));
-  return Number.isNaN(amount) ? value : `${amount.toLocaleString("pt-AO")} Kz`;
+type StatusFilter = "todas" | "disponivel" | "vendido";
+type TamanhoFilter = "todos" | "grande" | "pequena";
+
+function parsePrecoNum(preco: string | null | undefined): number | null {
+  if (!preco) return null;
+  const num = parseFloat(preco.replace(/[^\d.,]/g, "").replace(",", "."));
+  return isNaN(num) ? null : num;
 }
 
-function WorkModal({ obra, onClose }: { obra: Obra; onClose: () => void }) {
+function formatPreco(num: number): string {
+  return `${num.toLocaleString("pt-AO")} Kz`;
+}
+
+function formatObraPreco(preco: string | null | undefined): string | null {
+  const num = parsePrecoNum(preco);
+  if (num === null) return preco ?? null;
+  return formatPreco(num);
+}
+
+function getEffectiveDesconto(obra: Obra, globalDesconto: number): number {
+  if (obra.desconto != null && obra.desconto > 0) return obra.desconto;
+  return globalDesconto;
+}
+
+const WA = "244934959424";
+
+function buildWA(titulo: string, language: Language) {
+  const messages: Record<Language, string> = {
+    pt: `Olá, vi no seu site que a obra "${titulo}" ainda está disponível... Gostaria de comprá-la.`,
+    en: `Hello, I saw on your website that the work "${titulo}" is still available. I would like to buy it.`,
+    fr: `Bonjour, j’ai vu sur votre site que l’œuvre « ${titulo} » est encore disponible. J’aimerais l’acheter.`,
+  };
+  const msg = encodeURIComponent(
+    messages[language]
+  );
+  return `https://wa.me/${WA}?text=${msg}`;
+}
+
+function getObraPhotos(obra: Obra): string[] {
+  const photoKeys = [
+    "imagemUrl",
+    "imagemUrl2",
+    "imagemUrl3",
+    "imagemUrl4",
+    "imagemUrl5",
+    "imagemUrl6",
+    "imagemUrl7",
+    "imagemUrl8",
+    "imagemUrl9",
+    "imagemUrl10",
+  ] as const;
+  return photoKeys
+    .map((key) => obra[key])
+    .filter((url): url is string => Boolean(url));
+}
+
+function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () => void; globalDesconto: number }) {
   const { t, language } = useLanguage();
-  const images = photos(obra);
-  const [index, setIndex] = useState(0);
+  const photos = getObraPhotos(obra);
+  const [photoIdx, setPhotoIdx] = useState(0);
+  const [fullscreenOpen, setFullscreenOpen] = useState(false);
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [frameRatio, setFrameRatio] = useState(4 / 3);
+  const zoomRef = useRef(1);
+  const panRef = useRef({ x: 0, y: 0 });
+  const touchStartX = useRef<number | null>(null);
+  const didSwipe = useRef(false);
+  const pinchPointers = useRef(new Map<number, { x: number; y: number }>());
+  const pinchStartDistance = useRef<number | null>(null);
+  const pinchStartZoom = useRef(1);
+  const panStart = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
+  const fullscreenFrameRef = useRef<HTMLDivElement>(null);
+  const fullscreenImageRef = useRef<HTMLImageElement>(null);
+  const backgroundCloseTimer = useRef<number | null>(null);
+  const effectiveDesconto = getEffectiveDesconto(obra, globalDesconto);
+
+  useEffect(() => {
+    zoomRef.current = 1;
+    panRef.current = { x: 0, y: 0 };
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+    if (fullscreenImageRef.current) {
+      fullscreenImageRef.current.style.transform = "translate3d(0, 0, 0) scale(1)";
+    }
+  }, [photoIdx, fullscreenOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (backgroundCloseTimer.current !== null) {
+        window.clearTimeout(backgroundCloseTimer.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadSizes = photos.map(
+      (src) =>
+        new Promise<{ width: number; height: number } | null>((resolve) => {
+          const image = new window.Image();
+          image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight });
+          image.onerror = () => resolve(null);
+          image.src = src;
+        }),
+    );
+    Promise.all(loadSizes).then((sizes) => {
+      if (cancelled) return;
+      const largest = sizes
+        .filter((size): size is { width: number; height: number } => Boolean(size?.width && size?.height))
+        .sort((a, b) => b.width * b.height - a.width * a.height)[0];
+      if (largest) setFrameRatio(largest.width / largest.height);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [obra.id]);
+
+  const prev = () => setPhotoIdx((i) => (i - 1 + photos.length) % photos.length);
+  const next = () => setPhotoIdx((i) => (i + 1) % photos.length);
+
+  function handleSwipeStart(e: React.PointerEvent<HTMLElement>) {
+    if (photos.length < 2) return;
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    touchStartX.current = e.clientX;
+    didSwipe.current = false;
+  }
+
+  function handleSwipeEnd(e: React.PointerEvent<HTMLElement>) {
+    if (touchStartX.current === null || photos.length < 2) return;
+    const delta = e.clientX - touchStartX.current;
+    if (Math.abs(delta) >= 48) {
+      didSwipe.current = true;
+      if (delta < 0) next();
+      else prev();
+    }
+    touchStartX.current = null;
+  }
+
+  function cancelSwipe() {
+    touchStartX.current = null;
+  }
+
+  function clampZoom(value: number) {
+    return Math.min(4, Math.max(1, Number(value.toFixed(2))));
+  }
+
+  function clampPan(next: { x: number; y: number }, scale = zoomRef.current) {
+    const frame = fullscreenFrameRef.current;
+    const image = fullscreenImageRef.current;
+    const frameWidth = frame?.clientWidth ?? window.innerWidth;
+    const frameHeight = frame?.clientHeight ?? window.innerHeight;
+    const imageWidth = image?.offsetWidth ?? frameWidth;
+    const imageHeight = image?.offsetHeight ?? frameHeight;
+    const maxX = Math.max(0, (imageWidth * scale - frameWidth) / 2);
+    const maxY = Math.max(0, (imageHeight * scale - frameHeight) / 2);
+    return {
+      x: Math.min(maxX, Math.max(-maxX, next.x)),
+      y: Math.min(maxY, Math.max(-maxY, next.y)),
+    };
+  }
+
+  function applyTransform(nextZoom: number, nextPan: { x: number; y: number }, commit = false) {
+    const next = clampZoom(nextZoom);
+    const constrainedPan = clampPan(nextPan, next);
+    zoomRef.current = next;
+    panRef.current = constrainedPan;
+    if (fullscreenImageRef.current) {
+      fullscreenImageRef.current.style.transform =
+        `translate3d(${constrainedPan.x}px, ${constrainedPan.y}px, 0) scale(${next})`;
+    }
+    if (commit) {
+      setZoom(next);
+      setPan(constrainedPan);
+    }
+  }
+
+  function pointerDistance() {
+    const points = Array.from(pinchPointers.current.values());
+    if (points.length < 2) return 0;
+    return Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
+  }
+
+  function handleFullscreenPointerDown(e: React.PointerEvent<HTMLElement>) {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    pinchPointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    e.currentTarget.setPointerCapture(e.pointerId);
+
+    if (pinchPointers.current.size === 2) {
+      pinchStartDistance.current = pointerDistance();
+      pinchStartZoom.current = zoomRef.current;
+      panStart.current = null;
+      touchStartX.current = null;
+      didSwipe.current = true;
+      return;
+    }
+
+    if (zoomRef.current > 1) {
+      panStart.current = {
+        x: e.clientX,
+        y: e.clientY,
+        panX: panRef.current.x,
+        panY: panRef.current.y,
+      };
+    } else {
+      handleSwipeStart(e);
+    }
+  }
+
+  function handleFullscreenPointerMove(e: React.PointerEvent<HTMLElement>) {
+    if (!pinchPointers.current.has(e.pointerId)) return;
+    pinchPointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pinchStartDistance.current) {
+      e.preventDefault();
+      applyTransform(
+        pinchStartZoom.current * (pointerDistance() / pinchStartDistance.current),
+        panRef.current,
+      );
+    } else if (zoomRef.current > 1 && panStart.current) {
+      e.preventDefault();
+      applyTransform(zoomRef.current, {
+        x: panStart.current.panX + e.clientX - panStart.current.x,
+        y: panStart.current.panY + e.clientY - panStart.current.y,
+      });
+    }
+  }
+
+  function handleFullscreenPointerUp(e: React.PointerEvent<HTMLElement>) {
+    const wasPinching = pinchPointers.current.size >= 2 || pinchStartDistance.current !== null;
+    pinchPointers.current.delete(e.pointerId);
+    if (pinchPointers.current.size < 2) pinchStartDistance.current = null;
+    if (wasPinching) {
+      setZoom(zoomRef.current);
+      setPan(panRef.current);
+      panStart.current = null;
+      touchStartX.current = null;
+      didSwipe.current = true;
+      return;
+    }
+    if (zoomRef.current > 1) {
+      setZoom(zoomRef.current);
+      setPan(panRef.current);
+      panStart.current = null;
+      touchStartX.current = null;
+      didSwipe.current = true;
+    } else {
+      handleSwipeEnd(e);
+    }
+  }
+
+  function handleFullscreenWheel(e: React.WheelEvent<HTMLElement>) {
+    e.preventDefault();
+    applyTransform(zoomRef.current - e.deltaY * 0.002, panRef.current, true);
+  }
+
+  function toggleZoom() {
+    applyTransform(zoomRef.current > 1 ? 1 : 2, panRef.current, true);
+  }
+
+  function handleFullscreenClick(e: React.MouseEvent<HTMLElement>) {
+    if (e.target !== e.currentTarget) return;
+    if (e.detail > 1 || didSwipe.current) {
+      if (backgroundCloseTimer.current !== null) {
+        window.clearTimeout(backgroundCloseTimer.current);
+        backgroundCloseTimer.current = null;
+      }
+      didSwipe.current = false;
+      return;
+    }
+    backgroundCloseTimer.current = window.setTimeout(() => {
+      setFullscreenOpen(false);
+      backgroundCloseTimer.current = null;
+    }, 220);
+  }
+
+  function handleImageClick() {
+    if (didSwipe.current) {
+      didSwipe.current = false;
+      return;
+    }
+    setFullscreenOpen(true);
+  }
+
   return (
-    <DialogContent hideClose className="max-w-5xl rounded-none p-0 overflow-hidden max-h-[92dvh] bg-card" aria-describedby={undefined}>
+    <DialogContent
+      hideClose
+      onPointerDownOutside={(event) => {
+        if (fullscreenOpen) event.preventDefault();
+      }}
+      onInteractOutside={(event) => {
+        if (fullscreenOpen) event.preventDefault();
+      }}
+      onFocusOutside={(event) => {
+        if (fullscreenOpen) event.preventDefault();
+      }}
+      className="w-[calc(100%-1rem)] max-w-4xl rounded-none p-0 overflow-hidden max-h-[calc(100dvh-1rem)] flex flex-col"
+      aria-describedby={undefined}
+    >
       <DialogTitle className="sr-only">{obra.titulo}</DialogTitle>
-      <button type="button" onClick={onClose} aria-label={t("common.close")} className="absolute top-4 right-4 z-10 w-9 h-9 flex items-center justify-center bg-background/90 hover:bg-primary hover:text-primary-foreground" data-testid="button-close-work"><X size={17} /></button>
-      <div className="grid grid-cols-1 md:grid-cols-[1.2fr_.8fr] max-h-[92dvh]">
-        <div className="bg-foreground min-h-[320px] md:min-h-[620px] relative flex items-center justify-center">
-          {images.length ? <img src={images[index]} alt={obra.titulo} className="w-full h-full max-h-[72dvh] object-contain" /> : <p className="font-serif text-3xl text-background/70 p-8 text-center">{obra.titulo}</p>}
-          {images.length > 1 && <><button type="button" onClick={() => setIndex((i) => (i - 1 + images.length) % images.length)} className="absolute left-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-background/80 flex items-center justify-center" aria-label={t("common.previous")} data-testid="button-previous-work-image"><ChevronLeft size={17} /></button><button type="button" onClick={() => setIndex((i) => (i + 1) % images.length)} className="absolute right-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-background/80 flex items-center justify-center" aria-label={t("common.next")} data-testid="button-next-work-image"><ChevronRight size={17} /></button><span className="absolute bottom-4 left-1/2 -translate-x-1/2 editorial-label text-[9px] bg-foreground/70 text-background px-3 py-2">{index + 1} / {images.length}</span></>}
+      <button
+        onClick={onClose}
+        className="absolute top-3 right-3 z-20 p-2 bg-white/85 hover:bg-white rounded-full text-foreground shadow-sm"
+        aria-label={t("common.close")}
+      >
+        <X size={18} />
+      </button>
+
+      <div className="flex flex-col md:flex-row flex-1 min-h-0 overflow-hidden">
+        {/* Galeria de fotos */}
+        <div className="w-full md:w-1/2 flex-shrink-0 bg-[hsl(40,43%,96%)]">
+          {photos.length > 0 ? (
+            <div
+              className="relative w-full max-h-[44dvh] md:max-h-[66vh] touch-pan-y select-none"
+              style={{ aspectRatio: frameRatio }}
+              onPointerDown={handleSwipeStart}
+              onPointerUp={handleSwipeEnd}
+              onPointerCancel={cancelSwipe}
+            >
+              <img
+                src={photos[photoIdx]}
+                alt={obra.titulo}
+                onClick={handleImageClick}
+                draggable={false}
+                className="w-full h-full object-contain p-1 cursor-zoom-in select-none pointer-events-auto"
+              />
+              {photos.length > 1 && (
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                  {photos.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setPhotoIdx(i)}
+                      className={`w-2 h-2 rounded-full transition-colors ${i === photoIdx ? "bg-white" : "bg-white/50"}`}
+                      aria-label={`${t("gallery.photoOf")} ${i + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="h-[34dvh] min-h-[220px] max-h-[360px] md:h-[66vh] md:max-h-[640px] flex items-center justify-center bg-primary/10">
+              <span className="font-serif text-primary text-lg px-6 text-center">{obra.titulo}</span>
+            </div>
+          )}
+
+          {/* Thumbnails */}
+          {photos.length > 1 && (
+            <div className="flex gap-2 p-2 bg-white border-t border-border overflow-x-auto overscroll-contain">
+              {photos.map((url, i) => (
+                <button
+                  key={i}
+                  onClick={() => setPhotoIdx(i)}
+                  className={`flex-shrink-0 w-14 h-14 overflow-hidden border-2 transition-colors ${
+                    i === photoIdx ? "border-primary" : "border-transparent"
+                  }`}
+                >
+                  <img src={url} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-        <div className="p-7 md:p-10 overflow-y-auto">
-          <p className="editorial-label text-primary mb-4">{obra.status === "disponivel" ? t("common.available") : t("common.soldFemale")}</p>
-          <h2 className="font-serif text-5xl leading-[.85] tracking-[-.04em]">{obra.titulo}</h2>
-          <div className="mt-10 space-y-5 text-sm">
-            {obra.tecnica && <div><p className="editorial-label text-[9px] text-muted-foreground mb-1">{t("gallery.technique")}</p><p>{obra.tecnica}</p></div>}
-            {obra.dimensoes && <div><p className="editorial-label text-[9px] text-muted-foreground mb-1">{t("gallery.dimensions")}</p><p>{obra.dimensoes}</p></div>}
-            {obra.descricao && <div><p className="editorial-label text-[9px] text-muted-foreground mb-1">{t("common.description")}</p><p className="leading-relaxed text-muted-foreground">{obra.descricao}</p></div>}
-            {obra.status === "disponivel" && <div><p className="editorial-label text-[9px] text-muted-foreground mb-1">{t("gallery.price")}</p><p className="font-serif text-2xl">{price(obra.preco) ?? t("common.priceOnRequest")}</p></div>}
+
+        {/* Detalhes */}
+        <div className="w-full md:w-1/2 min-h-0 overflow-y-auto p-5 md:p-6 flex flex-col gap-4">
+          <div>
+            <p className="text-xs tracking-[0.3em] uppercase text-muted-foreground mb-1">
+              {obra.status === "disponivel" ? t("common.available") : t("common.soldFemale")}
+              {obra.tamanho && obra.tamanho !== "media" && ` · ${obra.tamanho === "grande" ? t("common.large") : t("common.small")}`}
+            </p>
+            <h2 className="font-serif text-2xl text-foreground">{obra.titulo}</h2>
           </div>
-          <div className="mt-12">{obra.status === "disponivel" ? <a href={message(obra.titulo, language)} target="_blank" rel="noopener noreferrer" className="flex justify-between items-center bg-primary text-primary-foreground px-5 py-4 editorial-label text-[10px] hover:bg-accent" data-testid={`link-contact-work-${obra.id}`}>{t("gallery.moreInfo")} <ArrowUpRight size={15} /></a> : <div className="border border-border px-5 py-4 editorial-label text-[10px] text-muted-foreground">{t("gallery.workSold")}</div>}</div>
+
+          {obra.tecnica && (
+            <div>
+              <p className="text-xs tracking-widest uppercase text-muted-foreground mb-0.5">{t("gallery.technique")}</p>
+              <p className="text-sm text-foreground">{obra.tecnica}</p>
+            </div>
+          )}
+
+          {obra.tamanho && obra.tamanho !== "media" && (
+            <div>
+              <p className="text-xs tracking-widest uppercase text-muted-foreground mb-0.5">{t("gallery.size")}</p>
+              <p className="text-sm text-foreground">{obra.tamanho === "grande" ? "Grande" : "Pequena"}</p>
+            </div>
+          )}
+
+          {obra.dimensoes && (
+            <div>
+              <p className="text-xs tracking-widest uppercase text-muted-foreground mb-0.5">{t("gallery.dimensions")}</p>
+              <p className="text-sm text-foreground">{obra.dimensoes}</p>
+            </div>
+          )}
+
+          {obra.status === "disponivel" && obra.preco && (
+            <div>
+              <p className="text-xs tracking-widest uppercase text-muted-foreground mb-0.5">{t("gallery.price")}</p>
+              {effectiveDesconto > 0 ? (() => {
+                const num = parsePrecoNum(obra.preco);
+                const discountedNum = num != null ? num * (1 - effectiveDesconto / 100) : null;
+                return (
+                  <div className="flex items-baseline gap-2 flex-wrap">
+                    <p className="text-base font-medium text-foreground">
+                      {discountedNum != null ? formatPreco(discountedNum) : formatObraPreco(obra.preco)}
+                    </p>
+                    <p className="text-sm line-through text-muted-foreground">{formatObraPreco(obra.preco)}</p>
+                    <span className="text-xs text-green-700 font-medium">-{effectiveDesconto}% {t("gallery.discount")}</span>
+                  </div>
+                );
+              })() : (
+                <p className="text-base font-medium text-foreground">{formatObraPreco(obra.preco)}</p>
+              )}
+            </div>
+          )}
+
+          {obra.descricao && (
+            <div>
+              <p className="text-xs tracking-widest uppercase text-muted-foreground mb-0.5">{t("common.description")}</p>
+              <p className="text-sm text-foreground leading-relaxed">{obra.descricao}</p>
+            </div>
+          )}
+
+          <div className="mt-auto pt-4">
+            {obra.status === "disponivel" ? (
+              <a
+                href={buildWA(obra.titulo, language)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center px-6 py-3 bg-primary text-white text-xs tracking-widest uppercase hover:bg-primary/90 transition-colors"
+              >
+                {t("gallery.moreInfo")}
+              </a>
+            ) : (
+              <div className="w-full flex items-center justify-center px-6 py-3 bg-muted text-muted-foreground text-xs tracking-widest uppercase">
+                {t("gallery.workSold")}
+              </div>
+            )}
+          </div>
         </div>
       </div>
+      {fullscreenOpen && photos.length > 0 && createPortal(
+          <div
+          role="dialog"
+          aria-label={`${t("gallery.enlargedImageOf")}: ${obra.titulo}`}
+          aria-modal="true"
+            ref={fullscreenFrameRef}
+            className="fixed inset-0 z-[100] bg-black/95 p-3 sm:p-8 flex items-center justify-center overflow-hidden select-none touch-none pointer-events-auto"
+            onClick={handleFullscreenClick}
+            onDoubleClick={toggleZoom}
+            onWheel={handleFullscreenWheel}
+            onPointerDown={handleFullscreenPointerDown}
+            onPointerMove={handleFullscreenPointerMove}
+            onPointerUp={handleFullscreenPointerUp}
+            onPointerCancel={(event) => {
+              pinchPointers.current.delete(event.pointerId);
+              pinchStartDistance.current = null;
+              panStart.current = null;
+              cancelSwipe();
+            }}
+        >
+          <button
+            type="button"
+            data-testid="button-close-fullscreen"
+            onPointerDown={(event) => {
+              event.stopPropagation();
+            }}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                setFullscreenOpen(false);
+              }}
+            className="absolute top-4 left-4 z-[120] pointer-events-auto p-2 rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors"
+            aria-label={t("gallery.closeEnlarged")}
+          >
+            <X size={22} />
+          </button>
+          <img
+            ref={fullscreenImageRef}
+            src={photos[photoIdx]}
+            alt={obra.titulo}
+              draggable={false}
+              className={`max-w-full max-h-full object-contain select-none pointer-events-none will-change-transform ${
+                zoom > 1 ? "cursor-grab" : "cursor-zoom-in"
+              }`}
+              style={{ transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${zoom})` }}
+          />
+            {photos.length > 1 && (
+              <span className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1.5 text-[11px] tracking-wide pointer-events-none">
+                {photoIdx + 1} / {photos.length}
+              </span>
+            )}
+        </div>,
+        document.body,
+      )}
     </DialogContent>
   );
 }
 
 export default function Galeria() {
-  const { t, language } = useLanguage();
-  const [status, setStatus] = useState<"todas" | "disponivel" | "vendido">("todas");
-  const [size, setSize] = useState<"todos" | "grande" | "media" | "pequena">("todos");
-  const [selected, setSelected] = useState<Obra | null>(null);
-  const idFromUrl = Number(new URLSearchParams(window.location.search).get("obra")) || 0;
-  const params = useMemo(() => ({ ...(status !== "todas" ? { status } : {}), ...(size !== "todos" ? { tamanho: size } : {}) }), [size, status]);
-  const { data: obras, isLoading, isError } = useListObras(Object.keys(params).length ? params : undefined);
-  const { data: shared } = useGetObra(idFromUrl, { query: { enabled: idFromUrl > 0, queryKey: getGetObraQueryKey(idFromUrl) } });
-  useEffect(() => { if (!selected && idFromUrl > 0 && shared) setSelected(shared); }, [idFromUrl, selected, shared]);
-  const close = () => { setSelected(null); window.history.replaceState(null, "", "/galeria"); };
-  const labels = language === "pt" ? { intro: "Uma seleção de pinturas e trabalhos em matéria.", filter: "Filtrar", all: "Todas", large: "Grande", medium: "Média", small: "Pequena" } : language === "fr" ? { intro: "Une sélection de peintures et de travaux de matière.", filter: "Filtrer", all: "Toutes", large: "Grande", medium: "Moyenne", small: "Petite" } : { intro: "A selection of paintings and works in material.", filter: "Filter", all: "All", large: "Large", medium: "Medium", small: "Small" };
-  const list = obras ?? [];
+  const { t } = useLanguage();
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("todas");
+  const [tamanhoFilter, setTamanhoFilter] = useState<TamanhoFilter>("todos");
+  const [selectedObra, setSelectedObra] = useState<Obra | null>(null);
+  const [globalDesconto, setGlobalDesconto] = useState(0);
+  const sharedObraId = (() => {
+    const value = new URLSearchParams(window.location.search).get("obra");
+    if (!value || !/^\d+$/.test(value)) return null;
+    return Number(value);
+  })();
+
+  useEffect(() => {
+    fetch("/api/configuracoes/desconto_global")
+      .then((r) => r.json())
+      .then((j) => {
+        const val = parseInt(j.valor ?? "");
+        if (!isNaN(val) && val > 0) setGlobalDesconto(val);
+      })
+      .catch(() => {});
+  }, []);
+
+  const params: Record<string, string | number> = {};
+  if (statusFilter !== "todas") params.status = statusFilter;
+  if (tamanhoFilter !== "todos") params.tamanho = tamanhoFilter;
+
+  const { data: obras, isLoading } = useListObras(
+    Object.keys(params).length > 0 ? params : undefined
+  );
+  const { data: sharedObra } = useGetObra(sharedObraId ?? 0, {
+    query: { enabled: sharedObraId != null, queryKey: getGetObraQueryKey(sharedObraId ?? 0) },
+  });
+
+  useEffect(() => {
+    if (selectedObra || sharedObraId == null) return;
+    const obra = sharedObra ?? obras?.find((item) => item.id === sharedObraId);
+    if (obra) setSelectedObra(obra);
+  }, [obras, selectedObra, sharedObra, sharedObraId]);
+
+  function closeSelectedObra() {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("obra");
+    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+    setSelectedObra(null);
+  }
+
+  const filteredObras = obras ?? [];
+
   return (
-    <div className="min-h-screen bg-background grain">
+    <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="max-w-[1440px] mx-auto px-5 md:px-10">
-        <section className="pt-20 pb-16 md:pt-28 md:pb-24 grid grid-cols-1 md:grid-cols-[1fr_.7fr] gap-8 items-end">
-          <div><p className="editorial-label text-primary mb-5">Arquivo / 01</p><h1 className="font-serif text-[clamp(4rem,10vw,9rem)] leading-[.75] tracking-[-.07em]">{t("gallery.title")}</h1></div>
-          <p className="text-muted-foreground text-sm max-w-xs leading-relaxed md:pb-2">{labels.intro}</p>
-        </section>
-        <section className="sticky top-0 z-30 -mx-5 md:-mx-10 px-5 md:px-10 py-4 bg-background/95 backdrop-blur border-y border-border flex flex-wrap items-center gap-2" aria-label={labels.filter}>
-          <span className="editorial-label text-[9px] text-muted-foreground mr-2">{labels.filter}</span>
-          {([["todas", labels.all], ["disponivel", t("common.availablePlural")], ["vendido", t("common.soldPlural")]] as const).map(([value, label]) => <button key={value} type="button" onClick={() => setStatus(value)} className={`px-3 py-2 editorial-label text-[9px] border ${status === value ? "bg-foreground text-background border-foreground" : "border-border hover:border-foreground"}`} data-testid={`filter-status-${value}`}>{label}</button>)}
-          <span className="w-px h-5 bg-border mx-2" />
-          {([["todos", labels.all], ["grande", labels.large], ["media", labels.medium], ["pequena", labels.small]] as const).map(([value, label]) => <button key={value} type="button" onClick={() => setSize(value)} className={`px-3 py-2 editorial-label text-[9px] border ${size === value ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`} data-testid={`filter-size-${value}`}>{label}</button>)}
-        </section>
-        <section className="py-12 md:py-20">
-          {isLoading ? <div className="grid grid-cols-2 md:grid-cols-3 gap-x-5 gap-y-12">{Array.from({ length: 6 }).map((_, i) => <div key={i}><Skeleton className="aspect-[4/5]" /><Skeleton className="h-5 w-2/3 mt-4" /></div>)}</div> : isError ? <div className="py-24 text-center border border-primary/30"><p className="font-serif text-3xl">A galeria não está disponível.</p><button type="button" onClick={() => window.location.reload()} className="mt-5 line-link editorial-label text-[10px]" data-testid="button-retry-gallery">Tentar novamente</button></div> : list.length ? <div className="grid grid-cols-2 md:grid-cols-3 gap-x-5 gap-y-14">{list.map((obra, i) => <button type="button" onClick={() => setSelected(obra)} key={obra.id} className="art-card group text-left" data-testid={`card-obra-${obra.id}`}><div className="aspect-[4/5] overflow-hidden bg-muted relative">{obra.imagemUrl ? <img src={obra.imagemUrl} alt={obra.titulo} className="art-image w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center p-5 text-center font-serif text-2xl text-primary">{obra.titulo}</div>}<span className="absolute top-3 left-3 editorial-label text-[9px] bg-background/90 px-2 py-1">{String(i + 1).padStart(2, "0")}</span>{obra.status === "vendido" && <span className="absolute bottom-3 left-3 editorial-label text-[9px] bg-foreground text-background px-2 py-1">{t("common.sold")}</span>}</div><div className="pt-4 flex justify-between gap-3"><div><h2 className="font-serif text-2xl leading-none group-hover:text-primary">{obra.titulo}</h2><p className="text-xs text-muted-foreground mt-2">{obra.tecnica ?? t("common.available")}</p></div><ArrowUpRight size={16} className="text-muted-foreground group-hover:text-primary" /></div></button>)}</div> : <div className="py-32 text-center border-y border-border"><p className="font-serif text-4xl">{t("gallery.noWorks")}</p><button type="button" onClick={() => { setStatus("todas"); setSize("todos"); }} className="mt-5 line-link editorial-label text-[10px]" data-testid="button-reset-filters">{t("gallery.seeAll")}</button></div>}
-        </section>
-      </main>
+      <div className="pt-16">
+        {/* Header */}
+        <div className="bg-white border-b border-border py-14 px-6">
+          <div className="max-w-6xl mx-auto">
+            <p className="text-xs tracking-[0.3em] uppercase text-primary mb-2"></p>
+            <h1 className="font-serif text-4xl md:text-5xl text-foreground">{t("gallery.title")}</h1>
+          </div>
+        </div>
+
+        {/* Filters */}
+        <div className="sticky top-16 z-40 bg-[hsl(40,43%,96%)]/95 backdrop-blur-sm border-b border-border px-6 py-5">
+          <div className="max-w-6xl mx-auto flex flex-col gap-3">
+            {/* Estado */}
+            <div className="flex items-center gap-3">
+              <span className="text-xs tracking-widest uppercase text-muted-foreground w-20 shrink-0">{t("gallery.state")}</span>
+              <div className="flex gap-2">
+                {(["disponivel", "vendido"] as const).map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setStatusFilter(statusFilter === f ? "todas" : f)}
+                    className={`px-3 py-1 text-xs tracking-widest uppercase transition-colors ${
+                      statusFilter === f
+                        ? "bg-primary text-white"
+                        : "bg-white border border-border text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {f === "disponivel" ? t("common.availablePlural") : t("common.soldPlural")}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Tamanho */}
+            <div className="flex items-center gap-3">
+              <span className="text-xs tracking-widest uppercase text-muted-foreground w-20 shrink-0">{t("gallery.size")}</span>
+              <div className="flex gap-2">
+                {(["grande", "pequena"] as const).map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setTamanhoFilter(tamanhoFilter === f ? "todos" : f)}
+                    className={`px-3 py-1 text-xs tracking-widest uppercase transition-colors ${
+                      tamanhoFilter === f
+                        ? "bg-primary text-white"
+                        : "bg-white border border-border text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {f === "grande" ? t("common.largePlural") : t("common.smallPlural")}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+
+          </div>
+        </div>
+
+        {/* Grid */}
+        <div className="max-w-6xl mx-auto px-6 py-12">
+          {isLoading ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {[...Array(8)].map((_, i) => (
+                <div key={i}>
+                  <Skeleton className="aspect-square" />
+                  <Skeleton className="h-4 mt-2 w-3/4" />
+                  <Skeleton className="h-3 mt-1 w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : filteredObras.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {filteredObras.map((obra) => (
+                <div key={obra.id} className="group bg-card border border-card-border overflow-hidden" data-testid={`card-obra-${obra.id}`}>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedObra(obra)}
+                      aria-label={`${t("gallery.detailsOf")} ${obra.titulo}`}
+                      className="block w-full text-left aspect-square overflow-hidden bg-primary/10 relative"
+                    >
+                    {obra.imagemUrl ? (
+                      <img
+                        src={obra.imagemUrl}
+                        alt={obra.titulo}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-primary/20">
+                        <span className="font-serif text-primary text-sm px-4 text-center">{obra.titulo}</span>
+                      </div>
+                    )}
+                      {obra.status === "vendido" && (
+                        <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/60 text-white text-xs tracking-wide">
+                          {t("common.soldFemale")}
+                        </div>
+                      )}
+                    </button>
+                  <div className="p-4">
+                    <p className="font-serif text-base text-foreground leading-tight">{obra.titulo}</p>
+                    {obra.tecnica && (
+                      <p className="text-xs text-muted-foreground mt-0.5">{obra.tecnica}</p>
+                    )}
+                    {obra.status === "disponivel" && obra.preco && (() => {
+                      const eff = getEffectiveDesconto(obra, globalDesconto);
+                      if (eff > 0) {
+                        const num = parsePrecoNum(obra.preco);
+                        const discounted = num != null ? num * (1 - eff / 100) : null;
+                        return (
+                          <div className="flex items-baseline gap-1.5 flex-wrap mt-0.5">
+                            <p className="text-xs font-medium text-foreground">{discounted != null ? formatPreco(discounted) : formatObraPreco(obra.preco)}</p>
+                            <p className="text-xs line-through text-muted-foreground">{formatObraPreco(obra.preco)}</p>
+                            <span className="text-xs text-green-700 font-medium">-{eff}%</span>
+                          </div>
+                        );
+                      }
+                      return <p className="text-xs font-medium text-foreground mt-0.5">{formatObraPreco(obra.preco)}</p>;
+                    })()}
+                    {obra.descricao && (
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{obra.descricao}</p>
+                    )}
+                    <div className="mt-3 flex items-center justify-between gap-2">
+                      <span className={`text-xs flex items-center gap-1 ${obra.status === "disponivel" ? "text-primary" : "text-muted-foreground"}`}>
+                        <span className={`inline-block w-1.5 h-1.5 rounded-full ${obra.status === "disponivel" ? "bg-primary" : "bg-muted-foreground"}`} />
+                        {obra.status === "disponivel" ? t("common.available") : t("common.sold")}
+                      </span>
+                      <button
+                        onClick={() => setSelectedObra(obra)}
+                        data-testid={`button-ver-${obra.id}`}
+                        className="text-xs px-3 py-1 border border-foreground text-foreground hover:bg-foreground hover:text-white transition-colors tracking-wide"
+                      >
+                         {t("common.view")}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-24 text-center">
+               <p className="font-serif text-2xl text-muted-foreground">{t("gallery.noWorks")}</p>
+              <button
+                onClick={() => { setStatusFilter("todas"); setTamanhoFilter("todos"); }}
+                className="mt-4 text-sm tracking-widest uppercase text-primary border-b border-primary pb-0.5"
+              >
+                 {t("gallery.seeAll")}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
       <Footer />
-      <Dialog open={Boolean(selected)} onOpenChange={(open) => !open && close()}>{selected && <WorkModal obra={selected} onClose={close} />}</Dialog>
+
+      {/* Modal de obra */}
+      <Dialog open={!!selectedObra} onOpenChange={(o) => !o && closeSelectedObra()}>
+        {selectedObra && (
+            <ObraModal obra={selectedObra} onClose={closeSelectedObra} globalDesconto={globalDesconto} />
+        )}
+      </Dialog>
     </div>
   );
 }

@@ -1,12 +1,43 @@
-import { Link } from "wouter";
-import { ArrowUpRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import artistImage from "@assets/artista.png";
+import artistPng from "@assets/00e79b8a-e616-4d9a-a14d-930bfb0bffb1_1788518663426.jpeg";
 import { useLanguage } from "@/i18n";
 
 export default function Sobre() {
-  const { t, language } = useLanguage();
-  const labels = language === "pt" ? { kicker: "Arquivo / 03", title: "A pessoa por trás da matéria.", note: "Sobre o artista", close: "Ver obras" } : language === "fr" ? { kicker: "Archive / 03", title: "La personne derrière la matière.", note: "À propos de l’artiste", close: "Voir les œuvres" } : { kicker: "Archive / 03", title: "The person behind the material.", note: "About the artist", close: "View works" };
-  return <div className="min-h-screen bg-background grain"><Navbar /><main><section className="max-w-[1440px] mx-auto px-5 md:px-10 pt-20 md:pt-28 pb-24"><p className="editorial-label text-primary mb-5">{labels.kicker}</p><h1 className="font-serif text-[clamp(4rem,10vw,9rem)] leading-[.76] tracking-[-.07em] max-w-5xl">{labels.title}</h1></section><section className="bg-accent text-accent-foreground"><div className="max-w-[1440px] mx-auto px-5 md:px-10 py-20 md:py-32 grid grid-cols-1 md:grid-cols-[.7fr_1fr] gap-12 md:gap-24"><div><div className="relative max-w-md"><div className="absolute -right-4 -bottom-4 w-full h-full border border-primary/70" /><img src={artistImage} alt="Somakwendje no estúdio" className="relative w-full aspect-[4/5] object-cover" data-testid="img-artist-sobre" /></div><p className="editorial-label text-background/50 mt-6">{labels.note}</p></div><div className="space-y-8 text-background/80 text-base md:text-lg leading-relaxed max-w-xl"><p className="font-serif text-3xl md:text-4xl text-background leading-tight">{t("about.paragraph1")}</p><p>{t("about.paragraph2")}</p><p>{t("about.paragraph3")}</p><p>{t("about.paragraph4")}</p><Link href="/galeria" className="inline-flex items-center gap-2 mt-4 line-link editorial-label text-[10px] text-background hover:text-primary" data-testid="link-about-gallery">{labels.close} <ArrowUpRight size={15} /></Link></div></div></section><section className="max-w-[1440px] mx-auto px-5 md:px-10 py-20 flex flex-col md:flex-row justify-between gap-6"><p className="font-serif text-4xl md:text-6xl max-w-2xl">Cada obra abre uma conversa diferente.</p><span className="editorial-label text-[9px] text-muted-foreground self-end">Somakwendje / estúdio</span></section></main><Footer /></div>;
+  const { t } = useLanguage();
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <main className="pt-16">
+        <section className="py-14 md:py-20 bg-[hsl(40,43%,96%)]">
+          <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-10 md:gap-16 items-start">
+            <div>
+              <img
+                src={artistPng}
+                alt="Dioleny Intya no atelier"
+                className="w-full aspect-[4/5] object-cover"
+                data-testid="img-artist-sobre"
+              />
+            </div>
+            <div className="space-y-6 text-muted-foreground leading-relaxed">
+              <p>
+                {t("about.paragraph1")}
+              </p>
+              <p>
+                {t("about.paragraph2")}
+              </p>
+              <p>
+                {t("about.paragraph3")}
+              </p>
+              <p>
+                {t("about.paragraph4")}
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </div>
+  );
 }
