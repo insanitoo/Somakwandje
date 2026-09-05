@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Globe2, Menu, X } from "lucide-react";
+import { Globe2, Menu, X } from "lucide-react";
 import { languageOptions, useLanguage } from "@/i18n";
 
 function WhatsAppIcon({ size = 20 }: { size?: number }) {
@@ -91,12 +91,11 @@ export default function Navbar() {
               aria-label={t("nav.language")}
               aria-haspopup="menu"
               aria-expanded={languageMenuOpen}
-              className="flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-[10px] font-semibold tracking-[0.16em] text-foreground hover:border-primary/50 hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary"
+              title={t("nav.language")}
+              className="flex items-center justify-center p-1 text-foreground hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary"
               data-testid="select-language"
             >
-              <Globe2 size={13} aria-hidden="true" />
-              {language.toUpperCase()}
-              <ChevronDown size={13} aria-hidden="true" />
+              <Globe2 size={18} strokeWidth={1.7} aria-hidden="true" />
             </button>
             {languageMenuOpen && (
               <div

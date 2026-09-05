@@ -21,8 +21,9 @@ function ImageGalleryUpload({ values, onChange, label = "Fotos", maxImages = 10 
     const form = new FormData();
     form.append("file", file);
     const res = await fetch("/api/upload", { method: "POST", body: form, credentials: "include" });
-    if (!res.ok) throw new Error("Erro no upload");
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(typeof data.error === "string" ? data.error : "Erro no upload");
+    if (typeof data.url !== "string" || !data.url) throw new Error("O servidor não devolveu o endereço da imagem.");
     return data.url;
   }
 
@@ -44,7 +45,10 @@ function ImageGalleryUpload({ values, onChange, label = "Fotos", maxImages = 10 
         .filter((result): result is PromiseFulfilledResult<string> => result.status === "fulfilled")
         .map((result) => result.value);
       if (uploaded.length > 0) onChange([...values, ...uploaded].slice(0, maxImages));
-      if (uploaded.length !== files.length) setError("Algumas imagens não puderam ser enviadas.");
+      if (uploaded.length !== files.length) {
+        const firstError = results.find((result): result is PromiseRejectedResult => result.status === "rejected")?.reason;
+        setError(firstError instanceof Error ? firstError.message : "Algumas imagens não puderam ser enviadas.");
+      }
     } catch {
       setError("Falha no upload. Tente novamente.");
     } finally {

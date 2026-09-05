@@ -28,6 +28,14 @@ const uploadVideo = multer({
   },
 });
 
+function cloudinaryIsConfigured(): boolean {
+  return Boolean(
+    process.env["CLOUDINARY_CLOUD_NAME"] &&
+      process.env["CLOUDINARY_API_KEY"] &&
+      process.env["CLOUDINARY_API_SECRET"],
+  );
+}
+
 function uploadToCloudinary(
   buffer: Buffer,
   resourceType: "image" | "video" | "raw" | "auto"
@@ -51,6 +59,10 @@ router.post("/upload", uploadImage.single("file"), async (req, res): Promise<voi
     res.status(400).json({ error: "Nenhum ficheiro enviado" });
     return;
   }
+  if (!cloudinaryIsConfigured()) {
+    res.status(503).json({ error: "Upload indisponível: configure o Cloudinary no ambiente." });
+    return;
+  }
   try {
     const url = await uploadToCloudinary(req.file.buffer, "image");
     res.json({ url });
@@ -62,6 +74,10 @@ router.post("/upload", uploadImage.single("file"), async (req, res): Promise<voi
 router.post("/upload/video", uploadVideo.single("file"), async (req, res): Promise<void> => {
   if (!req.file) {
     res.status(400).json({ error: "Nenhum vídeo enviado" });
+    return;
+  }
+  if (!cloudinaryIsConfigured()) {
+    res.status(503).json({ error: "Upload indisponível: configure o Cloudinary no ambiente." });
     return;
   }
   try {
