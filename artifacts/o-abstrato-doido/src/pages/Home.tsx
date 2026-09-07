@@ -145,7 +145,7 @@ export default function Home() {
             <img
               src={artistPng}
               alt="Victor Eurico Somakwendje no atelier"
-              className="w-64 h-64 md:w-80 md:h-80 rounded-full object-cover object-top ring-1 ring-primary/20 shadow-[0_16px_38px_rgba(14,146,200,0.35)]"
+              className="w-64 h-64 md:w-80 md:h-80 rounded-full object-cover object-top ring-1 ring-primary/25 shadow-[0_18px_46px_rgba(14,146,200,0.52)]"
               data-testid="img-artist-home"
             />
           </div>
