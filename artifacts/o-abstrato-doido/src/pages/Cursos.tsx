@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Lock, Play, GraduationCap } from "lucide-react";
 import { useLanguage, type Language } from "@/i18n";
 
-const WA = "244934959424";
+const WA = "244952582536";
 
 function buildWACurso(nome: string, language: Language) {
   const messages: Record<Language, string> = {

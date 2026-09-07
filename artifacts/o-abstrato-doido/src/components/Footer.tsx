@@ -27,22 +27,22 @@ export default function Footer() {
           <h3 className="font-serif text-xl mb-4 text-white">{t("footer.contacts")}</h3>
           <div className="flex flex-col gap-3">
             <a
-              href="mailto:diolenyintya@gmail.com"
+              href="mailto:victorsomakwendje08@gmail.com"
               className="flex items-center gap-2 text-white hover:text-white/80 transition-colors text-sm"
               data-testid="link-email"
             >
               <Mail size={16} />
-              diolenyintya@gmail.com
+              victorsomakwendje08@gmail.com
             </a>
             <a
-              href="https://wa.me/244934959424"
+              href="https://wa.me/244952582536"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-white hover:text-white/80 transition-colors text-sm"
               data-testid="link-phone"
             >
               <Phone size={16} />
-              +244 934 959 424
+              +244 952 582 536
             </a>
           </div>
         </div>
@@ -51,7 +51,7 @@ export default function Footer() {
           <h3 className="font-serif text-xl mb-4 text-white">{t("footer.social")}</h3>
           <div className="flex items-center gap-4">
             <a
-              href="https://www.instagram.com/o.abstrato.doido?igsh=dmVwZnV3dGlreDN4"
+              href="https://www.instagram.com/somakwendje_oficial?igsi=ZTExOTFrbzk1aDdk&utm_source=qr"
               target="_blank"
               rel="noopener noreferrer"
               className="text-white hover:text-white/80 transition-colors"
@@ -61,7 +61,7 @@ export default function Footer() {
               <Instagram size={22} />
             </a>
             <a
-              href="https://www.tiktok.com/@o.abstrato.doido?_r=1&_t=ZS-97QFFxUdN0j"
+              href="https://www.tiktok.com/@somakwendje_oficial?_r=1&_t=ZS-99U7N4thIKS"
               target="_blank"
               rel="noopener noreferrer"
               className="text-white hover:text-white/80 transition-colors"
@@ -71,7 +71,7 @@ export default function Footer() {
               <TikTokIcon size={22} />
             </a>
             <a
-              href="https://www.facebook.com/profile.php?id=61565947238625"
+              href="https://www.facebook.com/share/1Eu8TYKwM2/?mibextid=wwXIfr"
               target="_blank"
               rel="noopener noreferrer"
               className="text-white hover:text-white/80 transition-colors"
@@ -84,7 +84,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="border-t border-white/20 py-4 px-6 text-center text-white text-xs">
-        © {new Date().getFullYear()} Dioleny Intya. {t("footer.rights")}
+        © {new Date().getFullYear()} Somakwendje. {t("footer.rights")}
       </div>
     </footer>
   );

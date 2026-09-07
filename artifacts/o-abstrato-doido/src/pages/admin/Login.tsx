@@ -47,7 +47,7 @@ export default function Login() {
     <div className="min-h-screen bg-[hsl(40,43%,96%)] flex items-center justify-center px-4">
       <div className="w-full max-w-sm bg-white border border-[hsl(40,10%,85%)] p-10">
         <h1 className="font-serif text-2xl text-foreground mb-1">Painel Admin</h1>
-        <p className="text-xs tracking-widest uppercase text-muted-foreground mb-8">O Abstrato Doido</p>
+        <p className="text-xs tracking-widest uppercase text-muted-foreground mb-8">Somakwendje</p>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">

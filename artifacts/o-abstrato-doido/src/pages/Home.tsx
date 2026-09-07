@@ -23,7 +23,7 @@ function formatObraPreco(preco: string | null | undefined): string | null {
   if (num === null) return preco ?? null;
   return formatPreco(num);
 }
-const WA = "244934959424";
+const WA = "244952582536";
 
 function buildWA(msg: string) {
   return `https://wa.me/${WA}?text=${encodeURIComponent(msg)}`;

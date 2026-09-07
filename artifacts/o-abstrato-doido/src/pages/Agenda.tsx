@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Calendar, MapPin, X } from "lucide-react";
 import { useLanguage, type Language } from "@/i18n";
 
-const WA = "244934959424";
+const WA = "244952582536";
 
 function buildWA(nome: string, language: Language) {
   const messages: Record<Language, string> = {

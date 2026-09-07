@@ -33,7 +33,7 @@ function getEffectiveDesconto(obra: Obra, globalDesconto: number): number {
   return globalDesconto;
 }
 
-const WA = "244934959424";
+const WA = "244952582536";
 
 function buildWA(titulo: string, language: Language) {
   const messages: Record<Language, string> = {

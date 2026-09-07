@@ -140,7 +140,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           >
             <Menu size={24} />
           </button>
-          <p className="font-serif text-base text-foreground">O Abstrato Doido</p>
+          <p className="font-serif text-base text-foreground">Somakwendje</p>
         </div>
 
         <main className="flex-1 overflow-auto">
