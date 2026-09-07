@@ -6,6 +6,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, MapPin } from "lucide-react";
 import heroPng from "@assets/image_1788615103140.png";
 import artistPng from "@assets/image_1788615145695.png";
+import awardPhoto1 from "@assets/4689c67a-5892-46f5-9514-332a6e89fe7c_1788774876319.jpeg";
+import awardPhoto2 from "@assets/3cbdadc3-f0bd-482c-b4d0-abe396040710_1788774876320.jpeg";
+import awardPhoto3 from "@assets/bd246196-e411-4618-8f6c-757b1b0a2f89_1788774876320.jpeg";
+import awardPhoto4 from "@assets/404c4dc0-c9a0-48e4-b7f9-a4a66919070b_1788774876321.jpeg";
 import { useLanguage, type Language } from "@/i18n";
 
 function parsePrecoNum(preco: string | null | undefined): number | null {
@@ -74,13 +78,13 @@ export default function Home() {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative min-h-[calc(100svh-4rem)] md:h-[min(92vh,980px)] md:min-h-[620px] flex items-end pb-16 md:pb-28 overflow-hidden">
+      <section className="relative min-h-[calc(100svh-4rem)] md:h-[min(92vh,980px)] md:min-h-[620px] flex items-center overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-[center_18%] md:bg-top"
           style={{ backgroundImage: `url(${heroPng})` }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/5" />
-        <div className="relative z-10 max-w-6xl mx-auto px-6 w-full flex flex-col items-center gap-5 text-center">
+        <div className="relative z-10 max-w-6xl mx-auto px-6 w-full -translate-y-4 md:-translate-y-8 flex flex-col items-center gap-5 text-center">
           <p className="max-w-md text-sm leading-relaxed text-white/90 md:text-base drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">
             {t("home.heroStatement")}
           </p>
@@ -116,6 +120,41 @@ export default function Home() {
             >
               {t("home.aboutArtist")}
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Award feature */}
+      <section className="overflow-hidden bg-background py-20 md:py-24">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="mb-8 max-w-2xl">
+            <p className="mb-3 text-xs tracking-[0.3em] uppercase text-primary">{t("home.awardEyebrow")}</p>
+            <h2 className="font-serif text-3xl text-foreground">{t("home.awardTitle")}</h2>
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">{t("home.awardDescription")}</p>
+            <p className="mt-3 text-xs tracking-[0.16em] uppercase text-primary/80">{t("home.awardSwipe")}</p>
+          </div>
+
+          <div
+            className="-mx-6 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            role="region"
+            aria-label={t("home.awardTitle")}
+            tabIndex={0}
+          >
+            <div className="flex w-max gap-4 px-6 pb-3">
+              {[awardPhoto1, awardPhoto2, awardPhoto3, awardPhoto4].map((photo, index) => (
+                <figure
+                  key={photo}
+                  className="w-[80vw] min-w-[80vw] max-w-[42rem] snap-start overflow-hidden rounded-[2rem] bg-white shadow-[0_14px_36px_rgba(15,23,42,0.08)] md:w-[56vw] md:min-w-[56vw]"
+                >
+                  <img
+                    src={photo}
+                    alt={`${t("home.awardTitle")} — ${index + 1}`}
+                    className="h-[24rem] w-full object-contain md:h-[32rem]"
+                    loading="lazy"
+                  />
+                </figure>
+              ))}
+            </div>
           </div>
         </div>
       </section>

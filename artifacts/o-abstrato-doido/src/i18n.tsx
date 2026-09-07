@@ -42,7 +42,12 @@ const messages = {
     home: {
       viewWorks: "Ver Obras",
       viewGallery: "Ver Galeria",
-      heroStatement: "Questionar o olhar e dar espaço ao que o silêncio esconde.",
+      heroStatement: "“Questionar o olhar e dar espaço ao que o silêncio esconde.”",
+      awardEyebrow: "Reconhecimento",
+      awardTitle: "2.º lugar no Prémio Embaixada de Espanha",
+      awardDescription:
+        "Em 2025, Victor Eurico Somakwendje conquistou o segundo lugar na categoria de pintura do Prémio Embaixada de Espanha, em parceria com a UNAP.",
+      awardSwipe: "Deslize para ver os momentos da premiação",
       galleryHighlights: "Destaques da Galeria",
       viewAll: "Ver todas",
       viewAllWorks: "Ver todas as obras",
@@ -170,7 +175,12 @@ const messages = {
     home: {
       viewWorks: "View Works",
       viewGallery: "View Gallery",
-      heroStatement: "Questioning the gaze and making space for what silence conceals.",
+      heroStatement: "“Questioning the gaze and making space for what silence conceals.”",
+      awardEyebrow: "Recognition",
+      awardTitle: "2nd place at the Embassy of Spain Prize",
+      awardDescription:
+        "In 2025, Victor Eurico Somakwendje won second place in the painting category of the Embassy of Spain Prize, in partnership with UNAP.",
+      awardSwipe: "Swipe to see moments from the award ceremony",
       galleryHighlights: "Gallery Highlights",
       viewAll: "View all",
       viewAllWorks: "View all works",
@@ -298,7 +308,12 @@ const messages = {
     home: {
       viewWorks: "Voir les œuvres",
       viewGallery: "Voir la galerie",
-      heroStatement: "Interroger le regard et faire place à ce que le silence dissimule.",
+      heroStatement: "« Interroger le regard et faire place à ce que le silence dissimule. »",
+      awardEyebrow: "Distinction",
+      awardTitle: "2e place au Prix de l’Ambassade d’Espagne",
+      awardDescription:
+        "En 2025, Victor Eurico Somakwendje a remporté la deuxième place dans la catégorie peinture du Prix de l’Ambassade d’Espagne, en partenariat avec l’UNAP.",
+      awardSwipe: "Faites glisser pour voir les moments de la remise des prix",
       galleryHighlights: "Œuvres à la une",
       viewAll: "Voir tout",
       viewAllWorks: "Voir toutes les œuvres",
