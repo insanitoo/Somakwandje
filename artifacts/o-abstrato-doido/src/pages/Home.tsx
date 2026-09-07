@@ -4,7 +4,7 @@ import { useListObras, useListEventos } from "@workspace/api-client-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Calendar, MapPin } from "lucide-react";
+import { ArrowUpRight, Calendar, MapPin } from "lucide-react";
 import heroPng from "@assets/image_1788615103140.png";
 import artistPng from "@assets/image_1788615145695.png";
 import awardPhoto1 from "@assets/4689c67a-5892-46f5-9514-332a6e89fe7c_1788774876319.jpeg";
@@ -34,32 +34,48 @@ function buildWA(msg: string) {
   return `https://wa.me/${WA}?text=${encodeURIComponent(msg)}`;
 }
 
-function ObraCard({ obra }: { obra: { id: number; titulo: string; imagemUrl?: string | null; status: string; preco?: string | null } }) {
+function ObraCard({
+  obra,
+  featured = false,
+}: {
+  obra: { id: number; titulo: string; imagemUrl?: string | null; status: string; preco?: string | null };
+  featured?: boolean;
+}) {
   const { t } = useLanguage();
 
   return (
-    <Link href={`/galeria?obra=${obra.id}`} data-testid={`card-obra-${obra.id}`} className="group block overflow-hidden bg-card border border-card-border">
-      <div className="aspect-square overflow-hidden bg-primary/10 relative">
+    <Link
+      href={`/galeria?obra=${obra.id}`}
+      data-testid={`card-obra-${obra.id}`}
+      className={`group relative block overflow-hidden rounded-[1.75rem] bg-slate-900 ${featured ? "md:col-span-2 md:row-span-2" : ""}`}
+    >
+      <div className={`relative min-h-[16rem] overflow-hidden bg-primary/10 ${featured ? "md:min-h-[31rem]" : "md:min-h-[15rem]"}`}>
         {obra.imagemUrl ? (
           <img
             src={obra.imagemUrl}
             alt={obra.titulo}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-primary/20">
-            <span className="font-serif text-primary text-sm px-4 text-center">{obra.titulo}</span>
+          <div className="absolute inset-0 flex items-center justify-center bg-primary/20">
+            <span className="px-4 text-center font-serif text-sm text-white">{obra.titulo}</span>
           </div>
         )}
-        <div className="absolute top-3 right-3">
-          <span className={`text-xs px-2 py-0.5 ${obra.status === "disponivel" ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}>
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/10 to-transparent" />
+        <div className="absolute left-4 top-4">
+          <span className="rounded-full bg-white/90 px-3 py-1 text-[10px] tracking-[0.16em] uppercase text-slate-700">
             {obra.status === "disponivel" ? t("common.available") : t("common.sold")}
           </span>
         </div>
-      </div>
-      <div className="p-4">
-        <p className="font-serif text-base text-foreground">{obra.titulo}</p>
-        <p className="text-xs text-muted-foreground mt-1">{formatObraPreco(obra.preco) || t("home.priceOnRequest")}</p>
+        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5 text-white">
+          <div>
+            <p className="font-serif text-lg leading-tight">{obra.titulo}</p>
+            <p className="mt-1 text-xs text-white/70">{formatObraPreco(obra.preco) || t("home.priceOnRequest")}</p>
+          </div>
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-slate-800 transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1">
+            <ArrowUpRight size={17} strokeWidth={1.5} />
+          </span>
+        </div>
       </div>
     </Link>
   );
@@ -105,26 +121,20 @@ export default function Home() {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative h-[24rem] sm:h-[min(96vw,42rem)] md:h-[min(72vh,780px)] md:min-h-[560px] flex items-center overflow-hidden">
+      <section className="relative h-[32rem] sm:h-[min(110vw,44rem)] md:h-[min(72vh,780px)] md:min-h-[560px] flex items-center overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-[center_18%] md:bg-top"
           style={{ backgroundImage: `url(${heroPng})` }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/5" />
-        <div className="relative z-10 max-w-5xl mx-auto px-6 w-full translate-y-4 md:-translate-y-4 flex flex-col items-center gap-3 md:gap-5 text-center text-white">
-          <p className="font-serif text-sm md:text-base tracking-[0.18em] drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">
-            {t("home.heroEyebrow")}
-          </p>
-          <h1 className="max-w-4xl font-serif text-4xl leading-[0.98] md:text-6xl lg:text-7xl drop-shadow-[0_3px_12px_rgba(0,0,0,0.5)]">
+        <div className="relative z-10 max-w-5xl mx-auto px-6 w-full translate-y-2 md:-translate-y-4 flex flex-col items-center gap-6 text-center text-white">
+          <h1 className="max-w-3xl font-serif text-2xl leading-[1.08] md:text-5xl lg:text-6xl drop-shadow-[0_3px_12px_rgba(0,0,0,0.5)]">
             {t("home.heroStatement")}
           </h1>
-          <p className="max-w-xl text-sm leading-relaxed text-white/90 md:text-lg drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">
-            {t("home.heroSubline")}
-          </p>
           <Link
             href="/galeria"
             data-testid="button-ver-galeria"
-            className="mt-2 inline-flex min-w-[15rem] items-center justify-center gap-3 rounded-md bg-[#ead9e5]/95 px-10 py-5 text-sm tracking-[0.22em] uppercase text-slate-700 shadow-[0_12px_28px_rgba(0,0,0,0.25)] ring-1 ring-white/30 hover:bg-white hover:-translate-y-0.5 transition-all md:min-w-[18rem]"
+            className="inline-flex min-w-[15rem] items-center justify-center gap-3 rounded-md bg-primary px-10 py-5 text-sm tracking-[0.22em] uppercase text-white shadow-[0_12px_28px_rgba(0,0,0,0.25)] ring-1 ring-white/20 transition-all hover:-translate-y-0.5 hover:bg-primary/90 md:min-w-[18rem]"
           >
             {t("home.viewGallery")}
           </Link>
@@ -159,75 +169,86 @@ export default function Home() {
 
       {/* Award feature */}
       <section className="overflow-hidden bg-background py-16 md:py-20">
-        <div
-          className="mx-auto max-w-6xl overflow-hidden px-6 touch-pan-y select-none"
-          role="region"
-          aria-roledescription="carousel"
-          aria-label={t("home.photoGalleryLabel")}
-          tabIndex={0}
-          onKeyDown={(event) => {
-            if (event.key === "ArrowRight") setAwardIndex((current) => Math.min(awardPhotos.length - 1, current + 1));
-            if (event.key === "ArrowLeft") setAwardIndex((current) => Math.max(0, current - 1));
-          }}
-          onPointerDown={(event) => {
-            awardDragStart.current = event.clientX;
-            event.currentTarget.setPointerCapture(event.pointerId);
-          }}
-          onPointerMove={(event) => {
-            if (awardDragStart.current !== null) setAwardDragOffset(event.clientX - awardDragStart.current);
-          }}
-          onPointerUp={finishAwardDrag}
-          onPointerCancel={finishAwardDrag}
-        >
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="mb-8 max-w-2xl">
+            <p className="mb-3 text-xs tracking-[0.3em] uppercase text-primary">{t("home.awardEyebrow")}</p>
+            <h2 className="font-serif text-3xl text-foreground">{t("home.awardTitle")}</h2>
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">{t("home.awardDescription")}</p>
+          </div>
+
           <div
-            ref={awardTrackRef}
-            className="flex w-max items-end gap-4 transition-transform duration-300 ease-out"
-            style={{
-              transform: `translate3d(${awardSlideDistance ? -awardIndex * awardSlideDistance + awardDragOffset : 0}px, 0, 0)`,
-              transitionDuration: awardDragStart.current === null ? "300ms" : "0ms",
+            className="overflow-hidden touch-pan-y select-none"
+            role="region"
+            aria-roledescription="carousel"
+            aria-label={t("home.photoGalleryLabel")}
+            tabIndex={0}
+            onKeyDown={(event) => {
+              if (event.key === "ArrowRight") setAwardIndex((current) => Math.min(awardPhotos.length - 1, current + 1));
+              if (event.key === "ArrowLeft") setAwardIndex((current) => Math.max(0, current - 1));
             }}
+            onPointerDown={(event) => {
+              awardDragStart.current = event.clientX;
+              event.currentTarget.setPointerCapture(event.pointerId);
+            }}
+            onPointerMove={(event) => {
+              if (awardDragStart.current !== null) setAwardDragOffset(event.clientX - awardDragStart.current);
+            }}
+            onPointerUp={finishAwardDrag}
+            onPointerCancel={finishAwardDrag}
           >
-            {awardPhotos.map((photo, index) => (
-              <figure key={photo} className="w-[calc(100vw-4rem)] max-w-[42rem] shrink-0 md:w-[56vw]">
-                <img
-                  src={photo}
-                  alt={`${t("home.photoGalleryLabel")} — ${index + 1}`}
-                  className="h-[22rem] w-full object-contain md:h-[32rem]"
-                  draggable={false}
-                  loading="lazy"
-                />
-              </figure>
-            ))}
+            <div
+              ref={awardTrackRef}
+              className="flex w-max items-end gap-4 transition-transform duration-300 ease-out"
+              style={{
+                transform: `translate3d(${awardSlideDistance ? -awardIndex * awardSlideDistance + awardDragOffset : 0}px, 0, 0)`,
+                transitionDuration: awardDragStart.current === null ? "300ms" : "0ms",
+              }}
+            >
+              {awardPhotos.map((photo, index) => (
+                <figure key={photo} className="w-[calc(100vw-4rem)] max-w-[42rem] shrink-0 md:w-[56vw]">
+                  <img
+                    src={photo}
+                    alt={`${t("home.photoGalleryLabel")} — ${index + 1}`}
+                    className="h-[22rem] w-full object-contain md:h-[32rem]"
+                    draggable={false}
+                    loading="lazy"
+                  />
+                </figure>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* Gallery highlights */}
-      <section className="py-20 bg-background">
+      <section className="bg-background py-24">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-col items-center text-center mb-8">
-            <h2 className="font-serif text-2xl text-foreground">{t("home.galleryHighlights")}</h2>
+          <div className="mb-10 flex items-end justify-between gap-6">
+            <div>
+              <p className="mb-3 text-xs tracking-[0.3em] uppercase text-primary">{t("home.viewWorks")}</p>
+              <h2 className="font-serif text-3xl text-foreground md:text-4xl">{t("home.galleryHighlights")}</h2>
+            </div>
             <Link
               href="/galeria"
-              className="inline-flex items-center gap-1 mt-3 text-xs tracking-[0.18em] uppercase text-primary border-b border-primary/60 pb-0.5 hover:border-primary transition-colors"
+              className="inline-flex shrink-0 items-center gap-2 border-b border-primary/60 pb-1 text-xs tracking-[0.18em] uppercase text-primary transition-colors hover:border-primary"
             >
               {t("home.viewAll")}
+              <ArrowUpRight size={15} strokeWidth={1.5} />
             </Link>
           </div>
 
           {obrasLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
               {[...Array(4)].map((_, i) => (
-                <div key={i}>
-                  <Skeleton className="aspect-square" />
-                  <Skeleton className="h-4 mt-2 w-3/4" />
+                <div key={i} className={`overflow-hidden rounded-[1.75rem] ${i === 0 ? "md:col-span-2 md:row-span-2" : ""}`}>
+                  <Skeleton className={i === 0 ? "h-[31rem]" : "h-[15rem]"} />
                 </div>
               ))}
             </div>
           ) : obras && obras.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {obras.map((obra) => (
-                <ObraCard key={obra.id} obra={obra} />
+            <div className="grid grid-cols-2 auto-rows-[15rem] gap-4 md:grid-cols-4">
+              {obras.map((obra, index) => (
+                <ObraCard key={obra.id} obra={obra} featured={index === 0} />
               ))}
             </div>
           ) : (
@@ -240,73 +261,92 @@ export default function Home() {
       </section>
 
       {/* Next event banner */}
-      <section className="py-20 bg-background">
+      <section className="bg-background pb-24 pt-4">
         <div className="max-w-6xl mx-auto px-6">
-          <p className="text-xs tracking-[0.3em] uppercase text-primary mb-4">{t("home.agenda")}</p>
-          <h2 className="font-serif text-3xl text-foreground mb-8"></h2>
+          <div className="mb-10 flex items-end justify-between gap-6">
+            <div>
+              <p className="mb-3 text-xs tracking-[0.3em] uppercase text-primary">{t("home.agenda")}</p>
+              <h2 className="font-serif text-3xl text-foreground md:text-4xl">{t("home.nextEvent")}</h2>
+            </div>
+            <Link
+              href="/agenda"
+              className="inline-flex shrink-0 items-center gap-2 border-b border-primary/60 pb-1 text-xs tracking-[0.18em] uppercase text-primary transition-colors hover:border-primary"
+            >
+              {t("home.viewAgenda")}
+              <ArrowUpRight size={15} strokeWidth={1.5} />
+            </Link>
+          </div>
 
           {eventosLoading ? (
-            <div className="border border-border p-8">
-              <Skeleton className="h-6 w-48 mb-3" />
-              <Skeleton className="h-4 w-36" />
+            <div className="grid overflow-hidden rounded-[2rem] border border-primary/10 bg-white/50 md:grid-cols-[1.1fr_0.9fr]">
+              <div className="p-8 md:p-10">
+                <Skeleton className="mb-5 h-4 w-28" />
+                <Skeleton className="mb-4 h-8 w-3/4" />
+                <Skeleton className="h-4 w-48" />
+              </div>
+              <Skeleton className="min-h-56 rounded-none" />
             </div>
           ) : proximoEvento ? (
-            <div className="border border-border bg-background p-8 flex flex-col md:flex-row md:items-center justify-between gap-6" data-testid={`card-evento-${proximoEvento.id}`}>
-              <div className="flex items-start gap-6">
-                {proximoEvento.imagemCapaUrl && (
-                  <img
-                    src={proximoEvento.imagemCapaUrl}
-                    alt={proximoEvento.nome}
-                    className="w-24 h-24 object-cover flex-shrink-0"
-                  />
-                )}
+            <div className="grid overflow-hidden rounded-[2rem] border border-primary/10 bg-white/60 shadow-[0_18px_50px_rgba(15,23,42,0.06)] md:grid-cols-[1.1fr_0.9fr]" data-testid={`card-evento-${proximoEvento.id}`}>
+              <div className="flex flex-col justify-between p-7 md:p-10">
                 <div>
-                  <span className={`text-xs px-2 py-0.5 mb-3 inline-block ${proximoEvento.tipo === "futuro" ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}>
+                  <span className={`mb-5 inline-flex rounded-full px-3 py-1 text-[10px] tracking-[0.18em] uppercase ${proximoEvento.tipo === "futuro" ? "bg-primary text-white" : "bg-slate-200 text-slate-600"}`}>
                     {proximoEvento.tipo === "futuro" ? t("home.nextEvent") : t("home.lastEvent")}
                   </span>
-                  <h3 className="font-serif text-xl text-foreground">{proximoEvento.nome}</h3>
-                  {proximoEvento.local && (
-                    <p className="text-muted-foreground text-sm mt-1 flex items-center gap-1">
-                      <MapPin size={12} /> {proximoEvento.local}
+                  <h3 className="max-w-xl font-serif text-3xl leading-tight text-foreground md:text-4xl">{proximoEvento.nome}</h3>
+                  <div className="mt-6 space-y-2">
+                    <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar size={15} className="text-primary" /> {proximoEvento.dataEvento}
                     </p>
+                    {proximoEvento.local && (
+                      <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <MapPin size={15} className="text-primary" /> {proximoEvento.local}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                  {proximoEvento.tipo === "futuro" && (
+                    <a
+                      href={buildWA(
+                        ({
+                          pt: `Olá, vi no seu site o evento "${proximoEvento.nome}" e gostaria de saber mais.`,
+                          en: `Hello, I saw the event "${proximoEvento.nome}" on your website and would like to know more.`,
+                          fr: `Bonjour, j’ai vu l’événement « ${proximoEvento.nome} » sur votre site et j’aimerais en savoir plus.`,
+                        } satisfies Record<Language, string>)[language],
+                      )}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-testid={`button-interessado-evento-${proximoEvento.id}`}
+                      className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 text-sm tracking-widest uppercase text-white transition-colors hover:bg-primary/90"
+                    >
+                      {t("common.interested")}
+                    </a>
                   )}
-                  <p className="text-muted-foreground text-sm mt-1 flex items-center gap-1">
-                    <Calendar size={12} /> {proximoEvento.dataEvento}
-                  </p>
+                  <Link
+                    href="/agenda"
+                    data-testid="button-ver-agenda"
+                    className="inline-flex items-center justify-center gap-2 rounded-md border border-primary px-6 py-3 text-sm tracking-widest uppercase text-primary transition-colors hover:bg-primary/5"
+                  >
+                    {t("home.viewAgenda")}
+                  </Link>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row justify-center gap-3">
-                {proximoEvento.tipo === "futuro" && (
-                  <a
-                    href={buildWA(
-                      ({
-                        pt: `Olá, vi no seu site o evento "${proximoEvento.nome}" e gostaria de saber mais.`,
-                        en: `Hello, I saw the event "${proximoEvento.nome}" on your website and would like to know more.`,
-                        fr: `Bonjour, j’ai vu l’événement « ${proximoEvento.nome} » sur votre site et j’aimerais en savoir plus.`,
-                      } satisfies Record<Language, string>)[language],
-                    )}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    data-testid={`button-interessado-evento-${proximoEvento.id}`}
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white text-sm tracking-widest uppercase hover:bg-primary/90 transition-colors whitespace-nowrap"
-                  >
-                    {t("common.interested")}
-                  </a>
-                )}
-                <Link
-                  href="/agenda"
-                  data-testid="button-ver-agenda"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-primary text-primary text-sm tracking-widest uppercase hover:bg-primary/5 transition-colors whitespace-nowrap"
-                >
-                  {t("home.viewAgenda")}
-                </Link>
-              </div>
+              {proximoEvento.imagemCapaUrl ? (
+                <div className="relative min-h-64 overflow-hidden bg-slate-200 md:min-h-full">
+                  <img src={proximoEvento.imagemCapaUrl} alt={proximoEvento.nome} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent" />
+                </div>
+              ) : (
+                <div className="hidden min-h-64 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent md:block" />
+              )}
             </div>
           ) : (
-            <div className="border border-border bg-background p-8 text-center">
-              <p className="text-muted-foreground font-serif text-lg">{t("home.noEvents")}</p>
-              <Link href="/agenda" className="text-sm tracking-widest uppercase text-primary border-b border-primary pb-0.5 mt-4 inline-block">
+            <div className="rounded-[2rem] border border-primary/10 bg-white/50 p-10 text-center">
+              <p className="font-serif text-xl text-foreground">{t("home.noEvents")}</p>
+              <Link href="/agenda" className="mt-4 inline-flex items-center gap-2 border-b border-primary pb-0.5 text-sm tracking-widest uppercase text-primary">
                 {t("home.fullAgenda")}
+                <ArrowUpRight size={15} strokeWidth={1.5} />
               </Link>
             </div>
           )}

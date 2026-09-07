@@ -42,10 +42,12 @@ const messages = {
     home: {
       viewWorks: "Ver Obras",
       viewGallery: "Ver Galeria",
-      heroEyebrow: "Arte contemporânea angolana",
       heroStatement: "“Questionar o olhar e dar espaço ao que o silêncio esconde.”",
-      heroSubline: "Pintura, presença e matéria em diálogo.",
       photoGalleryLabel: "Galeria de imagens",
+      awardEyebrow: "Reconhecimento",
+      awardTitle: "2.º lugar no Prémio Embaixada de Espanha",
+      awardDescription:
+        "Em 2025, Victor Eurico Somakwendje conquistou o segundo lugar na categoria de pintura do Prémio Embaixada de Espanha, em parceria com a UNAP.",
       galleryHighlights: "Destaques da Galeria",
       viewAll: "Ver todas",
       viewAllWorks: "Ver todas as obras",
@@ -173,10 +175,12 @@ const messages = {
     home: {
       viewWorks: "View Works",
       viewGallery: "View Gallery",
-      heroEyebrow: "Contemporary Angolan art",
       heroStatement: "“Questioning the gaze and making space for what silence conceals.”",
-      heroSubline: "Painting, presence and matter in dialogue.",
       photoGalleryLabel: "Image gallery",
+      awardEyebrow: "Recognition",
+      awardTitle: "2nd place at the Embassy of Spain Prize",
+      awardDescription:
+        "In 2025, Victor Eurico Somakwendje won second place in the painting category of the Embassy of Spain Prize, in partnership with UNAP.",
       galleryHighlights: "Gallery Highlights",
       viewAll: "View all",
       viewAllWorks: "View all works",
@@ -304,10 +308,12 @@ const messages = {
     home: {
       viewWorks: "Voir les œuvres",
       viewGallery: "Voir la galerie",
-      heroEyebrow: "Art contemporain angolais",
       heroStatement: "« Interroger le regard et faire place à ce que le silence dissimule. »",
-      heroSubline: "Peinture, présence et matière en dialogue.",
       photoGalleryLabel: "Galerie d’images",
+      awardEyebrow: "Distinction",
+      awardTitle: "2e place au Prix de l’Ambassade d’Espagne",
+      awardDescription:
+        "En 2025, Victor Eurico Somakwendje a remporté la deuxième place dans la catégorie peinture du Prix de l’Ambassade d’Espagne, en partenariat avec l’UNAP.",
       galleryHighlights: "Œuvres à la une",
       viewAll: "Voir tout",
       viewAllWorks: "Voir toutes les œuvres",
