@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { useEffect, useRef, useState } from "react";
 import { useListObras, useListEventos } from "@workspace/api-client-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -72,26 +73,58 @@ export default function Home() {
   const { data: eventos, isLoading: eventosLoading } = useListEventos();
 
   const proximoEvento = eventos?.find((e) => e.tipo === "futuro") ?? eventos?.[eventos.length - 1];
+  const awardTrackRef = useRef<HTMLDivElement>(null);
+  const awardDragStart = useRef<number | null>(null);
+  const [awardIndex, setAwardIndex] = useState(0);
+  const [awardDragOffset, setAwardDragOffset] = useState(0);
+  const [awardSlideDistance, setAwardSlideDistance] = useState(0);
+  const awardPhotos = [awardPhoto1, awardPhoto2, awardPhoto3, awardPhoto4];
+
+  useEffect(() => {
+    const updateSlideDistance = () => {
+      const firstSlide = awardTrackRef.current?.firstElementChild as HTMLElement | null;
+      if (firstSlide) setAwardSlideDistance(firstSlide.offsetWidth + 16);
+    };
+    updateSlideDistance();
+    window.addEventListener("resize", updateSlideDistance);
+    return () => window.removeEventListener("resize", updateSlideDistance);
+  }, []);
+
+  function finishAwardDrag() {
+    if (awardDragStart.current === null) return;
+    const movedBy = awardDragOffset;
+    if (Math.abs(movedBy) > 48) {
+      setAwardIndex((current) => Math.max(0, Math.min(awardPhotos.length - 1, current + (movedBy < 0 ? 1 : -1))));
+    }
+    awardDragStart.current = null;
+    setAwardDragOffset(0);
+  }
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
       {/* Hero */}
-      <section className="relative min-h-[calc(100svh-4rem)] md:h-[min(92vh,980px)] md:min-h-[620px] flex items-center overflow-hidden">
+      <section className="relative h-[24rem] sm:h-[min(96vw,42rem)] md:h-[min(72vh,780px)] md:min-h-[560px] flex items-center overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-[center_18%] md:bg-top"
           style={{ backgroundImage: `url(${heroPng})` }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/5" />
-        <div className="relative z-10 max-w-6xl mx-auto px-6 w-full -translate-y-4 md:-translate-y-8 flex flex-col items-center gap-5 text-center">
-          <p className="max-w-md text-sm leading-relaxed text-white/90 md:text-base drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">
+        <div className="relative z-10 max-w-5xl mx-auto px-6 w-full translate-y-4 md:-translate-y-4 flex flex-col items-center gap-3 md:gap-5 text-center text-white">
+          <p className="font-serif text-sm md:text-base tracking-[0.18em] drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">
+            {t("home.heroEyebrow")}
+          </p>
+          <h1 className="max-w-4xl font-serif text-4xl leading-[0.98] md:text-6xl lg:text-7xl drop-shadow-[0_3px_12px_rgba(0,0,0,0.5)]">
             {t("home.heroStatement")}
+          </h1>
+          <p className="max-w-xl text-sm leading-relaxed text-white/90 md:text-lg drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">
+            {t("home.heroSubline")}
           </p>
           <Link
             href="/galeria"
             data-testid="button-ver-galeria"
-            className="inline-flex min-w-[13rem] items-center justify-center gap-3 px-10 py-4 bg-primary text-white text-sm tracking-[0.18em] uppercase shadow-[0_12px_28px_rgba(0,0,0,0.25)] ring-1 ring-white/20 hover:bg-primary/90 hover:-translate-y-0.5 transition-all"
+            className="mt-2 inline-flex min-w-[15rem] items-center justify-center gap-3 rounded-md bg-[#ead9e5]/95 px-10 py-5 text-sm tracking-[0.22em] uppercase text-slate-700 shadow-[0_12px_28px_rgba(0,0,0,0.25)] ring-1 ring-white/30 hover:bg-white hover:-translate-y-0.5 transition-all md:min-w-[18rem]"
           >
             {t("home.viewGallery")}
           </Link>
@@ -125,36 +158,46 @@ export default function Home() {
       </section>
 
       {/* Award feature */}
-      <section className="overflow-hidden bg-background py-20 md:py-24">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="mb-8 max-w-2xl">
-            <p className="mb-3 text-xs tracking-[0.3em] uppercase text-primary">{t("home.awardEyebrow")}</p>
-            <h2 className="font-serif text-3xl text-foreground">{t("home.awardTitle")}</h2>
-            <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">{t("home.awardDescription")}</p>
-            <p className="mt-3 text-xs tracking-[0.16em] uppercase text-primary/80">{t("home.awardSwipe")}</p>
-          </div>
-
+      <section className="overflow-hidden bg-background py-16 md:py-20">
+        <div
+          className="mx-auto max-w-6xl overflow-hidden px-6 touch-pan-y select-none"
+          role="region"
+          aria-roledescription="carousel"
+          aria-label={t("home.photoGalleryLabel")}
+          tabIndex={0}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowRight") setAwardIndex((current) => Math.min(awardPhotos.length - 1, current + 1));
+            if (event.key === "ArrowLeft") setAwardIndex((current) => Math.max(0, current - 1));
+          }}
+          onPointerDown={(event) => {
+            awardDragStart.current = event.clientX;
+            event.currentTarget.setPointerCapture(event.pointerId);
+          }}
+          onPointerMove={(event) => {
+            if (awardDragStart.current !== null) setAwardDragOffset(event.clientX - awardDragStart.current);
+          }}
+          onPointerUp={finishAwardDrag}
+          onPointerCancel={finishAwardDrag}
+        >
           <div
-            className="-mx-6 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-            role="region"
-            aria-label={t("home.awardTitle")}
-            tabIndex={0}
+            ref={awardTrackRef}
+            className="flex w-max items-end gap-4 transition-transform duration-300 ease-out"
+            style={{
+              transform: `translate3d(${awardSlideDistance ? -awardIndex * awardSlideDistance + awardDragOffset : 0}px, 0, 0)`,
+              transitionDuration: awardDragStart.current === null ? "300ms" : "0ms",
+            }}
           >
-            <div className="flex w-max gap-4 px-6 pb-3">
-              {[awardPhoto1, awardPhoto2, awardPhoto3, awardPhoto4].map((photo, index) => (
-                <figure
-                  key={photo}
-                  className="w-[80vw] min-w-[80vw] max-w-[42rem] snap-start overflow-hidden rounded-[2rem] bg-white shadow-[0_14px_36px_rgba(15,23,42,0.08)] md:w-[56vw] md:min-w-[56vw]"
-                >
-                  <img
-                    src={photo}
-                    alt={`${t("home.awardTitle")} — ${index + 1}`}
-                    className="h-[24rem] w-full object-contain md:h-[32rem]"
-                    loading="lazy"
-                  />
-                </figure>
-              ))}
-            </div>
+            {awardPhotos.map((photo, index) => (
+              <figure key={photo} className="w-[calc(100vw-4rem)] max-w-[42rem] shrink-0 md:w-[56vw]">
+                <img
+                  src={photo}
+                  alt={`${t("home.photoGalleryLabel")} — ${index + 1}`}
+                  className="h-[22rem] w-full object-contain md:h-[32rem]"
+                  draggable={false}
+                  loading="lazy"
+                />
+              </figure>
+            ))}
           </div>
         </div>
       </section>
