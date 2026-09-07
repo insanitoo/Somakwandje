@@ -74,19 +74,22 @@ export default function Home() {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative min-h-[calc(100svh-4rem)] md:h-[min(92vh,980px)] md:min-h-[620px] flex items-end pb-8 md:pb-16 overflow-hidden">
+      <section className="relative min-h-[calc(100svh-4rem)] md:h-[min(92vh,980px)] md:min-h-[620px] flex items-end pb-16 md:pb-28 overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-[center_18%] md:bg-top"
           style={{ backgroundImage: `url(${heroPng})` }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/5" />
-        <div className="relative z-10 max-w-6xl mx-auto px-6 w-full flex justify-center">
+        <div className="relative z-10 max-w-6xl mx-auto px-6 w-full flex flex-col items-center gap-5 text-center">
+          <p className="max-w-md text-sm leading-relaxed text-white/90 md:text-base drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">
+            {t("home.heroStatement")}
+          </p>
           <Link
             href="/galeria"
             data-testid="button-ver-galeria"
-            className="inline-flex items-center gap-3 px-7 py-3.5 bg-primary text-white text-sm tracking-[0.18em] uppercase shadow-[0_12px_28px_rgba(0,0,0,0.25)] ring-1 ring-white/20 hover:bg-primary/90 hover:-translate-y-0.5 transition-all"
+            className="inline-flex min-w-[13rem] items-center justify-center gap-3 px-10 py-4 bg-primary text-white text-sm tracking-[0.18em] uppercase shadow-[0_12px_28px_rgba(0,0,0,0.25)] ring-1 ring-white/20 hover:bg-primary/90 hover:-translate-y-0.5 transition-all"
           >
-            {t("home.viewWorks")}
+            {t("home.viewGallery")}
           </Link>
         </div>
       </section>

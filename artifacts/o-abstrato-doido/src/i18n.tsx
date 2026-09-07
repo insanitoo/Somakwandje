@@ -41,6 +41,8 @@ const messages = {
     },
     home: {
       viewWorks: "Ver Obras",
+      viewGallery: "Ver Galeria",
+      heroStatement: "Questionar o olhar e dar espaço ao que o silêncio esconde.",
       galleryHighlights: "Destaques da Galeria",
       viewAll: "Ver todas",
       viewAllWorks: "Ver todas as obras",
@@ -131,6 +133,7 @@ const messages = {
     footer: {
       contacts: "Contactos",
       social: "Redes Sociais",
+      tagline: "Arte, memória e questionamento.",
       rights: "Todos os direitos reservados.",
     },
   },
@@ -166,6 +169,8 @@ const messages = {
     },
     home: {
       viewWorks: "View Works",
+      viewGallery: "View Gallery",
+      heroStatement: "Questioning the gaze and making space for what silence conceals.",
       galleryHighlights: "Gallery Highlights",
       viewAll: "View all",
       viewAllWorks: "View all works",
@@ -256,6 +261,7 @@ const messages = {
     footer: {
       contacts: "Contacts",
       social: "Social Media",
+      tagline: "Art, memory and questioning.",
       rights: "All rights reserved.",
     },
   },
@@ -291,6 +297,8 @@ const messages = {
     },
     home: {
       viewWorks: "Voir les œuvres",
+      viewGallery: "Voir la galerie",
+      heroStatement: "Interroger le regard et faire place à ce que le silence dissimule.",
       galleryHighlights: "Œuvres à la une",
       viewAll: "Voir tout",
       viewAllWorks: "Voir toutes les œuvres",
@@ -381,6 +389,7 @@ const messages = {
     footer: {
       contacts: "Contacts",
       social: "Réseaux sociaux",
+      tagline: "Art, mémoire et questionnement.",
       rights: "Tous droits réservés.",
     },
   },

@@ -22,69 +22,81 @@ export default function Footer() {
 
   return (
     <footer className="bg-[#0F172A] text-white">
-      <div className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 gap-10">
-        <div>
-          <h3 className="font-serif text-xl mb-4 text-white">{t("footer.contacts")}</h3>
-          <div className="flex flex-col gap-3">
-            <a
-              href="mailto:victorsomakwendje08@gmail.com"
-              className="flex items-center gap-2 text-white hover:text-white/80 transition-colors text-sm"
-              data-testid="link-email"
-            >
-              <Mail size={16} />
-              victorsomakwendje08@gmail.com
-            </a>
-            <a
-              href="https://wa.me/244952582536"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-white hover:text-white/80 transition-colors text-sm"
-              data-testid="link-phone"
-            >
-              <Phone size={16} />
-              +244 952 582 536
-            </a>
+      <div className="max-w-6xl mx-auto px-6 py-14 md:py-16">
+        <div className="flex flex-col gap-12 md:flex-row md:items-start md:justify-between">
+          <div className="max-w-xs">
+            <p className="font-serif text-3xl text-white">Somakwendje</p>
+            <p className="mt-3 text-sm leading-relaxed text-white/60">{t("footer.tagline")}</p>
           </div>
-        </div>
 
-        <div>
-          <h3 className="font-serif text-xl mb-4 text-white">{t("footer.social")}</h3>
-          <div className="flex items-center gap-4">
-            <a
-              href="https://www.instagram.com/somakwendje_oficial?igsi=ZTExOTFrbzk1aDdk&utm_source=qr"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white hover:text-white/80 transition-colors"
-              data-testid="link-instagram"
-              aria-label="Instagram"
-            >
-              <Instagram size={22} />
-            </a>
-            <a
-              href="https://www.tiktok.com/@somakwendje_oficial?_r=1&_t=ZS-99U7N4thIKS"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white hover:text-white/80 transition-colors"
-              data-testid="link-tiktok"
-              aria-label="TikTok"
-            >
-              <TikTokIcon size={22} />
-            </a>
-            <a
-              href="https://www.facebook.com/share/1Eu8TYKwM2/?mibextid=wwXIfr"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white hover:text-white/80 transition-colors"
-              data-testid="link-facebook"
-              aria-label="Facebook"
-            >
-              <FacebookIcon size={22} />
-            </a>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 md:gap-20">
+            <div>
+              <p className="mb-4 text-[10px] tracking-[0.24em] uppercase text-white/50">{t("footer.contacts")}</p>
+              <div className="flex flex-col gap-3">
+                <a
+                  href="mailto:victorsomakwendje08@gmail.com"
+                  className="flex items-center gap-2 text-sm text-white/85 hover:text-white transition-colors"
+                  data-testid="link-email"
+                >
+                  <Mail size={15} />
+                  victorsomakwendje08@gmail.com
+                </a>
+                <a
+                  href="https://wa.me/244952582536"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-white/85 hover:text-white transition-colors"
+                  data-testid="link-phone"
+                >
+                  <Phone size={15} />
+                  +244 952 582 536
+                </a>
+              </div>
+            </div>
+
+            <div>
+              <p className="mb-4 text-[10px] tracking-[0.24em] uppercase text-white/50">{t("footer.social")}</p>
+              <div className="flex items-center gap-2.5">
+                <a
+                  href="https://www.instagram.com/somakwendje_oficial?igsi=ZTExOTFrbzk1aDdk&utm_source=qr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-white/85 hover:border-white/60 hover:text-white transition-colors"
+                  data-testid="link-instagram"
+                  aria-label="Instagram"
+                >
+                  <Instagram size={18} />
+                </a>
+                <a
+                  href="https://www.tiktok.com/@somakwendje_oficial?_r=1&_t=ZS-99U7N4thIKS"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-white/85 hover:border-white/60 hover:text-white transition-colors"
+                  data-testid="link-tiktok"
+                  aria-label="TikTok"
+                >
+                  <TikTokIcon size={18} />
+                </a>
+                <a
+                  href="https://www.facebook.com/share/1Eu8TYKwM2/?mibextid=wwXIfr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-white/85 hover:border-white/60 hover:text-white transition-colors"
+                  data-testid="link-facebook"
+                  aria-label="Facebook"
+                >
+                  <FacebookIcon size={18} />
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <div className="border-t border-white/20 py-4 px-6 text-center text-white text-xs">
-        © {new Date().getFullYear()} Somakwendje. {t("footer.rights")}
+      <div className="border-t border-white/10 px-6 py-5">
+        <div className="max-w-6xl mx-auto flex flex-col gap-2 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between">
+          <span>© {new Date().getFullYear()} Somakwendje.</span>
+          <span>{t("footer.rights")}</span>
+        </div>
       </div>
     </footer>
   );
