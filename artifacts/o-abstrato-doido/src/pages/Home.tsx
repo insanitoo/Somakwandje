@@ -4,7 +4,7 @@ import { useListObras, useListEventos } from "@workspace/api-client-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowUpRight, Calendar, MapPin } from "lucide-react";
+import { Calendar, MapPin } from "lucide-react";
 import heroPng from "@assets/image_1788615103140.png";
 import artistPng from "@assets/image_1788615145695.png";
 import awardPhoto1 from "@assets/4689c67a-5892-46f5-9514-332a6e89fe7c_1788774876319.jpeg";
@@ -72,9 +72,6 @@ function ObraCard({
             <p className="font-serif text-lg leading-tight">{obra.titulo}</p>
             <p className="mt-1 text-xs text-white/70">{formatObraPreco(obra.preco) || t("home.priceOnRequest")}</p>
           </div>
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-slate-800 transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1">
-            <ArrowUpRight size={17} strokeWidth={1.5} />
-          </span>
         </div>
       </div>
     </Link>
@@ -127,14 +124,14 @@ export default function Home() {
           style={{ backgroundImage: `url(${heroPng})` }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/5" />
-        <div className="relative z-10 max-w-5xl mx-auto px-6 w-full translate-y-2 md:-translate-y-4 flex flex-col items-center gap-6 text-center text-white">
+        <div className="relative z-10 max-w-5xl mx-auto px-6 w-full translate-y-5 md:-translate-y-1 flex flex-col items-center gap-6 text-center text-white">
           <h1 className="max-w-3xl font-serif text-2xl leading-[1.08] md:text-5xl lg:text-6xl drop-shadow-[0_3px_12px_rgba(0,0,0,0.5)]">
             {t("home.heroStatement")}
           </h1>
           <Link
             href="/galeria"
             data-testid="button-ver-galeria"
-            className="inline-flex min-w-[15rem] items-center justify-center gap-3 rounded-md bg-primary px-10 py-5 text-sm tracking-[0.22em] uppercase text-white shadow-[0_12px_28px_rgba(0,0,0,0.25)] ring-1 ring-white/20 transition-all hover:-translate-y-0.5 hover:bg-primary/90 md:min-w-[18rem]"
+            className="mt-2 inline-flex min-w-[15rem] translate-y-3 items-center justify-center gap-3 rounded-md bg-primary px-10 py-5 text-sm tracking-[0.22em] uppercase text-white shadow-[0_12px_28px_rgba(0,0,0,0.25)] ring-1 ring-white/20 transition-all hover:-translate-y-0.5 hover:bg-primary/90 md:min-w-[18rem]"
           >
             {t("home.viewGallery")}
           </Link>
@@ -233,7 +230,6 @@ export default function Home() {
               className="inline-flex shrink-0 items-center gap-2 border-b border-primary/60 pb-1 text-xs tracking-[0.18em] uppercase text-primary transition-colors hover:border-primary"
             >
               {t("home.viewAll")}
-              <ArrowUpRight size={15} strokeWidth={1.5} />
             </Link>
           </div>
 
@@ -268,13 +264,6 @@ export default function Home() {
               <p className="mb-3 text-xs tracking-[0.3em] uppercase text-primary">{t("home.agenda")}</p>
               <h2 className="font-serif text-3xl text-foreground md:text-4xl">{t("home.nextEvent")}</h2>
             </div>
-            <Link
-              href="/agenda"
-              className="inline-flex shrink-0 items-center gap-2 border-b border-primary/60 pb-1 text-xs tracking-[0.18em] uppercase text-primary transition-colors hover:border-primary"
-            >
-              {t("home.viewAgenda")}
-              <ArrowUpRight size={15} strokeWidth={1.5} />
-            </Link>
           </div>
 
           {eventosLoading ? (
@@ -346,7 +335,6 @@ export default function Home() {
               <p className="font-serif text-xl text-foreground">{t("home.noEvents")}</p>
               <Link href="/agenda" className="mt-4 inline-flex items-center gap-2 border-b border-primary pb-0.5 text-sm tracking-widest uppercase text-primary">
                 {t("home.fullAgenda")}
-                <ArrowUpRight size={15} strokeWidth={1.5} />
               </Link>
             </div>
           )}

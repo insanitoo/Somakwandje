@@ -48,7 +48,7 @@ const messages = {
       awardTitle: "2.º lugar no Prémio Embaixada de Espanha",
       awardDescription:
         "Em 2025, Victor Eurico Somakwendje conquistou o segundo lugar na categoria de pintura do Prémio Embaixada de Espanha, em parceria com a UNAP.",
-      galleryHighlights: "Destaques da Galeria",
+      galleryHighlights: "Obras que permanecem",
       viewAll: "Ver todas",
       viewAllWorks: "Ver todas as obras",
       worksSoon: "As obras serão adicionadas em breve",
@@ -181,7 +181,7 @@ const messages = {
       awardTitle: "2nd place at the Embassy of Spain Prize",
       awardDescription:
         "In 2025, Victor Eurico Somakwendje won second place in the painting category of the Embassy of Spain Prize, in partnership with UNAP.",
-      galleryHighlights: "Gallery Highlights",
+      galleryHighlights: "Works that remain",
       viewAll: "View all",
       viewAllWorks: "View all works",
       worksSoon: "Works will be added soon",
@@ -314,7 +314,7 @@ const messages = {
       awardTitle: "2e place au Prix de l’Ambassade d’Espagne",
       awardDescription:
         "En 2025, Victor Eurico Somakwendje a remporté la deuxième place dans la catégorie peinture du Prix de l’Ambassade d’Espagne, en partenariat avec l’UNAP.",
-      galleryHighlights: "Œuvres à la une",
+      galleryHighlights: "Œuvres qui demeurent",
       viewAll: "Voir tout",
       viewAllWorks: "Voir toutes les œuvres",
       worksSoon: "Les œuvres seront bientôt ajoutées",
