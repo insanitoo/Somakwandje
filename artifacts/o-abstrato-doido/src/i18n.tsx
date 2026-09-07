@@ -48,6 +48,7 @@ const messages = {
       awardTitle: "2.º lugar no Prémio Embaixada de Espanha",
       awardDescription:
         "Em 2025, Victor Eurico Somakwendje conquistou o segundo lugar na categoria de pintura do Prémio Embaixada de Espanha, em parceria com a UNAP.",
+      galleryEyebrow: "Seleção",
       galleryHighlights: "Obras que permanecem",
       viewAll: "Ver todas",
       viewAllWorks: "Ver todas as obras",
@@ -56,6 +57,7 @@ const messages = {
       aboutTeaser:
         "Victor Eurico Somakwendje nasceu aos 28 de maio, na comuna de Lândana, município de Cacongo, província Cabinda/Angola.",
       agenda: "Agenda",
+      featuredEvent: "Em destaque",
       nextEvent: "Próximo Evento",
       lastEvent: "Último Evento",
       viewAgenda: "Ver Agenda",
@@ -181,6 +183,7 @@ const messages = {
       awardTitle: "2nd place at the Embassy of Spain Prize",
       awardDescription:
         "In 2025, Victor Eurico Somakwendje won second place in the painting category of the Embassy of Spain Prize, in partnership with UNAP.",
+      galleryEyebrow: "Curated selection",
       galleryHighlights: "Works that remain",
       viewAll: "View all",
       viewAllWorks: "View all works",
@@ -189,6 +192,7 @@ const messages = {
       aboutTeaser:
         "Victor Eurico Somakwendje was born on 28 May in the commune of Lândana, municipality of Cacongo, Cabinda province, Angola.",
       agenda: "Schedule",
+      featuredEvent: "Featured",
       nextEvent: "Next Event",
       lastEvent: "Latest Event",
       viewAgenda: "View Schedule",
@@ -314,6 +318,7 @@ const messages = {
       awardTitle: "2e place au Prix de l’Ambassade d’Espagne",
       awardDescription:
         "En 2025, Victor Eurico Somakwendje a remporté la deuxième place dans la catégorie peinture du Prix de l’Ambassade d’Espagne, en partenariat avec l’UNAP.",
+      galleryEyebrow: "Sélection",
       galleryHighlights: "Œuvres qui demeurent",
       viewAll: "Voir tout",
       viewAllWorks: "Voir toutes les œuvres",
@@ -322,6 +327,7 @@ const messages = {
       aboutTeaser:
         "Victor Eurico Somakwendje est né le 28 mai dans la commune de Lândana, municipalité de Cacongo, province de Cabinda, en Angola.",
       agenda: "Agenda",
+      featuredEvent: "À la une",
       nextEvent: "Prochain événement",
       lastEvent: "Dernier événement",
       viewAgenda: "Voir l’agenda",

@@ -145,7 +145,7 @@ export default function Home() {
             <img
               src={artistPng}
               alt="Victor Eurico Somakwendje no atelier"
-              className="w-64 h-64 md:w-80 md:h-80 rounded-full object-cover object-top ring-1 ring-primary/15 shadow-[0_14px_36px_rgba(15,23,42,0.08)]"
+              className="w-64 h-64 md:w-80 md:h-80 rounded-full object-cover object-top ring-1 ring-primary/20 shadow-[0_16px_38px_rgba(14,146,200,0.35)]"
               data-testid="img-artist-home"
             />
           </div>
@@ -222,7 +222,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="mb-10 flex items-end justify-between gap-6">
             <div>
-              <p className="mb-3 text-xs tracking-[0.3em] uppercase text-primary">{t("home.viewWorks")}</p>
+              <p className="mb-3 text-xs tracking-[0.3em] uppercase text-primary">{t("home.galleryEyebrow")}</p>
               <h2 className="font-serif text-3xl text-foreground md:text-4xl">{t("home.galleryHighlights")}</h2>
             </div>
             <Link
@@ -262,7 +262,7 @@ export default function Home() {
           <div className="mb-10 flex items-end justify-between gap-6">
             <div>
               <p className="mb-3 text-xs tracking-[0.3em] uppercase text-primary">{t("home.agenda")}</p>
-              <h2 className="font-serif text-3xl text-foreground md:text-4xl">{t("home.nextEvent")}</h2>
+              <h2 className="font-serif text-3xl text-foreground md:text-4xl">{t("home.featuredEvent")}</h2>
             </div>
           </div>
 
