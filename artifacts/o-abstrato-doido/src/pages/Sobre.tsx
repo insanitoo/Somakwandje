@@ -37,6 +37,7 @@ export default function Sobre() {
               <h2 className="font-serif text-3xl md:text-4xl text-foreground">{t("about.statementTitle")}</h2>
               <p>{t("about.paragraph3")}</p>
               <p>{t("about.paragraph4")}</p>
+              <p>{t("about.paragraph5")}</p>
             </div>
           </div>
         </section>

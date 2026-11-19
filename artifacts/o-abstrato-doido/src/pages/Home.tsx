@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, MapPin } from "lucide-react";
-import heroPng from "@assets/image_1788615103140.png";
+import heroPng from "@assets/hero2.jpg";
 import artistPng from "@assets/image_1788615145695.png";
 import awardPhoto1 from "@assets/4689c67a-5892-46f5-9514-332a6e89fe7c_1788774876319.jpeg";
 import awardPhoto2 from "@assets/3cbdadc3-f0bd-482c-b4d0-abe396040710_1788774876320.jpeg";
@@ -124,14 +124,14 @@ export default function Home() {
           style={{ backgroundImage: `url(${heroPng})` }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/5" />
-        <div className="relative z-10 max-w-5xl mx-auto px-6 w-full translate-y-5 md:-translate-y-1 flex flex-col items-center gap-6 text-center text-white">
+        <div className="relative z-10 max-w-5xl mx-auto px-6 w-full translate-y-12 md:translate-y-16 flex flex-col items-center gap-6 text-center text-white">
           <h1 className="max-w-3xl font-serif text-2xl leading-[1.08] md:text-5xl lg:text-6xl drop-shadow-[0_3px_12px_rgba(0,0,0,0.5)]">
             {t("home.heroStatement")}
           </h1>
           <Link
             href="/galeria"
             data-testid="button-ver-galeria"
-            className="mt-2 inline-flex min-w-[15rem] translate-y-3 items-center justify-center gap-3 rounded-md bg-primary px-10 py-5 text-sm tracking-[0.22em] uppercase text-white shadow-[0_12px_28px_rgba(0,0,0,0.25)] ring-1 ring-white/20 transition-all hover:-translate-y-0.5 hover:bg-primary/90 md:min-w-[18rem]"
+            className="mt-2 inline-flex min-w-[15rem] items-center justify-center gap-3 rounded-md bg-primary px-10 py-5 text-sm tracking-[0.22em] uppercase text-white shadow-[0_12px_28px_rgba(0,0,0,0.25)] ring-1 ring-white/20 transition-all hover:-translate-y-0.5 hover:bg-primary/90 md:min-w-[18rem]"
           >
             {t("home.viewGallery")}
           </Link>
@@ -202,11 +202,11 @@ export default function Home() {
               }}
             >
               {awardPhotos.map((photo, index) => (
-                <figure key={photo} className="w-[calc(100vw-4rem)] max-w-[42rem] shrink-0 md:w-[56vw]">
+                <figure key={photo} className="w-[76vw] max-w-[24rem] shrink-0 md:w-[56vw] md:max-w-[42rem]">
                   <img
                     src={photo}
                     alt={`${t("home.photoGalleryLabel")} — ${index + 1}`}
-                    className="h-[22rem] w-full object-contain md:h-[32rem]"
+                    className="h-[22rem] w-full object-contain object-left md:h-[32rem]"
                     draggable={false}
                     loading="lazy"
                   />
@@ -214,6 +214,9 @@ export default function Home() {
               ))}
             </div>
           </div>
+          <p className="mt-4 text-center text-xs tracking-wide text-muted-foreground">
+            {t("home.photoGallerySwipeHint")}
+          </p>
         </div>
       </section>
 
@@ -331,10 +334,13 @@ export default function Home() {
               )}
             </div>
           ) : (
-            <div className="rounded-[2rem] border border-primary/10 bg-white/50 p-10 text-center">
-              <p className="font-serif text-xl text-foreground">{t("home.noEvents")}</p>
-              <Link href="/agenda" className="mt-4 inline-flex items-center gap-2 border-b border-primary pb-0.5 text-sm tracking-widest uppercase text-primary">
-                {t("home.fullAgenda")}
+            <div className="py-16 text-center">
+              <p className="font-serif text-lg text-muted-foreground">{t("home.noEvents")}</p>
+              <Link
+                href="/agenda"
+                className="mt-5 inline-flex shrink-0 items-center border-b border-primary/60 pb-1 text-xs tracking-[0.18em] uppercase text-primary transition-colors hover:border-primary"
+              >
+                {t("home.viewAgenda")}
               </Link>
             </div>
           )}

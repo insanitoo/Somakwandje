@@ -44,6 +44,7 @@ const messages = {
       viewGallery: "Ver Galeria",
       heroStatement: "“Questionar o olhar e dar espaço ao que o silêncio esconde.”",
       photoGalleryLabel: "Galeria de imagens",
+      photoGallerySwipeHint: "Deslize para ver as próximas fotografias",
       awardEyebrow: "Reconhecimento",
       awardTitle: "2.º lugar no Prémio Embaixada de Espanha",
       awardDescription:
@@ -69,6 +70,9 @@ const messages = {
       title: "Galeria",
       state: "Estado",
       size: "Tamanho",
+      filters: "Filtrar obras",
+      allWorks: "Todas",
+      allSizes: "Todos",
       technique: "Técnica",
       dimensions: "Dimensões",
       price: "Preço",
@@ -115,9 +119,11 @@ const messages = {
       paragraph2:
         "Desde cedo, revelou paixão pelo desenho. Em 2016 conheceu o mestre Venâncio Higino, decisivo no seu desenvolvimento técnico e expressivo. Em 2022 iniciou a prática profissional, passando da pintura publicitária para a tela, os ténis e as T-shirts. Participou em exposições coletivas e, em 2025, conquistou o segundo lugar no concurso de artes visuais da Embaixada de Espanha, em parceria com a UNAP. Atualmente estuda na Faculdade de Artes da Universidade de Luanda e vive em Luanda.",
       paragraph3:
-        "Sou um artista visual angolano que utiliza o corpo feminino como campo de investigação, explorando as relações entre desejo, poder e silêncio. A partir de uma linguagem surrealista e simbólica, interrogo o male gaze, o silenciamento social e os padrões que o olhar masculino reproduz. A pintura, a escultura e a apropriação de objetos reais cruzam-se numa prática que aproxima o íntimo do universal.",
+        "Sou um artista visual angolano. Na minha condição masculina, entendo o corpo feminino como território de estudo e de disputas simbólicas. A minha prática nasce de uma pergunta incómoda: porque é que olho para o corpo feminino e o primeiro movimento é o desejo?",
       paragraph4:
-        "Não procuro oferecer respostas, mas criar perguntas. Através de entrevistas e de imagens fragmentadas, questiono quem controla o corpo feminino, o que acontece quando ele resiste e o que muda quando o homem que olha é obrigado a questionar o próprio olhar.",
+        "Através da pintura, da instalação e da apropriação de objectos reais, questiono os padrões sociais que normalizam o acto de olhar. Trabalho temas como o male gaze, a pesca artesanal e os rituais fúnebres.",
+      paragraph5:
+        "Movido pela necessidade de questionar e não de defender, uso a escuta activa e a minha própria auto-análise para expor o meu olhar e reconhecer-me como parte daquilo que observo. Afinal, quem dá o direito de observar?",
     },
     courses: {
       eyebrow: "Aprendizagem",
@@ -179,6 +185,7 @@ const messages = {
       viewGallery: "View Gallery",
       heroStatement: "“Questioning the gaze and making space for what silence conceals.”",
       photoGalleryLabel: "Image gallery",
+      photoGallerySwipeHint: "Swipe to see the next photos",
       awardEyebrow: "Recognition",
       awardTitle: "2nd place at the Embassy of Spain Prize",
       awardDescription:
@@ -204,6 +211,9 @@ const messages = {
       title: "Gallery",
       state: "Status",
       size: "Size",
+      filters: "Filter artworks",
+      allWorks: "All",
+      allSizes: "All",
       technique: "Technique",
       dimensions: "Dimensions",
       price: "Price",
@@ -250,9 +260,11 @@ const messages = {
       paragraph2:
         "He discovered a passion for drawing early on. In 2016 he met his mentor Venâncio Higino, who played an important role in his technical and expressive development. He began working professionally in 2022, moving from advertising painting to canvases, sneakers and T-shirts. After taking part in group exhibitions, he won second place in the 2025 visual arts competition organised by the Embassy of Spain with UNAP. He currently studies at the Faculty of Arts of the University of Luanda.",
       paragraph3:
-        "I am an Angolan visual artist who uses the female body as a field of research, exploring the relationships between desire, power and silence. Through a surreal and symbolic language, I question the male gaze, social silencing and the patterns reproduced by the masculine gaze. Painting, sculpture and the appropriation of real objects come together in a practice that connects the intimate with the universal.",
+        "I am an Angolan visual artist. As a man, I understand the female body as a territory for study and symbolic contestation. My practice begins with an uncomfortable question: why, when I look at the female body, is desire my first response?",
       paragraph4:
-        "I do not seek to offer answers, but to create questions. Through interviews and fragmented images, I ask who controls the female body, what happens when it resists, and what changes when the man who looks is forced to question his own gaze.",
+        "Through painting, installation, and the appropriation of real objects, I question the social patterns that normalize looking. I work with themes such as the male gaze, artisanal fishing, and funeral rituals.",
+      paragraph5:
+        "Driven by a need to question rather than defend, I use active listening and my own self-analysis to expose my gaze and recognize myself as part of what I observe. After all, who gives us the right to look?",
     },
     courses: {
       eyebrow: "Learning",
@@ -314,6 +326,7 @@ const messages = {
       viewGallery: "Voir la galerie",
       heroStatement: "« Interroger le regard et faire place à ce que le silence dissimule. »",
       photoGalleryLabel: "Galerie d’images",
+      photoGallerySwipeHint: "Faites glisser pour voir les photos suivantes",
       awardEyebrow: "Distinction",
       awardTitle: "2e place au Prix de l’Ambassade d’Espagne",
       awardDescription:
@@ -339,6 +352,9 @@ const messages = {
       title: "Galerie",
       state: "État",
       size: "Taille",
+      filters: "Filtrer les œuvres",
+      allWorks: "Toutes",
+      allSizes: "Toutes",
       technique: "Technique",
       dimensions: "Dimensions",
       price: "Prix",
@@ -385,9 +401,11 @@ const messages = {
       paragraph2:
         "Passionné très tôt par le dessin, il rencontre en 2016 son maître Venâncio Higino, qui contribue à son développement technique et expressif. En 2022, il commence à travailler professionnellement, de la peinture publicitaire aux toiles, aux baskets et aux T-shirts. Après plusieurs expositions collectives, il obtient en 2025 la deuxième place du concours d’arts visuels de l’Ambassade d’Espagne, en partenariat avec l’UNAP. Il étudie actuellement à la Faculté des Arts de l’Université de Luanda.",
       paragraph3:
-        "Je suis un artiste visuel angolais qui utilise le corps féminin comme champ de recherche, en explorant les relations entre désir, pouvoir et silence. À travers un langage surréaliste et symbolique, j’interroge le male gaze, le silence social et les schémas reproduits par le regard masculin. La peinture, la sculpture et l’appropriation d’objets réels se rencontrent dans une pratique qui relie l’intime à l’universel.",
+        "Je suis un artiste visuel angolais. En tant qu’homme, je comprends le corps féminin comme un territoire d’étude et de luttes symboliques. Ma pratique naît d’une question dérangeante : pourquoi, lorsque je regarde le corps féminin, le désir est-il mon premier mouvement ?",
       paragraph4:
-        "Je ne cherche pas à proposer des réponses, mais à faire naître des questions. À travers des entretiens et des images fragmentées, je demande qui contrôle le corps féminin, ce qui se passe lorsqu’il résiste et ce qui change lorsque l’homme qui regarde est contraint d’interroger son propre regard.",
+        "À travers la peinture, l’installation et l’appropriation d’objets réels, je questionne les normes sociales qui normalisent l’acte de regarder. Je travaille sur des thèmes tels que le male gaze, la pêche artisanale et les rituels funéraires.",
+      paragraph5:
+        "Animé par le besoin de questionner plutôt que de défendre, j’utilise l’écoute active et ma propre auto-analyse pour exposer mon regard et me reconnaître comme faisant partie de ce que j’observe. Après tout, qui donne le droit d’observer ?",
     },
     courses: {
       eyebrow: "Apprentissage",
