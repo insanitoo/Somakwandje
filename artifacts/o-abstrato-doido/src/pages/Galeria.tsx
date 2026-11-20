@@ -10,7 +10,30 @@ import { X } from "lucide-react";
 import { useLanguage, type Language } from "@/i18n";
 
 type StatusFilter = "todas" | "disponivel" | "vendido";
-type TamanhoFilter = "todos" | "grande" | "pequena";
+type CategoryFilter = "todas" | NonNullable<Obra["categoria"]>;
+type Translate = ReturnType<typeof useLanguage>["t"];
+
+const categoryOptions = [
+  { value: "pintura_desenho", label: "gallery.categoryPaintingDrawing" },
+  { value: "escultura_objetos", label: "gallery.categorySculptureObjects" },
+  { value: "fotografia_arte_digital", label: "gallery.categoryPhotographyDigitalArt" },
+  { value: "instalacoes", label: "gallery.categoryInstallations" },
+] as const;
+
+function getCategoryLabel(category: Obra["categoria"], t: Translate): string | null {
+  switch (category) {
+    case "pintura_desenho":
+      return t("gallery.categoryPaintingDrawing");
+    case "escultura_objetos":
+      return t("gallery.categorySculptureObjects");
+    case "fotografia_arte_digital":
+      return t("gallery.categoryPhotographyDigitalArt");
+    case "instalacoes":
+      return t("gallery.categoryInstallations");
+    default:
+      return null;
+  }
+}
 
 function parsePrecoNum(preco: string | null | undefined): number | null {
   if (!preco) return null;
@@ -320,7 +343,7 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
 
       <div className="flex flex-col md:flex-row flex-1 min-h-0 overflow-hidden">
         {/* Galeria de fotos */}
-        <div className="w-full md:w-[58%] flex-shrink-0 bg-slate-950">
+        <div className="w-full flex-shrink-0 bg-[#08263f] md:w-[58%]">
           <div className="flex items-center justify-between border-b border-white/10 px-4 py-3 text-[10px] uppercase tracking-[0.24em] text-white/65">
             <span>Somakwendje</span>
             <span>{String(obra.id).padStart(2, "0")} / {photos.length || 1}</span>
@@ -355,14 +378,14 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
               )}
             </div>
           ) : (
-            <div className="h-[34dvh] min-h-[220px] max-h-[360px] md:h-[62vh] md:max-h-[640px] flex items-center justify-center bg-slate-900">
-              <span className="px-6 text-center font-serif text-2xl text-primary">{obra.titulo}</span>
+            <div className="h-[34dvh] min-h-[220px] max-h-[360px] flex items-center justify-center bg-[#0d3555] md:h-[62vh] md:max-h-[640px]">
+              <span className="px-6 text-center font-serif text-2xl text-sky-200">{obra.titulo}</span>
             </div>
           )}
 
           {/* Thumbnails */}
           {photos.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto overscroll-contain border-t border-white/10 bg-black/70 p-3">
+            <div className="flex gap-2 overflow-x-auto overscroll-contain border-t border-white/10 bg-[#061c30] p-3">
               {photos.map((url, i) => (
                 <button
                   key={i}
@@ -380,12 +403,12 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
         </div>
 
         {/* Detalhes */}
-        <div className="flex w-full min-h-0 flex-col gap-7 overflow-y-auto px-6 py-7 text-foreground md:w-[42%] md:px-10 md:py-10">
+        <div className="flex w-full min-h-0 flex-col gap-7 overflow-y-auto px-6 py-7 text-foreground md:w-[42%] md:px-9 md:py-9">
           <div className="border-b border-border pb-6">
             <p className="mb-4 flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-muted-foreground">
               <span className={`inline-block h-2 w-2 rounded-full ${obra.status === "disponivel" ? "bg-primary" : "bg-muted-foreground"}`} />
               {obra.status === "disponivel" ? t("common.available") : t("common.soldFemale")}
-              {obra.tamanho && obra.tamanho !== "media" && ` / ${obra.tamanho === "grande" ? t("common.large") : t("common.small")}`}
+              {obra.categoria && ` / ${getCategoryLabel(obra.categoria, t)}`}
             </p>
             <h2 className="max-w-[15ch] font-serif text-4xl leading-[0.96] text-foreground md:text-[3.15rem]">{obra.titulo}</h2>
           </div>
@@ -398,10 +421,10 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
               </div>
             )}
 
-            {obra.tamanho && obra.tamanho !== "media" && (
+            {obra.categoria && (
               <div>
-                <p className="mb-1 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{t("gallery.size")}</p>
-                <p className="text-sm text-foreground">{obra.tamanho === "grande" ? t("common.large") : t("common.small")}</p>
+                <p className="mb-1 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{t("gallery.category")}</p>
+                <p className="text-sm text-foreground">{getCategoryLabel(obra.categoria, t)}</p>
               </div>
             )}
 
@@ -468,7 +491,7 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
           aria-label={`${t("gallery.enlargedImageOf")}: ${obra.titulo}`}
           aria-modal="true"
             ref={fullscreenFrameRef}
-            className="fixed inset-0 z-[100] bg-[#101615]/[.98] p-3 sm:p-8 flex items-center justify-center overflow-hidden select-none touch-none pointer-events-auto"
+            className="fixed inset-0 z-[100] bg-[#061a2b]/[.98] p-3 sm:p-8 flex items-center justify-center overflow-hidden select-none touch-none pointer-events-auto"
             onClick={handleFullscreenClick}
             onDoubleClick={toggleZoom}
             onWheel={handleFullscreenWheel}
@@ -493,7 +516,7 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
                 event.stopPropagation();
                 setFullscreenOpen(false);
               }}
-            className="absolute top-4 left-4 z-[120] pointer-events-auto flex h-10 w-10 items-center justify-center border border-white/20 bg-[#101615]/70 text-white hover:bg-white/15 transition-colors"
+            className="absolute top-4 left-4 z-[120] pointer-events-auto flex h-10 w-10 items-center justify-center border border-white/20 bg-[#061a2b]/70 text-white hover:bg-sky-800/80 transition-colors"
             aria-label={t("gallery.closeEnlarged")}
           >
             <X size={22} />
@@ -523,7 +546,7 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
 export default function Galeria() {
   const { t } = useLanguage();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("todas");
-  const [tamanhoFilter, setTamanhoFilter] = useState<TamanhoFilter>("todos");
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("todas");
   const [selectedObra, setSelectedObra] = useState<Obra | null>(null);
   const [globalDesconto, setGlobalDesconto] = useState(0);
   const sharedObraId = (() => {
@@ -542,9 +565,10 @@ export default function Galeria() {
       .catch(() => {});
   }, []);
 
-  const params: Record<string, string | number> = {};
-  if (statusFilter !== "todas") params.status = statusFilter;
-  if (tamanhoFilter !== "todos") params.tamanho = tamanhoFilter;
+  const params = {
+    ...(statusFilter === "todas" ? {} : { status: statusFilter }),
+    ...(categoryFilter === "todas" ? {} : { categoria: categoryFilter }),
+  };
 
   const { data: obras, isLoading } = useListObras(
     Object.keys(params).length > 0 ? params : undefined
@@ -572,21 +596,11 @@ export default function Galeria() {
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
       <main className="pt-[4.5rem]">
-        <section className="bg-white border-b border-border px-6 py-14">
-          <div className="mx-auto max-w-6xl">
-            <h1 className="font-serif text-4xl text-foreground md:text-5xl">{t("gallery.title")}</h1>
-          </div>
-        </section>
-
-        <section className="sticky top-[4.5rem] z-40 border-b border-border bg-background/95 px-6 py-4 backdrop-blur-md">
-          <div className="mx-auto max-w-6xl">
-            <h2 className="mb-3 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              {t("gallery.filters")}
-            </h2>
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:gap-10">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-                <span className="shrink-0 text-xs text-muted-foreground">{t("gallery.state")}</span>
-                <div className="flex flex-wrap gap-2" role="group" aria-label={t("gallery.state")}>
+        <section className="sticky top-[4.5rem] z-40 border-b border-border bg-background/95 px-4 py-3 backdrop-blur-md md:px-6">
+          <div className="mx-auto max-w-6xl space-y-2 sm:space-y-0 sm:flex sm:items-center sm:gap-8">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="w-[4.5rem] shrink-0 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{t("gallery.state")}</span>
+                <div className="flex min-w-0 gap-2 overflow-x-auto whitespace-nowrap" role="group" aria-label={t("gallery.state")}>
                   {(["todas", "disponivel", "vendido"] as const).map((filter) => {
                     const active = statusFilter === filter;
                     const label = filter === "todas"
@@ -601,7 +615,7 @@ export default function Galeria() {
                         onClick={() => setStatusFilter(filter)}
                         aria-pressed={active}
                         data-testid={`filter-status-${filter}`}
-                        className={`rounded-full border px-4 py-2 text-xs transition-colors ${
+                        className={`rounded-full border px-3 py-1.5 text-[10px] transition-colors sm:text-xs ${
                           active
                             ? "border-primary bg-primary text-primary-foreground shadow-sm"
                             : "border-primary/20 bg-white/60 text-foreground hover:border-primary/50 hover:bg-white"
@@ -614,30 +628,38 @@ export default function Galeria() {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-                <span className="shrink-0 text-xs text-muted-foreground">{t("gallery.size")}</span>
-                <div className="flex flex-wrap gap-2" role="group" aria-label={t("gallery.size")}>
-                  {(["todos", "grande", "pequena"] as const).map((filter) => {
-                    const active = tamanhoFilter === filter;
-                    const label = filter === "todos"
-                      ? t("gallery.allSizes")
-                      : filter === "grande"
-                        ? t("common.largePlural")
-                        : t("common.smallPlural");
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="w-[4.5rem] shrink-0 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{t("gallery.category")}</span>
+                <div className="flex min-w-0 gap-2 overflow-x-auto whitespace-nowrap" role="group" aria-label={t("gallery.category")}>
+                  <button
+                    type="button"
+                    onClick={() => setCategoryFilter("todas")}
+                    aria-pressed={categoryFilter === "todas"}
+                    data-testid="filter-category-all"
+                    className={`shrink-0 rounded-full border px-3 py-1.5 text-[10px] transition-colors sm:text-xs ${
+                      categoryFilter === "todas"
+                        ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                        : "border-primary/20 bg-white/60 text-foreground hover:border-primary/50 hover:bg-white"
+                    }`}
+                  >
+                    {t("gallery.allCategories")}
+                  </button>
+                  {categoryOptions.map(({ value, label }) => {
+                    const active = categoryFilter === value;
                     return (
                       <button
-                        key={filter}
+                        key={value}
                         type="button"
-                        onClick={() => setTamanhoFilter(filter)}
+                        onClick={() => setCategoryFilter(value)}
                         aria-pressed={active}
-                        data-testid={`filter-size-${filter}`}
-                        className={`rounded-full border px-4 py-2 text-xs transition-colors ${
+                        data-testid={`filter-category-${value}`}
+                        className={`shrink-0 rounded-full border px-3 py-1.5 text-[10px] transition-colors sm:text-xs ${
                           active
                             ? "border-primary bg-primary text-primary-foreground shadow-sm"
                             : "border-primary/20 bg-white/60 text-foreground hover:border-primary/50 hover:bg-white"
                         }`}
                       >
-                        {label}
+                        {t(label)}
                       </button>
                     );
                   })}
@@ -649,7 +671,7 @@ export default function Galeria() {
 
         <section className="mx-auto max-w-6xl px-6 py-10 md:py-14">
           {isLoading ? (
-            <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-3">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="space-y-4">
                   <Skeleton className="aspect-[4/3] w-full rounded-[1.75rem]" />
@@ -659,7 +681,7 @@ export default function Galeria() {
               ))}
             </div>
           ) : filteredObras.length > 0 ? (
-            <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-3">
               {filteredObras.map((obra) => (
                 <article key={obra.id} className="group" data-testid={`card-obra-${obra.id}`}>
                   <button
@@ -673,7 +695,7 @@ export default function Galeria() {
                       <img
                         src={obra.imagemUrl}
                         alt={obra.titulo}
-                        className="h-full w-full object-contain p-3 transition-transform duration-700 ease-out group-hover:scale-[1.025] md:p-5"
+                        className="h-full w-full object-contain p-2 transition-transform duration-700 ease-out group-hover:scale-[1.025] sm:p-3 md:p-5"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-primary/10">
@@ -692,13 +714,13 @@ export default function Galeria() {
 
                   <div className="flex items-start justify-between gap-4 px-1 pt-4">
                     <div className="min-w-0">
-                      <h2 className="font-serif text-2xl leading-tight text-foreground">{obra.titulo}</h2>
+                      <h2 className="font-serif text-lg leading-tight text-foreground sm:text-2xl">{obra.titulo}</h2>
                       {obra.tecnica && (
                         <p className="mt-1 text-xs text-muted-foreground">{obra.tecnica}</p>
                       )}
-                      {obra.tamanho && obra.tamanho !== "media" && (
+                      {obra.categoria && (
                         <p className="mt-1 text-xs text-muted-foreground">
-                          {obra.tamanho === "grande" ? t("common.large") : t("common.small")}
+                          {getCategoryLabel(obra.categoria, t)}
                         </p>
                       )}
                     </div>
@@ -739,10 +761,10 @@ export default function Galeria() {
           ) : (
             <div className="py-16 text-center">
               <p className="font-serif text-2xl text-muted-foreground">{t("gallery.noWorks")}</p>
-              {(statusFilter !== "todas" || tamanhoFilter !== "todos") && (
+              {(statusFilter !== "todas" || categoryFilter !== "todas") && (
                 <button
                   type="button"
-                  onClick={() => { setStatusFilter("todas"); setTamanhoFilter("todos"); }}
+                  onClick={() => { setStatusFilter("todas"); setCategoryFilter("todas"); }}
                   data-testid="button-see-all"
                   className="mt-5 inline-flex items-center border-b border-primary/60 pb-1 text-xs uppercase tracking-[0.18em] text-primary hover:border-primary"
                 >

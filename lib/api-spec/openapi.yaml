@@ -55,6 +55,12 @@ paths:
           schema:
             type: string
             enum: [grande, media, pequena]
+        - name: categoria
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pintura_desenho, escultura_objetos, fotografia_arte_digital, instalacoes]
         - name: limit
           in: query
           required: false
@@ -583,6 +589,9 @@ components:
         tamanho:
           type: ["string", "null"]
           enum: [grande, media, pequena, null]
+        categoria:
+          type: ["string", "null"]
+          enum: [pintura_desenho, escultura_objetos, fotografia_arte_digital, instalacoes, null]
         imagemUrl:
           type: ["string", "null"]
         imagemUrl2:
@@ -632,6 +641,9 @@ components:
         tamanho:
           type: string
           enum: [grande, media, pequena]
+        categoria:
+          type: ["string", "null"]
+          enum: [pintura_desenho, escultura_objetos, fotografia_arte_digital, instalacoes, null]
         imagemUrl:
           type: string
         imagemUrl2:
@@ -678,6 +690,9 @@ components:
         tamanho:
           type: string
           enum: [grande, media, pequena]
+        categoria:
+          type: ["string", "null"]
+          enum: [pintura_desenho, escultura_objetos, fotografia_arte_digital, instalacoes, null]
         imagemUrl:
           type: string
         imagemUrl2:
