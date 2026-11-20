@@ -36,6 +36,32 @@ function cloudinaryIsConfigured(): boolean {
   );
 }
 
+function safeCloudinaryErrorSummary(error: unknown): Record<string, string | number> {
+  const details =
+    typeof error === "object" && error !== null
+      ? (error as { name?: unknown; message?: unknown; http_code?: unknown; code?: unknown })
+      : {};
+  let message = typeof details.message === "string" ? details.message : "";
+
+  for (const credential of [
+    process.env["CLOUDINARY_API_SECRET"],
+    process.env["CLOUDINARY_API_KEY"],
+  ]) {
+    if (credential) message = message.split(credential).join("[redacted]");
+  }
+  message = message
+    .replace(/cloudinary:\/\/[^@\s]+@/gi, "cloudinary://[redacted]@")
+    .replace(/(api[_ -]?secret\s*[:=]\s*)[^\s,]+/gi, "$1[redacted]")
+    .slice(0, 240);
+
+  return {
+    ...(typeof details.name === "string" ? { name: details.name.slice(0, 80) } : {}),
+    ...(typeof details.http_code === "number" ? { httpCode: details.http_code } : {}),
+    ...(typeof details.code === "string" ? { code: details.code.slice(0, 80) } : {}),
+    ...(message ? { message } : {}),
+  };
+}
+
 function uploadToCloudinary(
   buffer: Buffer,
   resourceType: "image" | "video" | "raw" | "auto"
@@ -67,6 +93,14 @@ router.post("/upload", uploadImage.single("file"), async (req, res): Promise<voi
     const url = await uploadToCloudinary(req.file.buffer, "image");
     res.json({ url });
   } catch (err) {
+    req.log.error(
+      {
+        cloudinaryError: safeCloudinaryErrorSummary(err),
+        resourceType: "image",
+        fileSizeBytes: req.file.size,
+      },
+      "Cloudinary upload failed",
+    );
     res.status(500).json({ error: "Erro ao enviar para o Cloudinary" });
   }
 });
@@ -84,6 +118,14 @@ router.post("/upload/video", uploadVideo.single("file"), async (req, res): Promi
     const url = await uploadToCloudinary(req.file.buffer, "video");
     res.json({ url });
   } catch (err) {
+    req.log.error(
+      {
+        cloudinaryError: safeCloudinaryErrorSummary(err),
+        resourceType: "video",
+        fileSizeBytes: req.file.size,
+      },
+      "Cloudinary upload failed",
+    );
     res.status(500).json({ error: "Erro ao enviar para o Cloudinary" });
   }
 });
