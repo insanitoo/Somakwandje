@@ -214,9 +214,6 @@ export default function Home() {
               ))}
             </div>
           </div>
-          <p className="mt-4 text-center text-xs tracking-wide text-muted-foreground">
-            {t("home.photoGallerySwipeHint")}
-          </p>
         </div>
       </section>
 
@@ -340,7 +337,7 @@ export default function Home() {
                 href="/agenda"
                 className="mt-5 inline-flex shrink-0 items-center border-b border-primary/60 pb-1 text-xs tracking-[0.18em] uppercase text-primary transition-colors hover:border-primary"
               >
-                {t("home.viewAgenda")}
+                {t("home.fullAgenda")}
               </Link>
             </div>
           )}

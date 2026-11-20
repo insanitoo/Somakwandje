@@ -1,6 +1,6 @@
 kind = "web"
 previewPath = "/"
-title = "O Abstrato Doido"
+title = "Somakwendje"
 version = "1.0.0"
 id = "artifacts/o-abstrato-doido"
 router = "path"

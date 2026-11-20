@@ -2,7 +2,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useGetMe, useLogout, getGetMeQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { ImageIcon, CalendarIcon, FileTextIcon, ExternalLink, LogOut, Menu, X, GraduationCap, Tag, ListOrdered, BarChart3 } from "lucide-react";
+import { ImageIcon, CalendarIcon, FileTextIcon, ExternalLink, LogOut, Menu, X, Tag, ListOrdered, BarChart3 } from "lucide-react";
 
 const navItems = [
   { href: "/odoido/obras", label: "Obras", icon: ImageIcon },
@@ -10,7 +10,6 @@ const navItems = [
   { href: "/odoido/descontos", label: "Descontos", icon: Tag },
   { href: "/odoido/eventos", label: "Eventos", icon: CalendarIcon },
   { href: "/odoido/blog", label: "Blog", icon: FileTextIcon },
-  { href: "/odoido/cursos", label: "Cursos", icon: GraduationCap },
   { href: "/odoido/metricas", label: "Métricas", icon: BarChart3 },
 ];
 
@@ -58,7 +57,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     <>
       <div className="px-6 py-6 border-b border-white/10 flex items-center justify-between">
         <div>
-          <p className="font-serif text-base text-white">Intya Space</p>
+          <p className="font-serif text-base text-white">Somakwendje</p>
           <p className="text-xs text-white/50 mt-0.5 tracking-widest uppercase">Painel Administrativo</p>
         </div>
         <button

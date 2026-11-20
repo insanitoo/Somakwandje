@@ -16,7 +16,6 @@ const links = [
   { href: "/galeria", key: "gallery" as const },
   { href: "/agenda", key: "agenda" as const },
   { href: "/sobre", key: "about" as const },
-  { href: "/cursos", key: "courses" as const },
 ];
 
 export default function Navbar() {
@@ -25,6 +24,9 @@ export default function Navbar() {
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const languageMenuRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const menuTriggerRef = useRef<HTMLButtonElement>(null);
+  const menuCloseRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!languageMenuOpen) return;
@@ -47,15 +49,57 @@ export default function Navbar() {
     };
   }, [languageMenuOpen]);
 
+  useEffect(() => {
+    if (!open) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    menuCloseRef.current?.focus();
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+
+      if (event.key === "Tab") {
+        const focusable = mobileMenuRef.current?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled])',
+        );
+        if (!focusable?.length) return;
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    }
+
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleEscape);
+      menuTriggerRef.current?.focus();
+    };
+  }, [open]);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [location]);
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
       <div className="relative max-w-6xl mx-auto px-5 md:px-6 h-[4.5rem] flex items-center justify-center md:justify-between">
         <button
+          ref={menuTriggerRef}
           className="absolute left-5 md:hidden text-foreground hover:text-primary transition-colors"
-          onClick={() => setOpen(!open)}
+          onClick={() => setOpen((current) => !current)}
           data-testid="button-menu-mobile"
           aria-label={t("nav.menu")}
           aria-expanded={open}
+          aria-controls="mobile-navigation"
         >
           {open ? <X size={21} /> : <Menu size={21} />}
         </button>
@@ -128,23 +172,55 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu */}
-      {open && (
-        <div className="md:hidden bg-background border-t border-border px-6 py-4 flex flex-col gap-4">
-          {links.map((link) => (
+      <div
+        ref={mobileMenuRef}
+        id="mobile-navigation"
+        role="dialog"
+        aria-modal={open}
+        aria-label={t("nav.menu")}
+        aria-hidden={!open}
+        className={`fixed inset-0 z-[60] flex h-[100dvh] flex-col bg-background px-7 pb-10 pt-6 transition-transform duration-300 ease-out md:hidden ${
+          open ? "translate-x-0" : "pointer-events-none -translate-x-full"
+        }`}
+      >
+        <div className="flex items-center justify-between border-b border-border pb-5">
+          <Link
+            href="/"
+            onClick={() => setOpen(false)}
+            tabIndex={open ? 0 : -1}
+            className="font-serif text-xl tracking-wide text-foreground"
+          >
+            Somakwendje
+          </Link>
+          <button
+            ref={menuCloseRef}
+            type="button"
+            onClick={() => setOpen(false)}
+            tabIndex={open ? 0 : -1}
+            aria-label={t("common.close")}
+            className="flex h-11 w-11 items-center justify-center text-foreground hover:text-primary transition-colors"
+          >
+            <X size={24} />
+          </button>
+        </div>
+        <nav aria-label={t("nav.menu")} className="flex flex-1 flex-col justify-center gap-7">
+          {links.map((link, index) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setOpen(false)}
-              className={`text-sm tracking-widest uppercase ${
-                location === link.href ? "text-primary font-medium" : "text-muted-foreground"
+              tabIndex={open ? 0 : -1}
+              data-testid={`mobile-nav-${link.key}`}
+              className={`font-serif text-3xl transition-colors ${
+                location === link.href ? "text-primary" : "text-foreground hover:text-primary"
               }`}
+              style={{ transitionDelay: open ? `${index * 45}ms` : "0ms" }}
             >
               {t(`nav.${link.key}`)}
             </Link>
           ))}
-        </div>
-      )}
+        </nav>
+      </div>
     </nav>
   );
 }

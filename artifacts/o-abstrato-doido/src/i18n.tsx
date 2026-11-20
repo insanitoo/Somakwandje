@@ -15,7 +15,6 @@ const messages = {
       gallery: "Galeria",
       agenda: "Agenda",
       about: "Sobre",
-      courses: "Cursos",
       language: "Idioma",
       menu: "Menu",
       whatsapp: "WhatsApp",
@@ -44,7 +43,6 @@ const messages = {
       viewGallery: "Ver Galeria",
       heroStatement: "“Questionar o olhar e dar espaço ao que o silêncio esconde.”",
       photoGalleryLabel: "Galeria de imagens",
-      photoGallerySwipeHint: "Deslize para ver as próximas fotografias",
       awardEyebrow: "Reconhecimento",
       awardTitle: "2.º lugar no Prémio Embaixada de Espanha",
       awardDescription:
@@ -156,7 +154,6 @@ const messages = {
       gallery: "Gallery",
       agenda: "Schedule",
       about: "About",
-      courses: "Courses",
       language: "Language",
       menu: "Menu",
       whatsapp: "WhatsApp",
@@ -185,7 +182,6 @@ const messages = {
       viewGallery: "View Gallery",
       heroStatement: "“Questioning the gaze and making space for what silence conceals.”",
       photoGalleryLabel: "Image gallery",
-      photoGallerySwipeHint: "Swipe to see the next photos",
       awardEyebrow: "Recognition",
       awardTitle: "2nd place at the Embassy of Spain Prize",
       awardDescription:
@@ -297,7 +293,6 @@ const messages = {
       gallery: "Galerie",
       agenda: "Agenda",
       about: "À propos",
-      courses: "Cours",
       language: "Langue",
       menu: "Menu",
       whatsapp: "WhatsApp",
@@ -326,7 +321,6 @@ const messages = {
       viewGallery: "Voir la galerie",
       heroStatement: "« Interroger le regard et faire place à ce que le silence dissimule. »",
       photoGalleryLabel: "Galerie d’images",
-      photoGallerySwipeHint: "Faites glisser pour voir les photos suivantes",
       awardEyebrow: "Distinction",
       awardTitle: "2e place au Prix de l’Ambassade d’Espagne",
       awardDescription:

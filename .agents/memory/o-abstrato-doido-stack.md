@@ -5,7 +5,7 @@ description: Key non-obvious decisions for the artist website project — auth, 
 
 ## Admin auth
 - Session-based auth via `express-session` + bcryptjs. Session secret from `SESSION_SECRET` env var.
-- Admin user seeded directly via SQL (bcrypt hash). Username: `admin`, password: `admin123`.
+- Do not keep a shared/default admin password in source or memory; seed or reset `admin` using `ADMIN_PASSWORD` from Replit Secrets and store only its bcrypt hash.
 - `logout.mutate(undefined, ...)` — generated mutation expects `void`, not `{}`.
 
 ## DB lib rebuild rule
