@@ -30,9 +30,6 @@ router.get("/obras", async (req, res): Promise<void> => {
   if (query.data.tamanho) {
     obras = obras.filter((o) => o.tamanho === query.data.tamanho);
   }
-  if (query.data.categoria) {
-    obras = obras.filter((o) => o.categoria === query.data.categoria);
-  }
   if (query.data.limit) {
     obras = obras.slice(0, query.data.limit);
   }
@@ -134,7 +131,6 @@ function serializeObra(obra: typeof obrasTable.$inferSelect) {
     preco: obra.preco,
     status: obra.status,
     tamanho: obra.tamanho,
-    categoria: obra.categoria,
     imagemUrl: obra.imagemUrl,
     imagemUrl2: obra.imagemUrl2,
     imagemUrl3: obra.imagemUrl3,

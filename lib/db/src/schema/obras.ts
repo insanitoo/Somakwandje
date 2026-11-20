@@ -14,7 +14,6 @@ export const obrasTable = pgTable("obras", {
   preco: text("preco"),
   status: obraStatusEnum("status").notNull().default("disponivel"),
   tamanho: obraTamanhoEnum("tamanho"),
-  categoria: text("categoria"),
   imagemUrl: text("imagem_url"),
   imagemUrl2: text("imagem_url2"),
   imagemUrl3: text("imagem_url3"),

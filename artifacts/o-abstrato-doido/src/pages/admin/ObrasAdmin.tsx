@@ -22,15 +22,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Pencil, Trash2, Plus, Share2 } from "lucide-react";
 import ImageUpload from "@/components/ImageUpload";
 
-const categoriaOptions = [
-  { value: "pintura_desenho", label: "Pintura e Desenho" },
-  { value: "escultura_objetos", label: "Escultura e objetos" },
-  { value: "fotografia_arte_digital", label: "Fotografia e Arte Digital" },
-  { value: "instalacoes", label: "Instalações" },
-] as const;
-
-type Categoria = typeof categoriaOptions[number]["value"];
-
 type Obra = {
   id: number;
   titulo: string;
@@ -39,7 +30,7 @@ type Obra = {
   dimensoes?: string | null;
   preco?: string | null;
   status: string;
-  categoria?: Categoria | null;
+  tamanho?: string | null;
   imagemUrl?: string | null;
   imagemUrl2?: string | null;
   imagemUrl3?: string | null;
@@ -60,7 +51,7 @@ const obraSchema = z.object({
   dimensoes: z.string().optional(),
   preco: z.string().optional(),
   status: z.enum(["disponivel", "vendido"]),
-  categoria: z.enum(["pintura_desenho", "escultura_objetos", "fotografia_arte_digital", "instalacoes", "none"]).optional(),
+  tamanho: z.enum(["grande", "pequena", "none"]).optional(),
   imagemUrls: z.array(z.string()).max(10),
 });
 
@@ -80,7 +71,7 @@ export default function ObrasAdmin() {
 
   const emptyValues: ObraValues = {
     titulo: "", descricao: "", tecnica: "", dimensoes: "", preco: "",
-    status: "disponivel", categoria: "none", imagemUrls: []
+    status: "disponivel", tamanho: "none", imagemUrls: []
   };
 
   const form = useForm<ObraValues>({
@@ -103,7 +94,7 @@ export default function ObrasAdmin() {
       dimensoes: obra.dimensoes ?? "",
       preco: obra.preco ?? "",
       status: obra.status as "disponivel" | "vendido",
-      categoria: (obra.categoria ?? "none") as Categoria | "none",
+      tamanho: (obra.tamanho === "media" ? "none" : (obra.tamanho ?? "none")) as "grande" | "pequena" | "none",
       imagemUrls: [
         obra.imagemUrl,
         obra.imagemUrl2,
@@ -128,7 +119,7 @@ export default function ObrasAdmin() {
       dimensoes: values.dimensoes || undefined,
       preco: values.preco || undefined,
       status: values.status,
-      categoria: values.categoria === "none" ? null : values.categoria,
+      tamanho: (values.tamanho && values.tamanho !== "none" ? values.tamanho : undefined) as "grande" | "pequena" | undefined,
       ...Object.fromEntries(
         Array.from({ length: 10 }, (_, index) => [
           `imagemUrl${index === 0 ? "" : index + 1}`,
@@ -291,15 +282,14 @@ export default function ObrasAdmin() {
                     </Select>
                     <FormMessage /></FormItem>
                 )} />
-                <FormField control={form.control} name="categoria" render={({ field }) => (
-                  <FormItem><FormLabel className="text-xs tracking-widest uppercase">Categoria</FormLabel>
+                <FormField control={form.control} name="tamanho" render={({ field }) => (
+                  <FormItem><FormLabel className="text-xs tracking-widest uppercase">Tamanho</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value ?? "none"}>
-                      <FormControl><SelectTrigger className="rounded-none"><SelectValue placeholder="Escolha uma categoria" /></SelectTrigger></FormControl>
+                      <FormControl><SelectTrigger className="rounded-none"><SelectValue placeholder="Sem categoria" /></SelectTrigger></FormControl>
                       <SelectContent>
                         <SelectItem value="none">Sem categoria</SelectItem>
-                        {categoriaOptions.map((categoria) => (
-                          <SelectItem key={categoria.value} value={categoria.value}>{categoria.label}</SelectItem>
-                        ))}
+                        <SelectItem value="grande">Grande</SelectItem>
+                        <SelectItem value="pequena">Pequena</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage /></FormItem>
