@@ -5,12 +5,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ImageIcon, CalendarIcon, FileTextIcon, ExternalLink, LogOut, Menu, X, Tag, ListOrdered, BarChart3 } from "lucide-react";
 
 const navItems = [
-  { href: "/odoido/obras", label: "Obras", icon: ImageIcon },
-  { href: "/odoido/ordem", label: "Ordem / Destaque", icon: ListOrdered },
-  { href: "/odoido/descontos", label: "Descontos", icon: Tag },
-  { href: "/odoido/eventos", label: "Eventos", icon: CalendarIcon },
-  { href: "/odoido/blog", label: "Blog", icon: FileTextIcon },
-  { href: "/odoido/metricas", label: "Métricas", icon: BarChart3 },
+  { href: "/kwendje/obras", label: "Obras", icon: ImageIcon },
+  { href: "/kwendje/ordem", label: "Ordem / Destaque", icon: ListOrdered },
+  { href: "/kwendje/descontos", label: "Descontos", icon: Tag },
+  { href: "/kwendje/eventos", label: "Eventos", icon: CalendarIcon },
+  { href: "/kwendje/blog", label: "Blog", icon: FileTextIcon },
+  { href: "/kwendje/metricas", label: "Métricas", icon: BarChart3 },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
@@ -26,7 +26,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isLoading && !me && error) {
-      setLocation("/odoido/login");
+      setLocation("/kwendje/login");
     }
   }, [isLoading, me, error, setLocation]);
 
@@ -38,7 +38,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     logout.mutate(undefined, {
       onSuccess: () => {
         queryClient.clear();
-        setLocation("/odoido/login");
+        setLocation("/kwendje/login");
       },
     });
   }

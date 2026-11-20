@@ -34,7 +34,7 @@ export default function Login() {
       {
         onSuccess: () => {
           queryClient.invalidateQueries();
-          setLocation("/odoido/obras");
+          setLocation("/kwendje/obras");
         },
         onError: () => {
           toast({ title: "Credenciais inválidas", variant: "destructive" });

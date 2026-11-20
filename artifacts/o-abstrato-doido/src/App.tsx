@@ -39,11 +39,21 @@ function PublicPage({ children }: { children: ReactNode }) {
   return <div className="public-site">{children}</div>;
 }
 
+function LegacyAdminRedirect({ to }: { to: string }) {
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    setLocation(to);
+  }, [setLocation, to]);
+
+  return null;
+}
+
 function PublicAnalytics() {
   const [location] = useLocation();
 
   useEffect(() => {
-    if (location.startsWith("/odoido")) return;
+    if (location.startsWith("/kwendje") || location.startsWith("/odoido")) return;
 
     void fetch("/api/analytics/visit", {
       method: "POST",
@@ -66,15 +76,24 @@ function Router() {
       <Route path="/blog/:id" component={() => <PublicPage><BlogPost /></PublicPage>} />
       <Route path="/sobre" component={() => <PublicPage><Sobre /></PublicPage>} />
       <Route path="/cursos" component={() => <PublicPage><Cursos /></PublicPage>} />
-      <Route path="/odoido/login" component={Login} />
-      <Route path="/odoido" component={() => <AdminLayout><ObrasAdmin /></AdminLayout>} />
-      <Route path="/odoido/obras" component={() => <AdminLayout><ObrasAdmin /></AdminLayout>} />
-      <Route path="/odoido/eventos" component={() => <AdminLayout><EventosAdmin /></AdminLayout>} />
-      <Route path="/odoido/blog" component={() => <AdminLayout><BlogAdmin /></AdminLayout>} />
-      <Route path="/odoido/cursos" component={() => <AdminLayout><CursosAdmin /></AdminLayout>} />
-      <Route path="/odoido/ordem" component={() => <AdminLayout><OrdemAdmin /></AdminLayout>} />
-      <Route path="/odoido/descontos" component={() => <AdminLayout><DescontosAdmin /></AdminLayout>} />
-      <Route path="/odoido/metricas" component={() => <AdminLayout><MetricsAdmin /></AdminLayout>} />
+      <Route path="/odoido/login" component={() => <LegacyAdminRedirect to="/kwendje/login" />} />
+      <Route path="/odoido" component={() => <LegacyAdminRedirect to="/kwendje" />} />
+      <Route path="/odoido/obras" component={() => <LegacyAdminRedirect to="/kwendje/obras" />} />
+      <Route path="/odoido/eventos" component={() => <LegacyAdminRedirect to="/kwendje/eventos" />} />
+      <Route path="/odoido/blog" component={() => <LegacyAdminRedirect to="/kwendje/blog" />} />
+      <Route path="/odoido/cursos" component={() => <LegacyAdminRedirect to="/kwendje/cursos" />} />
+      <Route path="/odoido/ordem" component={() => <LegacyAdminRedirect to="/kwendje/ordem" />} />
+      <Route path="/odoido/descontos" component={() => <LegacyAdminRedirect to="/kwendje/descontos" />} />
+      <Route path="/odoido/metricas" component={() => <LegacyAdminRedirect to="/kwendje/metricas" />} />
+      <Route path="/kwendje/login" component={Login} />
+      <Route path="/kwendje" component={() => <AdminLayout><ObrasAdmin /></AdminLayout>} />
+      <Route path="/kwendje/obras" component={() => <AdminLayout><ObrasAdmin /></AdminLayout>} />
+      <Route path="/kwendje/eventos" component={() => <AdminLayout><EventosAdmin /></AdminLayout>} />
+      <Route path="/kwendje/blog" component={() => <AdminLayout><BlogAdmin /></AdminLayout>} />
+      <Route path="/kwendje/cursos" component={() => <AdminLayout><CursosAdmin /></AdminLayout>} />
+      <Route path="/kwendje/ordem" component={() => <AdminLayout><OrdemAdmin /></AdminLayout>} />
+      <Route path="/kwendje/descontos" component={() => <AdminLayout><DescontosAdmin /></AdminLayout>} />
+      <Route path="/kwendje/metricas" component={() => <AdminLayout><MetricsAdmin /></AdminLayout>} />
       <Route component={NotFound} />
     </Switch>
   );
