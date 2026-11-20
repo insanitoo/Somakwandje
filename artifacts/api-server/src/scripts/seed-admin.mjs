@@ -33,6 +33,14 @@ try {
     [username, passwordHash],
   );
 
+  const { rows } = await pool.query(
+    "SELECT password_hash FROM usuarios WHERE username = $1",
+    [username],
+  );
+  if (!rows[0] || !(await bcrypt.compare(password, rows[0].password_hash))) {
+    throw new Error("Admin password verification failed.");
+  }
+
   console.info("Admin account created or updated.");
 } catch {
   console.error("Could not create or update the admin account.");
