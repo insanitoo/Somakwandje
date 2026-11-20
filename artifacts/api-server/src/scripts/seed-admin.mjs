@@ -8,8 +8,8 @@ if (!password) {
   throw new Error("Set ADMIN_PASSWORD in Replit Secrets before running this script.");
 }
 
-if (password.length < 14) {
-  throw new Error("ADMIN_PASSWORD must be at least 14 characters.");
+if (password.length < 8) {
+  throw new Error("ADMIN_PASSWORD must be at least 8 characters.");
 }
 
 if (Buffer.byteLength(password, "utf8") > 72) {
