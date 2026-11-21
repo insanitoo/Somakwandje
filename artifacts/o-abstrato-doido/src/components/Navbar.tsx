@@ -18,7 +18,7 @@ const links = [
   { href: "/sobre", key: "about" as const },
 ];
 
-export default function Navbar() {
+export default function Navbar({ fixed = true }: { fixed?: boolean } = {}) {
   const [location] = useLocation();
   const [open, setOpen] = useState(false);
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
@@ -90,7 +90,7 @@ export default function Navbar() {
   }, [location]);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
+    <nav className={`${fixed ? "fixed" : "relative"} top-0 left-0 right-0 z-50 bg-background border-b border-border`}>
       <div className="relative max-w-6xl mx-auto px-5 md:px-6 h-[4.5rem] flex items-center justify-center md:justify-between">
         <button
           ref={menuTriggerRef}

@@ -64,13 +64,15 @@ function ObraCard({
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/10 to-transparent" />
         <div className="absolute left-4 top-4">
           <span className="rounded-full bg-white/90 px-3 py-1 text-[10px] tracking-[0.16em] uppercase text-slate-700">
-            {obra.status === "disponivel" ? t("common.available") : t("common.sold")}
+            {obra.status === "disponivel" ? t("common.available") : t("common.soldFemale")}
           </span>
         </div>
         <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5 text-white">
           <div>
             <p className="font-serif text-lg leading-tight">{obra.titulo}</p>
-            <p className="mt-1 text-xs text-white/70">{formatObraPreco(obra.preco) || t("home.priceOnRequest")}</p>
+            {obra.status === "disponivel" && (
+              <p className="mt-1 text-xs text-white/70">{formatObraPreco(obra.preco) || t("home.priceOnRequest")}</p>
+            )}
           </div>
         </div>
       </div>

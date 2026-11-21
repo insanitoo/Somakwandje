@@ -20,11 +20,6 @@ const categoryOptions = [
   { value: "instalacoes", label: "gallery.categoryInstallations" },
 ] as const;
 
-const artworkPairShapes = [
-  "48% 18% 18% 48% / 44% 22% 22% 44%",
-  "18% 48% 48% 18% / 22% 44% 44% 22%",
-] as const;
-
 function getCategoryLabel(category: Obra["categoria"], t: Translate): string | null {
   switch (category) {
     case "pintura_desenho":
@@ -613,9 +608,9 @@ export default function Galeria() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Navbar />
-      <main className="pt-[4.5rem]">
-        <section className="sticky top-[4.5rem] z-40 bg-background/95 px-4 py-3 backdrop-blur-md md:px-6">
+      <Navbar fixed={false} />
+      <main>
+        <section className="sticky top-0 z-40 bg-background/95 px-4 py-3 backdrop-blur-md md:px-6">
           <div className="mx-auto max-w-6xl space-y-2 sm:space-y-0 sm:flex sm:items-center sm:gap-8">
               <div className="flex min-w-0 items-center gap-3">
                 <span className="w-[4.5rem] shrink-0 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{t("gallery.state")}</span>
@@ -686,7 +681,6 @@ export default function Galeria() {
           ) : filteredObras.length > 0 ? (
             <div className="grid grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-6 sm:gap-y-10">
               {filteredObras.map((obra, index) => {
-                const pairShape = artworkPairShapes[index % artworkPairShapes.length];
                 return (
                 <article
                   key={obra.id}
@@ -698,14 +692,13 @@ export default function Galeria() {
                     onClick={() => setSelectedObra(obra)}
                     aria-label={`${t("gallery.detailsOf")} ${obra.titulo}`}
                     data-testid={`button-image-${obra.id}`}
-                    className="relative block aspect-[4/3] w-full overflow-hidden bg-[#e3f2fa] text-left shadow-[0_14px_35px_rgba(20,80,115,0.12)]"
-                    style={{ borderRadius: pairShape }}
+                    className="relative block aspect-[5/4] w-full overflow-hidden rounded-[1.75rem] bg-[#e9e2d8] text-left shadow-[0_14px_35px_rgba(20,80,115,0.12)]"
                   >
                     {obra.imagemUrl ? (
                       <img
                         src={obra.imagemUrl}
                         alt={obra.titulo}
-                        className="h-full w-full object-contain p-2 transition-transform duration-700 ease-out group-hover:scale-[1.025] sm:p-3 md:p-5"
+                        className="h-full w-full object-contain p-1 transition-transform duration-700 ease-out group-hover:scale-[1.025] sm:p-2 md:p-3"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-primary/10">
@@ -713,13 +706,8 @@ export default function Galeria() {
                       </div>
                     )}
                     <span className="absolute left-1/2 top-4 -translate-x-1/2 rounded-full bg-white/90 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-foreground">
-                      {obra.status === "disponivel" ? t("common.available") : t("common.sold")}
+                      {obra.status === "disponivel" ? t("common.available") : t("common.soldFemale")}
                     </span>
-                    {obra.status === "vendido" && (
-                      <span className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-slate-900/90 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-white">
-                        {t("common.soldFemale")}
-                      </span>
-                    )}
                   </button>
 
                   <div className="flex items-start justify-between gap-3 px-2 pt-4">
