@@ -634,7 +634,7 @@ export default function Galeria() {
                         data-testid={`filter-status-${filter}`}
                         className={`rounded-full px-3 py-1.5 text-[10px] transition-colors sm:text-xs ${
                           active
-                            ? "bg-primary text-primary-foreground shadow-sm"
+                            ? "bg-[#f8f6f2] text-foreground shadow-sm"
                             : "bg-white/55 text-foreground hover:bg-primary/10"
                         }`}
                       >
@@ -659,7 +659,7 @@ export default function Galeria() {
                         data-testid={`filter-category-${value}`}
                         className={`min-h-8 min-w-0 rounded-full px-2 py-1.5 text-left text-[10px] leading-tight transition-colors sm:px-3 sm:text-xs sm:whitespace-nowrap ${
                           active
-                            ? "bg-primary text-primary-foreground shadow-sm"
+                            ? "bg-[#f8f6f2] text-foreground shadow-sm"
                             : "bg-white/55 text-foreground hover:bg-primary/10"
                         }`}
                       >
@@ -693,7 +693,7 @@ export default function Galeria() {
                 return (
                 <article
                   key={obra.id}
-                  className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] bg-[#f4f0e9] p-3 shadow-[0_8px_22px_rgba(20,80,115,0.06)] sm:p-4"
+                  className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] bg-[#f8f6f2] p-3 shadow-[0_8px_22px_rgba(20,80,115,0.06)] sm:p-4"
                   data-testid={`card-obra-${obra.id}`}
                 >
                   <button
@@ -701,7 +701,7 @@ export default function Galeria() {
                     onClick={() => setSelectedObra(obra)}
                     aria-label={`${t("gallery.detailsOf")} ${obra.titulo}`}
                     data-testid={`button-image-${obra.id}`}
-                    className={`${imageEdgeClass} relative block aspect-[5/4] shrink-0 overflow-hidden bg-[#e3f2fa] text-left`}
+                    className={`${imageEdgeClass} relative block aspect-[5/4] shrink-0 overflow-hidden bg-[#c8dbe5] text-left`}
                     style={{ borderRadius: pairShape }}
                   >
                     {obra.imagemUrl ? (
@@ -711,7 +711,7 @@ export default function Galeria() {
                         className="h-full w-full object-contain transition-transform duration-700 ease-out group-hover:scale-[1.025]"
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-primary/10">
+                      <div className="flex h-full w-full items-center justify-center bg-transparent">
                         <span className="px-4 text-center font-serif text-xl text-foreground">{obra.titulo}</span>
                       </div>
                     )}
