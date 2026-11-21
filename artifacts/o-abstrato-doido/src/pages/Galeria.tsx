@@ -20,6 +20,11 @@ const categoryOptions = [
   { value: "instalacoes", label: "gallery.categoryInstallations" },
 ] as const;
 
+const artworkPairShapes = [
+  "48% 18% 18% 48% / 44% 22% 22% 44%",
+  "18% 48% 48% 18% / 22% 44% 44% 22%",
+] as const;
+
 function getCategoryLabel(category: Obra["categoria"], t: Translate): string | null {
   switch (category) {
     case "pintura_desenho":
@@ -679,12 +684,13 @@ export default function Galeria() {
               ))}
             </div>
           ) : filteredObras.length > 0 ? (
-            <div className="grid grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-6 sm:gap-y-10">
+            <div className="grid auto-rows-fr grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-6 sm:gap-y-10">
               {filteredObras.map((obra, index) => {
+                const pairShape = artworkPairShapes[index % artworkPairShapes.length];
                 return (
                 <article
                   key={obra.id}
-                  className="group"
+                  className="group flex h-full flex-col rounded-[1.75rem] bg-[#e9e2d8] p-3 shadow-[0_14px_35px_rgba(20,80,115,0.12)] sm:p-4"
                   data-testid={`card-obra-${obra.id}`}
                 >
                   <button
@@ -692,7 +698,8 @@ export default function Galeria() {
                     onClick={() => setSelectedObra(obra)}
                     aria-label={`${t("gallery.detailsOf")} ${obra.titulo}`}
                     data-testid={`button-image-${obra.id}`}
-                    className="relative block aspect-[5/4] w-full overflow-hidden rounded-[1.75rem] bg-[#e9e2d8] text-left shadow-[0_14px_35px_rgba(20,80,115,0.12)]"
+                    className="relative block aspect-[5/4] w-full shrink-0 overflow-hidden bg-[#e3f2fa] text-left"
+                    style={{ borderRadius: pairShape }}
                   >
                     {obra.imagemUrl ? (
                       <img
@@ -710,8 +717,9 @@ export default function Galeria() {
                     </span>
                   </button>
 
-                  <div className="flex items-start justify-between gap-3 px-2 pt-4">
-                    <div className="min-w-0">
+                  <div className="flex flex-1 flex-col pt-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
                       <h2 className="break-words font-serif text-lg leading-tight text-foreground [overflow-wrap:anywhere] sm:text-2xl">{obra.titulo}</h2>
                       {obra.tecnica && (
                         <p className="mt-1 text-xs text-muted-foreground">{obra.tecnica}</p>
@@ -721,38 +729,38 @@ export default function Galeria() {
                           {getCategoryLabel(obra.categoria, t)}
                         </p>
                       )}
+                      </div>
+                      {obra.status === "disponivel" && obra.preco && (() => {
+                        const discount = getEffectiveDesconto(obra, globalDesconto);
+                        const price = parsePrecoNum(obra.preco);
+                        return (
+                          <div className="shrink-0 pt-1 text-right">
+                            {discount > 0 && price != null ? (
+                              <>
+                                <p className="text-sm font-medium text-foreground">{formatPreco(price * (1 - discount / 100))}</p>
+                                <p className="text-xs text-muted-foreground line-through">{formatObraPreco(obra.preco)}</p>
+                              </>
+                            ) : (
+                              <p className="text-sm font-medium text-foreground">{formatObraPreco(obra.preco)}</p>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
-                    {obra.status === "disponivel" && obra.preco && (() => {
-                      const discount = getEffectiveDesconto(obra, globalDesconto);
-                      const price = parsePrecoNum(obra.preco);
-                      return (
-                        <div className="shrink-0 pt-1 text-right">
-                          {discount > 0 && price != null ? (
-                            <>
-                              <p className="text-sm font-medium text-foreground">{formatPreco(price * (1 - discount / 100))}</p>
-                              <p className="text-xs text-muted-foreground line-through">{formatObraPreco(obra.preco)}</p>
-                            </>
-                          ) : (
-                            <p className="text-sm font-medium text-foreground">{formatObraPreco(obra.preco)}</p>
-                          )}
-                        </div>
-                      );
-                    })()}
+                    {obra.descricao && (
+                      <p className="mt-3 px-1 text-sm leading-relaxed text-muted-foreground line-clamp-2">
+                        {obra.descricao}
+                      </p>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedObra(obra)}
+                      data-testid={`button-ver-${obra.id}`}
+                      className="mt-auto inline-flex items-center px-1 pt-4 text-xs uppercase tracking-[0.16em] text-primary transition-colors hover:text-foreground"
+                    >
+                      {t("common.view")}
+                    </button>
                   </div>
-
-                  {obra.descricao && (
-                    <p className="mt-3 px-2 text-sm leading-relaxed text-muted-foreground line-clamp-2">
-                      {obra.descricao}
-                    </p>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => setSelectedObra(obra)}
-                    data-testid={`button-ver-${obra.id}`}
-                    className="mt-4 inline-flex items-center px-2 py-1 text-xs uppercase tracking-[0.16em] text-primary transition-colors hover:text-foreground"
-                  >
-                    {t("common.view")}
-                  </button>
                 </article>
                 );
               })}
