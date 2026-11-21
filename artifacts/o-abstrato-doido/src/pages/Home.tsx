@@ -5,13 +5,14 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, MapPin } from "lucide-react";
-import heroPng from "@assets/08e3599c-4b50-406e-9331-d79987c97179.jpg";
 import artistPng from "@assets/image_1788615145695.png";
 import awardPhoto1 from "@assets/4689c67a-5892-46f5-9514-332a6e89fe7c_1788774876319.jpeg";
 import awardPhoto2 from "@assets/3cbdadc3-f0bd-482c-b4d0-abe396040710_1788774876320.jpeg";
 import awardPhoto3 from "@assets/bd246196-e411-4618-8f6c-757b1b0a2f89_1788774876320.jpeg";
 import awardPhoto4 from "@assets/404c4dc0-c9a0-48e4-b7f9-a4a66919070b_1788774876321.jpeg";
 import { useLanguage, type Language } from "@/i18n";
+
+const heroPng = `${import.meta.env.BASE_URL}hero.jpg`;
 
 function parsePrecoNum(preco: string | null | undefined): number | null {
   if (!preco) return null;
