@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, MapPin } from "lucide-react";
-import heroPng from "@assets/hero2.jpg";
+import heroPng from "@assets/hero.png";
 import artistPng from "@assets/image_1788615145695.png";
 import awardPhoto1 from "@assets/4689c67a-5892-46f5-9514-332a6e89fe7c_1788774876319.jpeg";
 import awardPhoto2 from "@assets/3cbdadc3-f0bd-482c-b4d0-abe396040710_1788774876320.jpeg";
