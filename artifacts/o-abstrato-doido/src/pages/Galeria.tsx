@@ -20,6 +20,11 @@ const categoryOptions = [
   { value: "instalacoes", label: "gallery.categoryInstallations" },
 ] as const;
 
+const artworkPairShapes = [
+  "48% 18% 18% 48% / 44% 22% 22% 44%",
+  "18% 48% 48% 18% / 22% 44% 44% 22%",
+] as const;
+
 function getCategoryLabel(category: Obra["categoria"], t: Translate): string | null {
   switch (category) {
     case "pintura_desenho":
@@ -405,8 +410,8 @@ function ObraModal({ obra, onClose, globalDesconto }: { obra: Obra; onClose: () 
                   key={i}
                   onClick={() => setPhotoIdx(i)}
                   data-testid={`button-thumbnail-${i}`}
-                  className={`flex-shrink-0 w-14 h-14 overflow-hidden border transition-colors ${
-                    i === photoIdx ? "border-primary" : "border-white/10 hover:border-white/40"
+                  className={`flex-shrink-0 w-14 h-14 overflow-hidden transition-opacity ${
+                    i === photoIdx ? "opacity-100" : "opacity-50 hover:opacity-90"
                   }`}
                 >
                   <img src={url} alt="" className="w-full h-full object-cover" />
@@ -610,29 +615,27 @@ export default function Galeria() {
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
       <main className="pt-[4.5rem]">
-        <section className="sticky top-[4.5rem] z-40 border-b border-border bg-background/95 px-4 py-3 backdrop-blur-md md:px-6">
+        <section className="sticky top-[4.5rem] z-40 bg-background/95 px-4 py-3 backdrop-blur-md md:px-6">
           <div className="mx-auto max-w-6xl space-y-2 sm:space-y-0 sm:flex sm:items-center sm:gap-8">
               <div className="flex min-w-0 items-center gap-3">
                 <span className="w-[4.5rem] shrink-0 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{t("gallery.state")}</span>
                 <div className="flex min-w-0 gap-2 overflow-x-auto whitespace-nowrap" role="group" aria-label={t("gallery.state")}>
-                  {(["todas", "disponivel", "vendido"] as const).map((filter) => {
+                  {(["disponivel", "vendido"] as const).map((filter) => {
                     const active = statusFilter === filter;
-                    const label = filter === "todas"
-                      ? t("gallery.allWorks")
-                      : filter === "disponivel"
-                        ? t("common.availablePlural")
-                        : t("common.soldPlural");
+                    const label = filter === "disponivel"
+                      ? t("common.availablePlural")
+                      : t("common.soldPlural");
                     return (
                       <button
                         key={filter}
                         type="button"
-                        onClick={() => setStatusFilter(filter)}
+                        onClick={() => setStatusFilter((current) => current === filter ? "todas" : filter)}
                         aria-pressed={active}
                         data-testid={`filter-status-${filter}`}
-                        className={`rounded-full border px-3 py-1.5 text-[10px] transition-colors sm:text-xs ${
+                        className={`rounded-full px-3 py-1.5 text-[10px] transition-colors sm:text-xs ${
                           active
-                            ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                            : "border-primary/20 bg-white/60 text-foreground hover:border-primary/50 hover:bg-white"
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "bg-white/55 text-foreground hover:bg-primary/10"
                         }`}
                       >
                         {label}
@@ -645,32 +648,19 @@ export default function Galeria() {
               <div className="flex min-w-0 items-start gap-3 sm:flex-1 sm:items-center">
                 <span className="w-[4.5rem] shrink-0 pt-2 text-[10px] uppercase tracking-[0.14em] text-muted-foreground sm:pt-0">{t("gallery.category")}</span>
                 <div className="grid min-w-0 flex-1 grid-cols-2 gap-2 sm:flex sm:flex-wrap" role="group" aria-label={t("gallery.category")}>
-                  <button
-                    type="button"
-                    onClick={() => setCategoryFilter("todas")}
-                    aria-pressed={categoryFilter === "todas"}
-                    data-testid="filter-category-all"
-                    className={`min-h-8 min-w-0 rounded-full border px-2 py-1.5 text-left text-[10px] leading-tight transition-colors sm:px-3 sm:text-xs sm:whitespace-nowrap ${
-                      categoryFilter === "todas"
-                        ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                        : "border-primary/20 bg-white/60 text-foreground hover:border-primary/50 hover:bg-white"
-                    }`}
-                  >
-                    {t("gallery.allCategories")}
-                  </button>
                   {categoryOptions.map(({ value, label }) => {
                     const active = categoryFilter === value;
                     return (
                       <button
                         key={value}
                         type="button"
-                        onClick={() => setCategoryFilter(value)}
+                        onClick={() => setCategoryFilter((current) => current === value ? "todas" : value)}
                         aria-pressed={active}
                         data-testid={`filter-category-${value}`}
-                        className={`min-h-8 min-w-0 rounded-full border px-2 py-1.5 text-left text-[10px] leading-tight transition-colors sm:px-3 sm:text-xs sm:whitespace-nowrap ${
+                        className={`min-h-8 min-w-0 rounded-full px-2 py-1.5 text-left text-[10px] leading-tight transition-colors sm:px-3 sm:text-xs sm:whitespace-nowrap ${
                           active
-                            ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                            : "border-primary/20 bg-white/60 text-foreground hover:border-primary/50 hover:bg-white"
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "bg-white/55 text-foreground hover:bg-primary/10"
                         }`}
                       >
                         {t(label)}
@@ -684,7 +674,7 @@ export default function Galeria() {
 
         <section className="mx-auto max-w-6xl px-6 py-10 md:py-14">
           {isLoading ? (
-            <div className="grid grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-6 sm:gap-y-10">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="space-y-4">
                   <Skeleton className="aspect-[4/3] w-full rounded-[1.75rem]" />
@@ -694,15 +684,22 @@ export default function Galeria() {
               ))}
             </div>
           ) : filteredObras.length > 0 ? (
-            <div className="grid grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-3">
-              {filteredObras.map((obra) => (
-                <article key={obra.id} className="group" data-testid={`card-obra-${obra.id}`}>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-6 sm:gap-y-10">
+              {filteredObras.map((obra, index) => {
+                const pairShape = artworkPairShapes[index % artworkPairShapes.length];
+                return (
+                <article
+                  key={obra.id}
+                  className="group"
+                  data-testid={`card-obra-${obra.id}`}
+                >
                   <button
                     type="button"
                     onClick={() => setSelectedObra(obra)}
                     aria-label={`${t("gallery.detailsOf")} ${obra.titulo}`}
                     data-testid={`button-image-${obra.id}`}
-                    className="relative block aspect-[4/3] w-full overflow-hidden rounded-[1.75rem] border border-primary/10 bg-white/60 text-left"
+                    className="relative block aspect-[4/3] w-full overflow-hidden bg-[#e3f2fa] text-left shadow-[0_14px_35px_rgba(20,80,115,0.12)]"
+                    style={{ borderRadius: pairShape }}
                   >
                     {obra.imagemUrl ? (
                       <img
@@ -715,17 +712,17 @@ export default function Galeria() {
                         <span className="px-4 text-center font-serif text-xl text-foreground">{obra.titulo}</span>
                       </div>
                     )}
-                    <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-foreground">
+                    <span className="absolute left-1/2 top-4 -translate-x-1/2 rounded-full bg-white/90 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-foreground">
                       {obra.status === "disponivel" ? t("common.available") : t("common.sold")}
                     </span>
                     {obra.status === "vendido" && (
-                      <span className="absolute bottom-4 left-4 rounded-full bg-slate-900/90 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-white">
+                      <span className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-slate-900/90 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-white">
                         {t("common.soldFemale")}
                       </span>
                     )}
                   </button>
 
-                  <div className="flex items-start justify-between gap-4 px-1 pt-4">
+                  <div className="flex items-start justify-between gap-3 px-2 pt-4">
                     <div className="min-w-0">
                       <h2 className="break-words font-serif text-lg leading-tight text-foreground [overflow-wrap:anywhere] sm:text-2xl">{obra.titulo}</h2>
                       {obra.tecnica && (
@@ -756,7 +753,7 @@ export default function Galeria() {
                   </div>
 
                   {obra.descricao && (
-                    <p className="mt-3 px-1 text-sm leading-relaxed text-muted-foreground line-clamp-2">
+                    <p className="mt-3 px-2 text-sm leading-relaxed text-muted-foreground line-clamp-2">
                       {obra.descricao}
                     </p>
                   )}
@@ -764,26 +761,17 @@ export default function Galeria() {
                     type="button"
                     onClick={() => setSelectedObra(obra)}
                     data-testid={`button-ver-${obra.id}`}
-                    className="mt-4 inline-flex items-center border-b border-primary/50 px-1 pb-1 text-xs uppercase tracking-[0.16em] text-primary transition-colors hover:border-primary"
+                    className="mt-4 inline-flex items-center px-2 py-1 text-xs uppercase tracking-[0.16em] text-primary transition-colors hover:text-foreground"
                   >
                     {t("common.view")}
                   </button>
                 </article>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="py-16 text-center">
               <p className="font-serif text-2xl text-muted-foreground">{t("gallery.noWorks")}</p>
-              {(statusFilter !== "todas" || categoryFilter !== "todas") && (
-                <button
-                  type="button"
-                  onClick={() => { setStatusFilter("todas"); setCategoryFilter("todas"); }}
-                  data-testid="button-see-all"
-                  className="mt-5 inline-flex items-center border-b border-primary/60 pb-1 text-xs uppercase tracking-[0.18em] text-primary hover:border-primary"
-                >
-                  {t("gallery.seeAll")}
-                </button>
-              )}
             </div>
           )}
         </section>
