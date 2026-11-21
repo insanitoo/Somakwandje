@@ -687,10 +687,13 @@ export default function Galeria() {
             <div className="grid auto-rows-fr grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-6 sm:gap-y-10">
               {filteredObras.map((obra, index) => {
                 const pairShape = artworkPairShapes[index % artworkPairShapes.length];
+                const imageEdgeClass = index % 2 === 0
+                  ? "-mr-3 w-[calc(100%+0.75rem)] sm:-mr-4 sm:w-[calc(100%+1rem)]"
+                  : "-ml-3 w-[calc(100%+0.75rem)] sm:-ml-4 sm:w-[calc(100%+1rem)]";
                 return (
                 <article
                   key={obra.id}
-                  className="group flex h-full flex-col rounded-[1.75rem] bg-[#e9e2d8] p-3 shadow-[0_14px_35px_rgba(20,80,115,0.12)] sm:p-4"
+                  className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] bg-[#f4f0e9] p-3 shadow-[0_8px_22px_rgba(20,80,115,0.06)] sm:p-4"
                   data-testid={`card-obra-${obra.id}`}
                 >
                   <button
@@ -698,14 +701,14 @@ export default function Galeria() {
                     onClick={() => setSelectedObra(obra)}
                     aria-label={`${t("gallery.detailsOf")} ${obra.titulo}`}
                     data-testid={`button-image-${obra.id}`}
-                    className="relative block aspect-[5/4] w-full shrink-0 overflow-hidden bg-[#e3f2fa] text-left"
+                    className={`${imageEdgeClass} relative block aspect-[5/4] shrink-0 overflow-hidden bg-[#e3f2fa] text-left`}
                     style={{ borderRadius: pairShape }}
                   >
                     {obra.imagemUrl ? (
                       <img
                         src={obra.imagemUrl}
                         alt={obra.titulo}
-                        className="h-full w-full object-contain p-1 transition-transform duration-700 ease-out group-hover:scale-[1.025] sm:p-2 md:p-3"
+                        className="h-full w-full object-contain transition-transform duration-700 ease-out group-hover:scale-[1.025]"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-primary/10">
