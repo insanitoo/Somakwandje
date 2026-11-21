@@ -701,21 +701,25 @@ export default function Galeria() {
                     onClick={() => setSelectedObra(obra)}
                     aria-label={`${t("gallery.detailsOf")} ${obra.titulo}`}
                     data-testid={`button-image-${obra.id}`}
-                    className={`${imageEdgeClass} relative block aspect-[5/4] shrink-0 overflow-hidden bg-[#c8dbe5] text-left`}
-                    style={{ borderRadius: pairShape }}
+                    className={`${imageEdgeClass} relative isolate block aspect-square shrink-0 bg-transparent text-left`}
                   >
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-0 z-0 bg-[#c8dbe5]"
+                      style={{ borderRadius: pairShape }}
+                    />
                     {obra.imagemUrl ? (
                       <img
                         src={obra.imagemUrl}
                         alt={obra.titulo}
-                        className="h-full w-full object-contain transition-transform duration-700 ease-out group-hover:scale-[1.025]"
+                        className="relative z-10 h-full w-full object-contain p-2 transition-transform duration-700 ease-out group-hover:scale-[1.025] sm:p-3 md:p-4"
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-transparent">
+                      <div className="relative z-10 flex h-full w-full items-center justify-center p-4">
                         <span className="px-4 text-center font-serif text-xl text-foreground">{obra.titulo}</span>
                       </div>
                     )}
-                    <span className="absolute left-1/2 top-4 -translate-x-1/2 rounded-full bg-white/90 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-foreground">
+                    <span className="absolute left-1/2 top-4 z-20 -translate-x-1/2 rounded-full bg-white/90 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-foreground">
                       {obra.status === "disponivel" ? t("common.available") : t("common.soldFemale")}
                     </span>
                   </button>
