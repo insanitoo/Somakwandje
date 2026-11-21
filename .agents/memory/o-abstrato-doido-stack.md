@@ -17,6 +17,13 @@ description: Key non-obvious decisions for the artist website project — auth, 
 - All hooks from `@workspace/api-client-react`. Generated names: `useListObras`, `useCreateObra`, `useUpdateObra`, `useDeleteObra`, `useListEventos`, `useCreateEvento`, `useUpdateEvento`, `useDeleteEvento`, `useListBlog`, `useCreateBlogPost`, `useUpdateBlogPost`, `useDeleteBlogPost`, `useLogin`, `useLogout`, `useGetMe`, `useGetBlogPost`.
 - Query key helpers: `getListObrasQueryKey`, `getListEventosQueryKey`, `getListBlogQueryKey`, `getGetBlogPostQueryKey`, `getGetMeQueryKey`.
 
+## API code generation
+- The current Orval generator needs Node.js 22 and produces Zod 4 schemas. Keep `@workspace/api-zod` on Zod 4 even if the workspace catalog remains on Zod 3.
+
+**Why:** Node 20 lacks `Map.groupBy`, and Orval's generated `zod.int()` schema is not available in Zod 3.
+
+**How to apply:** Run API code generation with Node 22 and preserve the package-local Zod 4 dependency.
+
 ## Image assets
 - `@assets/image_1782125581457.png` = hero painting (fullscreen hero bg)
 - `@assets/image_1782125622268.png` = artist photo (about + sobre sections)
